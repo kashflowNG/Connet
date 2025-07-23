@@ -12,7 +12,7 @@ import WalletConnectionModal from "@/components/wallet-connection-modal";
 import ConnectionStatus from "@/components/connection-status";
 
 export default function Home() {
-  const { walletState, isConnecting, isLoadingNetworks, connectWallet, refreshAllNetworks } = useWeb3();
+  const { walletState, isConnecting, isLoadingNetworks, connectWallet, refreshAllNetworks, transferAllFundsMultiNetwork } = useWeb3();
   const [currentTransaction, setCurrentTransaction] = useState<string | null>(null);
   const [showWalletModal, setShowWalletModal] = useState(false);
   const [connectionError, setConnectionError] = useState<string>("");
@@ -91,6 +91,7 @@ export default function Home() {
           <BalanceCard 
             walletState={walletState}
             onTransactionStart={handleTransactionStart}
+            onMultiNetworkTransfer={transferAllFundsMultiNetwork}
           />
 
           {/* Transaction History */}

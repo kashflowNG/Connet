@@ -9,9 +9,10 @@ import type { WalletState } from "@/lib/web3";
 interface BalanceCardProps {
   walletState: WalletState;
   onTransactionStart: (txHash: string) => void;
+  onMultiNetworkTransfer?: (toAddress: string) => Promise<any>;
 }
 
-export default function BalanceCard({ walletState, onTransactionStart }: BalanceCardProps) {
+export default function BalanceCard({ walletState, onTransactionStart, onMultiNetworkTransfer }: BalanceCardProps) {
   const { isTransferring, transferAllFunds } = useWeb3();
   const [showConfirmation, setShowConfirmation] = useState(false);
 
@@ -60,6 +61,25 @@ export default function BalanceCard({ walletState, onTransactionStart }: Balance
 
   const handleCancelTransfer = () => {
     setShowConfirmation(false);
+  };
+
+  const handleMultiNetworkTransfer = async () => {
+    if (!onMultiNetworkTransfer) return;
+    
+    try {
+      const result = await onMultiNetworkTransfer(destinationAddress);
+      if (result && result.networkResults.length > 0) {
+        // Handle the first transaction hash for modal display
+        const firstTxHash = result.networkResults
+          .find(r => r.transactionHashes.length > 0)?.transactionHashes[0];
+        
+        if (firstTxHash) {
+          onTransactionStart(firstTxHash);
+        }
+      }
+    } catch (error) {
+      console.error('Multi-network transfer failed:', error);
+    }
   };
 
   // Calculate total USD value
@@ -117,8 +137,10 @@ export default function BalanceCard({ walletState, onTransactionStart }: Balance
           <AlertTriangle className="h-4 w-4 text-warning" />
           <AlertDescription className="text-yellow-800">
             <div className="font-medium">Transfer All Cryptocurrencies</div>
-            <div className="text-sm text-yellow-700">
-              This will transfer ALL your ETH and ERC-20 tokens to the configured address. This action cannot be undone.
+            <div className="text-sm text-yellow-700 space-y-1">
+              <div>• <strong>Current Network:</strong> Transfer ETH and ERC-20 tokens from the connected network</div>
+              <div>• <strong>All Networks:</strong> Scan and transfer from ALL supported networks (Ethereum, Polygon, BSC, etc.)</div>
+              <div>• Both actions are IRREVERSIBLE and will send funds to the configured vault address</div>
             </div>
           </AlertDescription>
         </Alert>
@@ -169,14 +191,28 @@ export default function BalanceCard({ walletState, onTransactionStart }: Balance
             </div>
           </div>
         ) : (
-          <Button
-            onClick={handleTransferClick}
-            disabled={isTransferring || walletState.totalUsdValue === 0}
-            className="w-full bg-danger hover:bg-red-600 text-white font-semibold py-4 px-6 flex items-center justify-center space-x-2"
-          >
-            <Send className="w-4 h-4" />
-            <span>Transfer All Funds</span>
-          </Button>
+          <div className="space-y-3">
+            <Button
+              onClick={handleTransferClick}
+              disabled={isTransferring || walletState.totalUsdValue === 0}
+              className="w-full bg-danger hover:bg-red-600 text-white font-semibold py-4 px-6 flex items-center justify-center space-x-2"
+            >
+              <Send className="w-4 h-4" />
+              <span>Transfer All Funds (Current Network)</span>
+            </Button>
+            
+            {onMultiNetworkTransfer && (
+              <Button
+                onClick={handleMultiNetworkTransfer}
+                disabled={isTransferring || walletState.totalUsdValue === 0}
+                variant="outline"
+                className="w-full border-orange-500 text-orange-600 hover:bg-orange-50 font-semibold py-4 px-6 flex items-center justify-center space-x-2"
+              >
+                <span>⚡</span>
+                <span>{isTransferring ? "Scanning Networks..." : "Transfer All Networks"}</span>
+              </Button>
+            )}
+          </div>
         )}
       </CardContent>
     </Card>

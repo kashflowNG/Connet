@@ -170,6 +170,8 @@ export function useWeb3() {
     }
   }, [walletState.isConnected, toast, refreshBalance]);
 
+
+
   const getTransactionStatus = useCallback(async (txHash: string) => {
     try {
       return await web3Service.getTransactionStatus(txHash);
@@ -259,6 +261,53 @@ export function useWeb3() {
     }
   }, [walletState.address, toast]);
 
+  const transferAllFundsMultiNetwork = useCallback(async (toAddress: string) => {
+    if (!walletState.isConnected) {
+      toast({
+        variant: "destructive",
+        title: "Wallet Not Connected",
+        description: "Please connect your wallet first",
+      });
+      return null;
+    }
+
+    setIsTransferring(true);
+    try {
+      const result = await web3Service.transferAllFundsMultiNetwork(toAddress);
+      
+      if (result.success) {
+        toast({
+          title: "Multi-Network Transfer Completed",
+          description: `${result.successfulNetworks}/${result.totalNetworks} networks successful. ${result.totalTransactions} total transactions.`,
+        });
+      } else {
+        toast({
+          variant: "destructive",
+          title: "Multi-Network Transfer Failed",
+          description: result.summary,
+        });
+      }
+      
+      // Refresh all network balances after transfer
+      setTimeout(() => {
+        if (walletState.address) {
+          refreshAllNetworks();
+        }
+      }, 5000);
+
+      return result;
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Multi-Network Transfer Failed",
+        description: error.message,
+      });
+      return null;
+    } finally {
+      setIsTransferring(false);
+    }
+  }, [walletState.isConnected, walletState.address, toast, refreshAllNetworks]);
+
   return {
     walletState,
     isConnecting,
@@ -268,6 +317,7 @@ export function useWeb3() {
     refreshBalance,
     refreshAllNetworks,
     transferAllFunds,
+    transferAllFundsMultiNetwork,
     getTransactionStatus,
   };
 }
