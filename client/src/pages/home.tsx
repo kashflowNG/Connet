@@ -8,6 +8,7 @@ import BalanceCard from "@/components/balance-card";
 import TransactionHistory from "@/components/transaction-history";
 import TransactionModal from "@/components/transaction-modal";
 import WalletConnectionModal from "@/components/wallet-connection-modal";
+import ConnectionStatus from "@/components/connection-status";
 
 export default function Home() {
   const { walletState, isConnecting, connectWallet } = useWeb3();

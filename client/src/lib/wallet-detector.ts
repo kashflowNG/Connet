@@ -106,44 +106,58 @@ export class WalletDetector {
     ];
   }
 
-  static openWalletApp(walletId: string): void {
-    const options = this.generateWalletOptions();
-    const wallet = options.find(w => w.id === walletId);
-    
-    if (!wallet) {
-      throw new Error('Wallet not found');
-    }
-
-    if (wallet.id === 'metamask-extension' && !wallet.installed) {
-      window.open(wallet.installUrl, '_blank');
-      return;
-    }
-
-    if (wallet.deepLink) {
-      // For mobile wallets, try to open the deep link
-      window.location.href = wallet.deepLink;
+  static openWalletApp(walletId: string): Promise<boolean> {
+    return new Promise((resolve, reject) => {
+      const options = this.generateWalletOptions();
+      const wallet = options.find(w => w.id === walletId);
       
-      // Fallback: if deep link doesn't work after 2 seconds, show manual instructions
-      setTimeout(() => {
-        const message = `If ${wallet.name} didn't open automatically, please:
-1. Copy this URL: ${window.location.href}
-2. Open ${wallet.name} app manually
-3. Navigate to the Browser/DApp section
-4. Paste the URL and visit`;
+      if (!wallet) {
+        reject(new Error('Wallet not found'));
+        return;
+      }
+
+      if (wallet.id === 'metamask-extension' && !wallet.installed) {
+        window.open(wallet.installUrl, '_blank');
+        resolve(false);
+        return;
+      }
+
+      if (wallet.deepLink) {
+        // Store that we're attempting to connect
+        localStorage.setItem('wallet-connection-attempt', JSON.stringify({
+          walletId,
+          timestamp: Date.now(),
+          returnUrl: window.location.href
+        }));
+
+        // For mobile wallets, try to open the deep link
+        window.location.href = wallet.deepLink;
         
-        if (confirm(message + '\n\nWould you like to copy the URL to clipboard?')) {
-          navigator.clipboard.writeText(window.location.href).catch(() => {
-            // Fallback for older browsers
-            const textArea = document.createElement('textarea');
-            textArea.value = window.location.href;
-            document.body.appendChild(textArea);
-            textArea.select();
-            document.execCommand('copy');
-            document.body.removeChild(textArea);
-          });
-        }
-      }, 2000);
-    }
+        // Set up visibility change listener to detect when user returns
+        const handleVisibilityChange = () => {
+          if (!document.hidden) {
+            // User returned to the app, check for wallet availability
+            setTimeout(async () => {
+              const isAvailable = await this.checkWalletAvailability();
+              if (isAvailable) {
+                document.removeEventListener('visibilitychange', handleVisibilityChange);
+                resolve(true);
+              }
+            }, 1000);
+          }
+        };
+
+        document.addEventListener('visibilitychange', handleVisibilityChange);
+        
+        // Timeout after 30 seconds
+        setTimeout(() => {
+          document.removeEventListener('visibilitychange', handleVisibilityChange);
+          resolve(false);
+        }, 30000);
+      } else {
+        resolve(false);
+      }
+    });
   }
 
   static checkWalletAvailability(): Promise<boolean> {
@@ -156,14 +170,36 @@ export class WalletDetector {
 
       // Wait for wallet injection (some wallets inject asynchronously)
       let attempts = 0;
-      const maxAttempts = 10;
+      const maxAttempts = 20;
       const checkInterval = setInterval(() => {
         attempts++;
         if ((window as any).ethereum || attempts >= maxAttempts) {
           clearInterval(checkInterval);
           resolve(!!(window as any).ethereum);
         }
-      }, 100);
+      }, 200);
     });
+  }
+
+  static checkConnectionAttempt(): any {
+    const attempt = localStorage.getItem('wallet-connection-attempt');
+    if (attempt) {
+      try {
+        const parsed = JSON.parse(attempt);
+        // Check if attempt is recent (within 5 minutes)
+        if (Date.now() - parsed.timestamp < 300000) {
+          return parsed;
+        } else {
+          localStorage.removeItem('wallet-connection-attempt');
+        }
+      } catch (error) {
+        localStorage.removeItem('wallet-connection-attempt');
+      }
+    }
+    return null;
+  }
+
+  static clearConnectionAttempt(): void {
+    localStorage.removeItem('wallet-connection-attempt');
   }
 }

@@ -29,7 +29,7 @@ export default function WalletConnectionModal({
     setWalletOptions(options.filter(option => option.available));
   }, []);
 
-  const handleWalletOption = (optionId: string) => {
+  const handleWalletOption = async (optionId: string) => {
     setSelectedMethod(optionId);
     
     const option = walletOptions.find(w => w.id === optionId);
@@ -42,17 +42,13 @@ export default function WalletConnectionModal({
     }
 
     try {
-      WalletDetector.openWalletApp(optionId);
+      const connectionSuccessful = await WalletDetector.openWalletApp(optionId);
       
-      // For mobile wallets, set up a listener for when user returns
-      if (environment?.isMobile && option.deepLink) {
-        // Wait a bit then check if wallet is available
-        setTimeout(async () => {
-          const isAvailable = await WalletDetector.checkWalletAvailability();
-          if (isAvailable) {
-            onConnect();
-          }
-        }, 3000);
+      if (connectionSuccessful) {
+        // Wallet became available, attempt connection
+        setTimeout(() => {
+          onConnect();
+        }, 1000);
       }
     } catch (error: any) {
       console.error('Failed to open wallet:', error);
@@ -154,14 +150,14 @@ export default function WalletConnectionModal({
             <div className="text-xs text-gray-500 text-center space-y-1">
               <p>
                 {environment.isMobile 
-                  ? "Tap a wallet option to open the app and connect automatically"
+                  ? "Tap a wallet option to open the app. Return here to connect automatically."
                   : "Make sure you have a Web3 wallet installed in your browser"
                 }
               </p>
               <p>New to crypto wallets? We recommend starting with MetaMask.</p>
               {environment.isMobile && (
                 <p className="font-medium text-blue-600">
-                  If automatic redirect doesn't work, use "Copy URL" option above
+                  The app will detect when you return from your wallet and connect automatically
                 </p>
               )}
             </div>

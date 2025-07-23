@@ -19,6 +19,44 @@ export function useWeb3() {
   const [isTransferring, setIsTransferring] = useState(false);
   const { toast } = useToast();
 
+  // Check for pending wallet connection attempts on component mount
+  useEffect(() => {
+    const checkPendingConnection = async () => {
+      const { WalletDetector } = await import("@/lib/wallet-detector");
+      const attempt = WalletDetector.checkConnectionAttempt();
+      if (attempt) {
+        // There was a recent connection attempt, check if wallet is now available
+        const isAvailable = await WalletDetector.checkWalletAvailability();
+        if (isAvailable) {
+          // Wallet is available, clear attempt and connect
+          WalletDetector.clearConnectionAttempt();
+          setTimeout(async () => {
+            setIsConnecting(true);
+            try {
+              const state = await web3Service.connectWallet();
+              setWalletState(state);
+              toast({
+                title: "Wallet Connected",
+                description: `Connected to ${state.address?.slice(0, 6)}...${state.address?.slice(-4)}`,
+              });
+            } catch (error: any) {
+              toast({
+                variant: "destructive",
+                title: "Auto-connection Failed",
+                description: error.message,
+              });
+            } finally {
+              setIsConnecting(false);
+            }
+          }, 1000);
+        }
+      }
+    };
+
+    // Run check after a short delay to allow wallet injection
+    setTimeout(checkPendingConnection, 2000);
+  }, [toast]);
+
   const connectWallet = useCallback(async () => {
     setIsConnecting(true);
     try {
