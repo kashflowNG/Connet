@@ -1,0 +1,20 @@
+{
+  "name": "DeFi Multi-Network Transfer Platform",
+  "short_name": "DeFi Transfer",
+  "description": "Secure platform for transferring cryptocurrencies across multiple blockchain networks",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#ffffff",
+  "theme_color": "#3b82f6",
+  "orientation": "portrait-primary",
+  "icons": [
+    {
+      "src": "/favicon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ],
+  "categories": ["finance", "productivity", "utilities"],
+  "lang": "en",
+  "scope": "/"
+}

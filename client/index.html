@@ -2,9 +2,67 @@
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1" />
-    <title>Multi-Crypto Transfer - DeFi Platform</title>
-    <meta name="description" content="Transfer all your cryptocurrencies (ETH + ERC-20 tokens) to any address in one click. Secure DeFi platform with MetaMask integration." />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1, user-scalable=no" />
+    <title>DeFi Multi-Network Transfer Platform</title>
+    <meta name="description" content="Secure DeFi platform for transferring cryptocurrencies across multiple networks (Ethereum, Polygon, BSC, etc.) with MetaMask integration. Transfer all your digital assets in one click." />
+    
+    <!-- SEO Meta Tags -->
+    <meta name="keywords" content="DeFi, cryptocurrency, multi-network, transfer, Ethereum, Polygon, BSC, MetaMask, blockchain" />
+    <meta name="author" content="DeFi Transfer Platform" />
+    <meta name="robots" content="index, follow" />
+    
+    <!-- Open Graph / Social Media -->
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="DeFi Multi-Network Transfer Platform" />
+    <meta property="og:description" content="Secure DeFi platform for transferring cryptocurrencies across multiple networks in one click." />
+    <meta property="og:url" content="https://your-domain.com" />
+    
+    <!-- Security Headers -->
+    <meta http-equiv="X-Content-Type-Options" content="nosniff" />
+    <meta http-equiv="X-Frame-Options" content="DENY" />
+    <meta http-equiv="X-XSS-Protection" content="1; mode=block" />
+    
+    <!-- Performance -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="dns-prefetch" href="https://mainnet.infura.io" />
+    <link rel="dns-prefetch" href="https://polygon-rpc.com" />
+    
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="alternate icon" href="/favicon.svg" />
+    
+    <!-- PWA -->
+    <link rel="manifest" href="/manifest.json" />
+    
+    <!-- Theme -->
+    <meta name="theme-color" content="#3b82f6" />
+    
+    <style>
+      /* Critical CSS for faster loading */
+      body {
+        margin: 0;
+        font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', sans-serif;
+        background-color: #fafafa;
+      }
+      
+      /* Hide Replit elements immediately */
+      iframe[src*="replit"],
+      [class*="replit"],
+      [id*="replit"] {
+        display: none !important;
+      }
+      
+      /* Loading state */
+      #root:empty::before {
+        content: "Loading DeFi Platform...";
+        position: fixed;
+        top: 50%;
+        left: 50%;
+        transform: translate(-50%, -50%);
+        font-size: 18px;
+        color: #666;
+      }
+    </style>
   </head>
   <body>
     <div id="root"></div>

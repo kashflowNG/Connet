@@ -3,8 +3,50 @@ import { registerRoutes } from "./routes";
 import { setupVite, serveStatic, log } from "./vite";
 
 const app = express();
-app.use(express.json());
-app.use(express.urlencoded({ extended: false }));
+
+// Production security and optimization middleware
+if (process.env.NODE_ENV === "production") {
+  // Security headers
+  app.use((req, res, next) => {
+    res.setHeader('X-Content-Type-Options', 'nosniff');
+    res.setHeader('X-Frame-Options', 'DENY');
+    res.setHeader('X-XSS-Protection', '1; mode=block');
+    res.setHeader('Referrer-Policy', 'strict-origin-when-cross-origin');
+    res.setHeader('Permissions-Policy', 'camera=(), microphone=(), geolocation=()');
+    next();
+  });
+  
+  // Rate limiting for production
+  const rateLimit = new Map();
+  app.use('/api', (req, res, next) => {
+    const ip = req.ip || req.connection.remoteAddress;
+    const now = Date.now();
+    const windowMs = 15 * 60 * 1000; // 15 minutes
+    const maxRequests = 100; // per window
+    
+    if (!rateLimit.has(ip)) {
+      rateLimit.set(ip, { count: 1, resetTime: now + windowMs });
+      return next();
+    }
+    
+    const record = rateLimit.get(ip);
+    if (now > record.resetTime) {
+      record.count = 1;
+      record.resetTime = now + windowMs;
+      return next();
+    }
+    
+    if (record.count >= maxRequests) {
+      return res.status(429).json({ message: 'Too many requests' });
+    }
+    
+    record.count++;
+    next();
+  });
+}
+
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: false, limit: '10mb' }));
 
 app.use((req, res, next) => {
   const start = Date.now();

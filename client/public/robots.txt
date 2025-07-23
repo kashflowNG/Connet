@@ -1,0 +1,10 @@
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://your-domain.com/sitemap.xml
+
+# Security - Block sensitive paths
+Disallow: /api/
+Disallow: /.env
+Disallow: /config/

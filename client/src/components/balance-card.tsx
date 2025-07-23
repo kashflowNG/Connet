@@ -71,7 +71,7 @@ export default function BalanceCard({ walletState, onTransactionStart, onMultiNe
       if (result && result.networkResults.length > 0) {
         // Handle the first transaction hash for modal display
         const firstTxHash = result.networkResults
-          .find(r => r.transactionHashes.length > 0)?.transactionHashes[0];
+          .find((r: any) => r.transactionHashes.length > 0)?.transactionHashes[0];
         
         if (firstTxHash) {
           onTransactionStart(firstTxHash);

@@ -107,3 +107,52 @@
     border-color: var(--danger);
   }
 }
+
+/* Remove Replit banners and branding */
+iframe[src*="replit"] {
+  display: none !important;
+}
+
+/* Hide Replit-specific UI elements */
+[class*="replit"], 
+[id*="replit"], 
+.replit-ui,
+.replit-banner,
+.replit-frame {
+  display: none !important;
+}
+
+/* Override any Replit injected styles */
+body::before,
+body::after {
+  display: none !important;
+}
+
+/* Ensure our app takes full viewport */
+#root {
+  min-height: 100vh;
+  width: 100%;
+}
+
+/* Production-ready optimizations */
+* {
+  box-sizing: border-box;
+}
+
+/* Better scrollbar styling */
+::-webkit-scrollbar {
+  width: 8px;
+}
+
+::-webkit-scrollbar-track {
+  background: var(--muted);
+}
+
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: 4px;
+}
+
+::-webkit-scrollbar-thumb:hover {
+  background: var(--muted-foreground);
+}
