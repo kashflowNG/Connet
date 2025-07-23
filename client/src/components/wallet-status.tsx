@@ -49,7 +49,7 @@ export default function WalletStatus({ walletState }: WalletStatusProps) {
             </Button>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <div className="bg-gray-50 rounded-lg p-4">
               <div className="text-sm font-medium text-gray-600 mb-1">Wallet Address</div>
               <div className="text-sm font-mono text-gray-900 break-all">
@@ -64,6 +64,23 @@ export default function WalletStatus({ walletState }: WalletStatusProps) {
                 <span className="text-sm text-gray-900">
                   {walletState.networkName || "Unknown Network"}
                 </span>
+              </div>
+            </div>
+            
+            <div className="bg-gray-50 rounded-lg p-4">
+              <div className="text-sm font-medium text-gray-600 mb-1">Portfolio Value</div>
+              <div className="text-sm font-bold text-gray-900">
+                {walletState.totalUsdValue.toLocaleString('en-US', {
+                  style: 'currency',
+                  currency: 'USD'
+                })}
+              </div>
+            </div>
+            
+            <div className="bg-gray-50 rounded-lg p-4">
+              <div className="text-sm font-medium text-gray-600 mb-1">Active Tokens</div>
+              <div className="text-sm text-gray-900">
+                ETH + {walletState.tokenBalances.length} ERC-20 tokens
               </div>
             </div>
           </div>

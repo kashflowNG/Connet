@@ -5,7 +5,9 @@ import { useToast } from "@/hooks/use-toast";
 const initialState: WalletState = {
   isConnected: false,
   address: null,
-  balance: null,
+  ethBalance: null,
+  tokenBalances: [],
+  totalUsdValue: 0,
   networkId: null,
   networkName: null,
   provider: null,
@@ -38,11 +40,19 @@ export function useWeb3() {
   }, [toast]);
 
   const refreshBalance = useCallback(async () => {
-    if (!walletState.address) return;
+    if (!walletState.address || !walletState.networkId) return;
 
     try {
-      const balance = await web3Service.getBalance(walletState.address);
-      setWalletState(prev => ({ ...prev, balance }));
+      const ethBalance = await web3Service.getEthBalance(walletState.address);
+      const tokenBalances = await web3Service.getTokenBalances(walletState.address, walletState.networkId);
+      const totalUsdValue = web3Service.calculateTotalUsdValue(ethBalance, tokenBalances);
+      
+      setWalletState(prev => ({ 
+        ...prev, 
+        ethBalance,
+        tokenBalances,
+        totalUsdValue
+      }));
     } catch (error: any) {
       toast({
         variant: "destructive",
@@ -50,7 +60,7 @@ export function useWeb3() {
         description: error.message,
       });
     }
-  }, [walletState.address, toast]);
+  }, [walletState.address, walletState.networkId, toast]);
 
   const transferAllFunds = useCallback(async (toAddress: string) => {
     if (!walletState.isConnected) {
@@ -64,18 +74,18 @@ export function useWeb3() {
 
     setIsTransferring(true);
     try {
-      const txHash = await web3Service.transferAllFunds(toAddress);
+      const txHashes = await web3Service.transferAllFunds(toAddress);
       toast({
-        title: "Transaction Submitted",
-        description: `Transaction hash: ${txHash.slice(0, 10)}...`,
+        title: "Transactions Submitted",
+        description: `${txHashes.length} transaction(s) submitted successfully`,
       });
       
       // Refresh balance after transaction
       setTimeout(() => {
         refreshBalance();
-      }, 2000);
+      }, 3000);
 
-      return txHash;
+      return txHashes;
     } catch (error: any) {
       toast({
         variant: "destructive",

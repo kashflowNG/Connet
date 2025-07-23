@@ -38,6 +38,8 @@ export class MemStorage implements IStorage {
     const transaction: Transaction = {
       ...insertTransaction,
       id,
+      tokenAddress: insertTransaction.tokenAddress || null,
+      tokenDecimals: insertTransaction.tokenDecimals || "18",
       gasUsed: insertTransaction.gasUsed || null,
       blockNumber: insertTransaction.blockNumber || null,
       timestamp: new Date(),

@@ -1,8 +1,8 @@
-# DeFi Transfer Application
+# Multi-Cryptocurrency DeFi Transfer Platform
 
 ## Overview
 
-This is a full-stack Web3 DeFi application built with React, Express, TypeScript, and PostgreSQL. The application allows users to connect their Web3 wallets, view their balance, and transfer all funds to a designated address. It features a modern UI built with shadcn/ui components and Tailwind CSS, with real-time transaction tracking and status updates.
+This is a comprehensive full-stack Web3 DeFi application built with React, Express, TypeScript, and PostgreSQL. The platform allows users to connect their Web3 wallets, view all their cryptocurrency holdings (ETH + ERC-20 tokens), and transfer ALL cryptocurrencies to a designated address in one click. It features a modern UI built with shadcn/ui components and Tailwind CSS, with real-time transaction tracking and multi-token support across different networks.
 
 ## User Preferences
 
@@ -35,25 +35,29 @@ Preferred communication style: Simple, everyday language.
 
 ### Web3 Integration
 - **Wallet Connection**: MetaMask integration through window.ethereum
-- **Balance Management**: Real-time ETH balance fetching and display
-- **Transaction Handling**: Automated fund transfer functionality with gas estimation
-- **Network Detection**: Multi-network support with proper network identification
+- **Multi-Token Support**: Automatic detection and display of ETH + popular ERC-20 tokens
+- **Balance Management**: Real-time portfolio tracking with USD valuations
+- **Transaction Handling**: Sequential transfer of all cryptocurrencies (tokens first, then ETH)
+- **Network Detection**: Support for Ethereum, Polygon, BSC with network-specific token lists
+- **Gas Optimization**: Smart gas calculation to ensure successful transfers
 
 ### Database Schema
 - **Users Table**: Basic user authentication structure
-- **Transactions Table**: Comprehensive transaction tracking including:
-  - From/to addresses
-  - Transaction amounts and hashes
-  - Status tracking (pending, confirmed, failed)
+- **Transactions Table**: Enhanced transaction tracking including:
+  - From/to addresses and transaction amounts
+  - Token information (address, symbol, decimals)
+  - Transaction hashes and status tracking (pending, confirmed, failed)
   - Network information and gas usage
-  - Timestamps for audit trails
+  - Support for both ETH and ERC-20 token transactions
+  - Timestamps for comprehensive audit trails
 
 ### UI Components
-- **Wallet Status**: Connection status and balance display
-- **Balance Card**: Main interface for viewing balance and initiating transfers
-- **Transaction History**: List of past transactions with status indicators
-- **Transaction Modal**: Real-time transaction status monitoring
-- **Toast Notifications**: User feedback for actions and errors
+- **Wallet Status**: Connection status with portfolio value and active token count
+- **Balance Card**: Enhanced interface showing ETH + all ERC-20 tokens with USD values
+- **Token Display**: Individual token balances with real-time pricing
+- **Transaction History**: Comprehensive history supporting multiple token types
+- **Transaction Modal**: Multi-transaction status monitoring
+- **Toast Notifications**: Enhanced feedback for multi-token operations
 
 ### Storage Layer
 - **Interface-based Design**: IStorage interface allows for multiple storage implementations
@@ -63,12 +67,13 @@ Preferred communication style: Simple, everyday language.
 ## Data Flow
 
 1. **Wallet Connection**: User connects MetaMask wallet through Web3Service
-2. **Balance Retrieval**: Application fetches and displays current ETH balance
-3. **Transfer Initiation**: User triggers transfer of all funds to designated address
-4. **Transaction Creation**: Backend creates transaction record in database
-5. **Blockchain Interaction**: Frontend submits transaction to Ethereum network
-6. **Status Monitoring**: Real-time polling of transaction status via blockchain
-7. **Database Updates**: Transaction status updates stored for history tracking
+2. **Multi-Token Discovery**: Application scans for ETH and popular ERC-20 tokens
+3. **Portfolio Display**: Real-time balance aggregation with USD valuations
+4. **Transfer Initiation**: User triggers transfer of ALL cryptocurrencies to designated address
+5. **Sequential Processing**: ERC-20 tokens transferred first, then remaining ETH
+6. **Transaction Broadcasting**: Multiple transactions submitted to blockchain network
+7. **Status Monitoring**: Real-time polling of all transaction statuses
+8. **Database Persistence**: All transaction records stored with token metadata
 
 ## External Dependencies
 

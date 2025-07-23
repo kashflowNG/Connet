@@ -13,6 +13,9 @@ export const transactions = pgTable("transactions", {
   fromAddress: text("from_address").notNull(),
   toAddress: text("to_address").notNull(),
   amount: text("amount").notNull(), // Store as string to avoid precision issues
+  tokenAddress: text("token_address"), // null for ETH, contract address for ERC-20
+  tokenSymbol: text("token_symbol").notNull(), // ETH, USDC, DAI, etc.
+  tokenDecimals: text("token_decimals").notNull().default("18"),
   transactionHash: text("transaction_hash").notNull().unique(),
   status: text("status").notNull(), // pending, confirmed, failed
   networkId: text("network_id").notNull(),

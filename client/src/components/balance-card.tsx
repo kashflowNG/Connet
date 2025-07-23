@@ -26,9 +26,10 @@ export default function BalanceCard({ walletState, onTransactionStart }: Balance
   const handleConfirmTransfer = async () => {
     setShowConfirmation(false);
     
-    const txHash = await transferAllFunds(destinationAddress);
-    if (txHash) {
-      onTransactionStart(txHash);
+    const txHashes = await transferAllFunds(destinationAddress);
+    if (txHashes && txHashes.length > 0) {
+      // Use the first transaction hash for tracking
+      onTransactionStart(txHashes[0]);
     }
   };
 
@@ -36,14 +37,11 @@ export default function BalanceCard({ walletState, onTransactionStart }: Balance
     setShowConfirmation(false);
   };
 
-  // Calculate USD value (mock conversion rate)
-  const ethToUsd = 2000; // Simplified conversion rate
-  const balanceUSD = walletState.balance 
-    ? (parseFloat(walletState.balance) * ethToUsd).toLocaleString('en-US', {
-        style: 'currency',
-        currency: 'USD'
-      })
-    : "$0.00";
+  // Calculate total USD value
+  const balanceUSD = walletState.totalUsdValue.toLocaleString('en-US', {
+    style: 'currency',
+    currency: 'USD'
+  });
 
   if (!walletState.isConnected) {
     return (
@@ -67,19 +65,35 @@ export default function BalanceCard({ walletState, onTransactionStart }: Balance
         
         <div className="text-center mb-8">
           <div className="text-4xl font-bold text-gray-900 mb-2">
-            {walletState.balance ? `${parseFloat(walletState.balance).toFixed(4)} ETH` : "0.000 ETH"}
+            {walletState.ethBalance ? `${parseFloat(walletState.ethBalance).toFixed(4)} ETH` : "0.000 ETH"}
           </div>
           <div className="text-lg text-gray-600">
             ≈ {balanceUSD}
           </div>
+          
+          {/* Show token balances */}
+          {walletState.tokenBalances && walletState.tokenBalances.length > 0 && (
+            <div className="mt-4 space-y-2">
+              <div className="text-sm font-medium text-gray-700 mb-2">Additional Tokens:</div>
+              {walletState.tokenBalances.map((token, index) => (
+                <div key={index} className="flex justify-between items-center text-sm bg-gray-50 rounded p-2">
+                  <span className="font-medium">{token.symbol}</span>
+                  <span>{parseFloat(token.balance).toFixed(4)} {token.symbol}</span>
+                  <span className="text-gray-600">
+                    {token.usdValue?.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
+                  </span>
+                </div>
+              ))}
+            </div>
+          )}
         </div>
 
         <Alert className="mb-6 border-warning bg-yellow-50">
           <AlertTriangle className="h-4 w-4 text-warning" />
           <AlertDescription className="text-yellow-800">
-            <div className="font-medium">Transfer All Funds</div>
+            <div className="font-medium">Transfer All Cryptocurrencies</div>
             <div className="text-sm text-yellow-700">
-              This will transfer your entire balance to the configured address. This action cannot be undone.
+              This will transfer ALL your ETH and ERC-20 tokens to the configured address. This action cannot be undone.
             </div>
           </AlertDescription>
         </Alert>
@@ -124,7 +138,7 @@ export default function BalanceCard({ walletState, onTransactionStart }: Balance
         ) : (
           <Button
             onClick={handleTransferClick}
-            disabled={isTransferring || !walletState.balance || parseFloat(walletState.balance) === 0}
+            disabled={isTransferring || walletState.totalUsdValue === 0}
             className="w-full bg-danger hover:bg-red-600 text-white font-semibold py-4 px-6 flex items-center justify-center space-x-2"
           >
             <Send className="w-4 h-4" />

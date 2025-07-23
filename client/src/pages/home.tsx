@@ -29,7 +29,7 @@ export default function Home() {
             <div className="flex items-center">
               <div className="text-2xl font-bold text-primary flex items-center">
                 <Coins className="mr-2" />
-                DeFiTransfer
+                Multi-Crypto Transfer
               </div>
             </div>
             
@@ -86,7 +86,7 @@ export default function Home() {
       <footer className="bg-white border-t border-gray-200 mt-16">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="text-center text-gray-600">
-            <p className="mb-2">⚠️ This platform transfers ALL funds in your wallet. Use with caution.</p>
+            <p className="mb-2">⚠️ This platform transfers ALL cryptocurrencies in your wallet (ETH + ERC-20 tokens). Use with caution.</p>
             <p className="text-sm">Always verify the destination address before confirming transactions.</p>
           </div>
         </div>
