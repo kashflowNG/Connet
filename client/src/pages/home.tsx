@@ -5,13 +5,14 @@ import { Wallet, Coins } from "lucide-react";
 import { useWeb3 } from "@/hooks/use-web3";
 import WalletStatus from "@/components/wallet-status";
 import BalanceCard from "@/components/balance-card";
+import NetworkBalances from "@/components/network-balances";
 import TransactionHistory from "@/components/transaction-history";
 import TransactionModal from "@/components/transaction-modal";
 import WalletConnectionModal from "@/components/wallet-connection-modal";
 import ConnectionStatus from "@/components/connection-status";
 
 export default function Home() {
-  const { walletState, isConnecting, connectWallet } = useWeb3();
+  const { walletState, isConnecting, isLoadingNetworks, connectWallet, refreshAllNetworks } = useWeb3();
   const [currentTransaction, setCurrentTransaction] = useState<string | null>(null);
   const [showWalletModal, setShowWalletModal] = useState(false);
   const [connectionError, setConnectionError] = useState<string>("");
@@ -95,6 +96,17 @@ export default function Home() {
           {/* Transaction History */}
           <TransactionHistory />
         </div>
+
+        {/* Multi-Network Balances */}
+        {walletState.isConnected && (
+          <div className="mt-8">
+            <NetworkBalances
+              networkBalances={walletState.networkBalances || []}
+              isLoadingNetworks={isLoadingNetworks}
+              onRefreshNetworks={refreshAllNetworks}
+            />
+          </div>
+        )}
 
         {/* Transaction Modal */}
         {currentTransaction && (

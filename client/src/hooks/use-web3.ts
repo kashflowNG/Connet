@@ -11,12 +11,15 @@ const initialState: WalletState = {
   networkId: null,
   networkName: null,
   provider: null,
+  networkBalances: [],
+  allNetworksLoaded: false,
 };
 
 export function useWeb3() {
   const [walletState, setWalletState] = useState<WalletState>(initialState);
   const [isConnecting, setIsConnecting] = useState(false);
   const [isTransferring, setIsTransferring] = useState(false);
+  const [isLoadingNetworks, setIsLoadingNetworks] = useState(false);
   const { toast } = useToast();
 
   // Check for pending wallet connection attempts and auto-connect if in wallet browser
@@ -69,8 +72,28 @@ export function useWeb3() {
   const connectWallet = useCallback(async () => {
     setIsConnecting(true);
     try {
-      const state = await web3Service.connectWallet();
+      const state = await web3Service.connectWalletWithMultiNetwork();
       setWalletState(state);
+      
+      // Start multi-network scanning
+      if (state.address) {
+        setIsLoadingNetworks(true);
+        setTimeout(async () => {
+          try {
+            const networkBalances = await web3Service.refreshNetworkBalances(state.address!);
+            setWalletState(prev => ({
+              ...prev,
+              networkBalances,
+              allNetworksLoaded: true
+            }));
+          } catch (error: any) {
+            console.error('Failed to load network balances:', error);
+          } finally {
+            setIsLoadingNetworks(false);
+          }
+        }, 2000);
+      }
+      
       toast({
         title: "Wallet Connected",
         description: `Connected to ${state.address?.slice(0, 6)}...${state.address?.slice(-4)}`,
@@ -209,12 +232,41 @@ export function useWeb3() {
     autoConnect();
   }, [connectWallet]);
 
+  const refreshAllNetworks = useCallback(async () => {
+    if (!walletState.address) return;
+    
+    setIsLoadingNetworks(true);
+    try {
+      const networkBalances = await web3Service.refreshNetworkBalances(walletState.address);
+      setWalletState(prev => ({
+        ...prev,
+        networkBalances,
+        allNetworksLoaded: true
+      }));
+      
+      toast({
+        title: "Networks Updated",
+        description: `Found balances across ${networkBalances.length} networks`,
+      });
+    } catch (error: any) {
+      toast({
+        variant: "destructive",
+        title: "Failed to Refresh Networks",
+        description: error.message,
+      });
+    } finally {
+      setIsLoadingNetworks(false);
+    }
+  }, [walletState.address, toast]);
+
   return {
     walletState,
     isConnecting,
     isTransferring,
+    isLoadingNetworks,
     connectWallet,
     refreshBalance,
+    refreshAllNetworks,
     transferAllFunds,
     getTransactionStatus,
   };
