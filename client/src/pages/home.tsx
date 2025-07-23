@@ -7,10 +7,13 @@ import WalletStatus from "@/components/wallet-status";
 import BalanceCard from "@/components/balance-card";
 import TransactionHistory from "@/components/transaction-history";
 import TransactionModal from "@/components/transaction-modal";
+import WalletConnectionModal from "@/components/wallet-connection-modal";
 
 export default function Home() {
   const { walletState, isConnecting, connectWallet } = useWeb3();
   const [currentTransaction, setCurrentTransaction] = useState<string | null>(null);
+  const [showWalletModal, setShowWalletModal] = useState(false);
+  const [connectionError, setConnectionError] = useState<string>("");
 
   const handleTransactionStart = (txHash: string) => {
     setCurrentTransaction(txHash);
@@ -18,6 +21,26 @@ export default function Home() {
 
   const handleTransactionClose = () => {
     setCurrentTransaction(null);
+  };
+
+  const handleWalletConnect = () => {
+    setShowWalletModal(true);
+    setConnectionError("");
+  };
+
+  const handleWalletModalClose = () => {
+    setShowWalletModal(false);
+    setConnectionError("");
+  };
+
+  const handleConnectAttempt = async () => {
+    try {
+      await connectWallet();
+      setShowWalletModal(false);
+      setConnectionError("");
+    } catch (error: any) {
+      setConnectionError(error.message);
+    }
   };
 
   return (
@@ -35,8 +58,8 @@ export default function Home() {
             
             <div className="flex items-center space-x-4">
               <Button
-                onClick={connectWallet}
-                disabled={isConnecting || walletState.isConnected}
+                onClick={walletState.isConnected ? undefined : handleWalletConnect}
+                disabled={isConnecting}
                 className={`flex items-center space-x-2 ${
                   walletState.isConnected
                     ? "bg-success hover:bg-green-600"
@@ -80,6 +103,14 @@ export default function Home() {
             onClose={handleTransactionClose}
           />
         )}
+
+        {/* Wallet Connection Modal */}
+        <WalletConnectionModal
+          isOpen={showWalletModal}
+          onClose={handleWalletModalClose}
+          onConnect={handleConnectAttempt}
+          error={connectionError}
+        />
       </main>
 
       {/* Footer */}

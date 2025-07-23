@@ -56,11 +56,53 @@ export class Web3Service {
   private provider: ethers.BrowserProvider | null = null;
   private signer: ethers.JsonRpcSigner | null = null;
 
-  async connectWallet(): Promise<WalletState> {
-    if (!window.ethereum) {
-      throw new Error("MetaMask is not installed. Please install MetaMask to continue.");
+  private detectEnvironment() {
+    const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
+    const isMetaMaskMobile = window.ethereum && window.ethereum.isMetaMask && isMobile;
+    const isDesktop = !isMobile;
+    
+    return {
+      isMobile,
+      isDesktop,
+      isMetaMaskMobile,
+      hasEthereum: !!window.ethereum,
+      isTrustWallet: window.ethereum && window.ethereum.isTrust,
+      isCoinbaseWallet: window.ethereum && window.ethereum.isCoinbaseWallet,
+    };
+  }
+
+  private async attemptMobileWalletConnection() {
+    const env = this.detectEnvironment();
+    
+    // Try to detect if we're in a mobile wallet browser
+    if (env.hasEthereum) {
+      return await this.connectToEthereum();
     }
 
+    // If no wallet detected, try to redirect to popular wallet apps
+    const currentUrl = window.location.href;
+    const encodedUrl = encodeURIComponent(currentUrl);
+    
+    // Try MetaMask mobile deep link first
+    const metamaskUrl = `https://metamask.app.link/dapp/${window.location.host}${window.location.pathname}`;
+    
+    // Try Trust Wallet deep link
+    const trustWalletUrl = `https://link.trustwallet.com/open_url?coin_id=60&url=${encodedUrl}`;
+    
+    // Try Rainbow Wallet
+    const rainbowUrl = `https://rnbwapp.com/to/${encodedUrl}`;
+    
+    // Show options to user
+    const walletOptions = [
+      { name: 'MetaMask', url: metamaskUrl },
+      { name: 'Trust Wallet', url: trustWalletUrl },
+      { name: 'Rainbow', url: rainbowUrl }
+    ];
+    
+    throw new Error(`No wallet detected. Please open this app in a Web3 wallet browser or install a wallet: ${walletOptions.map(w => w.name).join(', ')}`);
+  }
+
+  private async connectToEthereum(): Promise<WalletState> {
     try {
       // Request account access
       const accounts = await window.ethereum.request({
@@ -68,7 +110,7 @@ export class Web3Service {
       });
 
       if (accounts.length === 0) {
-        throw new Error("No accounts found. Please make sure MetaMask is unlocked.");
+        throw new Error("No accounts found. Please make sure your wallet is unlocked.");
       }
 
       this.provider = new ethers.BrowserProvider(window.ethereum);
@@ -98,8 +140,32 @@ export class Web3Service {
         provider: this.provider,
       };
     } catch (error: any) {
+      if (error.code === 4001) {
+        throw new Error("User rejected the connection request");
+      }
       throw new Error(`Failed to connect wallet: ${error.message}`);
     }
+  }
+
+  async connectWallet(): Promise<WalletState> {
+    const env = this.detectEnvironment();
+    
+    // Desktop browser
+    if (env.isDesktop) {
+      if (!env.hasEthereum) {
+        // Redirect to MetaMask installation or show options
+        window.open('https://metamask.io/download/', '_blank');
+        throw new Error("Please install MetaMask extension for your browser, then refresh and try again.");
+      }
+      return await this.connectToEthereum();
+    }
+    
+    // Mobile environment
+    if (env.isMobile) {
+      return await this.attemptMobileWalletConnection();
+    }
+    
+    return await this.connectToEthereum();
   }
 
   async getEthBalance(address: string): Promise<string> {

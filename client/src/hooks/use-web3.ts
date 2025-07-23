@@ -28,12 +28,14 @@ export function useWeb3() {
         title: "Wallet Connected",
         description: `Connected to ${state.address?.slice(0, 6)}...${state.address?.slice(-4)}`,
       });
+      return true;
     } catch (error: any) {
       toast({
         variant: "destructive",
         title: "Connection Failed",
         description: error.message,
       });
+      throw error;
     } finally {
       setIsConnecting(false);
     }

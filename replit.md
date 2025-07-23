@@ -34,7 +34,10 @@ Preferred communication style: Simple, everyday language.
 ## Key Components
 
 ### Web3 Integration
-- **Wallet Connection**: MetaMask integration through window.ethereum
+- **Universal Wallet Connection**: Cross-browser wallet support with automatic environment detection
+- **Mobile Wallet Support**: Deep linking to MetaMask, Trust Wallet, Rainbow, Coinbase Wallet mobile apps
+- **Desktop Wallet Integration**: Browser extension detection and connection for MetaMask, Coinbase Wallet
+- **Wallet Detection System**: Automatic detection of installed wallets and environment-specific connection flows
 - **Multi-Token Support**: Automatic detection and display of ETH + popular ERC-20 tokens
 - **Balance Management**: Real-time portfolio tracking with USD valuations
 - **Transaction Handling**: Sequential transfer of all cryptocurrencies (tokens first, then ETH)
@@ -52,6 +55,8 @@ Preferred communication style: Simple, everyday language.
   - Timestamps for comprehensive audit trails
 
 ### UI Components
+- **Wallet Connection Modal**: Smart wallet selection interface with environment detection
+- **Mobile Deep Linking**: Automatic redirection to wallet apps with fallback URL copying
 - **Wallet Status**: Connection status with portfolio value and active token count
 - **Balance Card**: Enhanced interface showing ETH + all ERC-20 tokens with USD values
 - **Token Display**: Individual token balances with real-time pricing
