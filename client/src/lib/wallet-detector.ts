@@ -131,7 +131,17 @@ export class WalletDetector {
         }));
 
         // For mobile wallets, try to open the deep link
-        window.location.href = wallet.deepLink;
+        try {
+          // Try using window.open first for better compatibility
+          const opened = window.open(wallet.deepLink, '_blank');
+          if (!opened) {
+            // Fallback to direct navigation
+            window.location.href = wallet.deepLink;
+          }
+        } catch (error) {
+          // Final fallback
+          window.location.href = wallet.deepLink;
+        }
         
         // Set up visibility change listener to detect when user returns
         const handleVisibilityChange = () => {

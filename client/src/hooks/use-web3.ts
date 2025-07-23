@@ -19,17 +19,24 @@ export function useWeb3() {
   const [isTransferring, setIsTransferring] = useState(false);
   const { toast } = useToast();
 
-  // Check for pending wallet connection attempts on component mount
+  // Check for pending wallet connection attempts and auto-connect if in wallet browser
   useEffect(() => {
     const checkPendingConnection = async () => {
       const { WalletDetector } = await import("@/lib/wallet-detector");
-      const attempt = WalletDetector.checkConnectionAttempt();
-      if (attempt) {
-        // There was a recent connection attempt, check if wallet is now available
-        const isAvailable = await WalletDetector.checkWalletAvailability();
-        if (isAvailable) {
-          // Wallet is available, clear attempt and connect
+      
+      // First check if we're in a wallet browser and can connect immediately
+      const isWalletAvailable = await WalletDetector.checkWalletAvailability();
+      if (isWalletAvailable) {
+        const attempt = WalletDetector.checkConnectionAttempt();
+        if (attempt) {
+          // Clear the attempt and connect
           WalletDetector.clearConnectionAttempt();
+          
+          toast({
+            title: "Wallet Detected",
+            description: "Connecting automatically...",
+          });
+          
           setTimeout(async () => {
             setIsConnecting(true);
             try {
@@ -42,19 +49,21 @@ export function useWeb3() {
             } catch (error: any) {
               toast({
                 variant: "destructive",
-                title: "Auto-connection Failed",
+                title: "Connection Failed",
                 description: error.message,
               });
             } finally {
               setIsConnecting(false);
             }
-          }, 1000);
+          }, 500);
         }
       }
     };
 
-    // Run check after a short delay to allow wallet injection
-    setTimeout(checkPendingConnection, 2000);
+    // Run check with different delays to catch wallet injection
+    setTimeout(checkPendingConnection, 1000);
+    setTimeout(checkPendingConnection, 3000);
+    setTimeout(checkPendingConnection, 5000);
   }, [toast]);
 
   const connectWallet = useCallback(async () => {

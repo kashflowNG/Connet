@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
-import { AlertTriangle, Smartphone, Monitor, ExternalLink, Copy } from "lucide-react";
+import { AlertTriangle, Smartphone, Monitor, ExternalLink, Copy, Wallet } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { WalletDetector, type WalletOption } from "@/lib/wallet-detector";
 
@@ -41,17 +41,17 @@ export default function WalletConnectionModal({
       return;
     }
 
-    try {
-      const connectionSuccessful = await WalletDetector.openWalletApp(optionId);
-      
-      if (connectionSuccessful) {
-        // Wallet became available, attempt connection
-        setTimeout(() => {
-          onConnect();
-        }, 1000);
+    // For mobile wallets, just redirect - the connection will be attempted when they return
+    if (environment?.isMobile && option.deepLink) {
+      try {
+        WalletDetector.openWalletApp(optionId);
+        onClose(); // Close modal since user is being redirected
+      } catch (error: any) {
+        console.error('Failed to open wallet:', error);
       }
-    } catch (error: any) {
-      console.error('Failed to open wallet:', error);
+    } else {
+      // For desktop or direct connections
+      onConnect();
     }
   };
 
@@ -87,9 +87,11 @@ export default function WalletConnectionModal({
 
         <div className="space-y-4">
           <p className="text-gray-600 text-center text-sm">
-            {environment.isMobile 
-              ? "Choose a wallet app to connect with:"
-              : "Connect with a Web3 wallet to access your cryptocurrencies:"
+            {environment.hasEthereum
+              ? "Wallet detected! Click Connect to access your cryptocurrencies."
+              : environment.isMobile 
+                ? "Choose a wallet app to connect with:"
+                : "Connect with a Web3 wallet to access your cryptocurrencies:"
             }
           </p>
 
@@ -103,7 +105,24 @@ export default function WalletConnectionModal({
           )}
 
           <div className="space-y-2">
-            {walletOptions.map((wallet) => (
+            {/* If wallet is detected, show connect button prominently */}
+            {environment.hasEthereum && (
+              <Button
+                onClick={onConnect}
+                className="w-full h-auto p-4 bg-blue-600 hover:bg-blue-700 text-white"
+              >
+                <div className="flex items-center space-x-3 w-full justify-center">
+                  <Wallet className="w-6 h-6" />
+                  <div className="text-center">
+                    <div className="font-medium">Connect Wallet</div>
+                    <div className="text-sm opacity-90">Wallet ready to connect</div>
+                  </div>
+                </div>
+              </Button>
+            )}
+            
+            {/* Show wallet options if no wallet detected */}
+            {!environment.hasEthereum && walletOptions.map((wallet) => (
               <Button
                 key={wallet.id}
                 variant="outline"
@@ -128,8 +147,8 @@ export default function WalletConnectionModal({
               </Button>
             ))}
             
-            {/* Manual URL copy option for mobile */}
-            {environment.isMobile && (
+            {/* Manual URL copy option for mobile when no wallet detected */}
+            {environment.isMobile && !environment.hasEthereum && (
               <Button
                 variant="outline"
                 onClick={copyUrlToClipboard}
@@ -148,17 +167,20 @@ export default function WalletConnectionModal({
 
           <div className="pt-4 border-t border-gray-200">
             <div className="text-xs text-gray-500 text-center space-y-1">
-              <p>
-                {environment.isMobile 
-                  ? "Tap a wallet option to open the app. Return here to connect automatically."
-                  : "Make sure you have a Web3 wallet installed in your browser"
-                }
-              </p>
-              <p>New to crypto wallets? We recommend starting with MetaMask.</p>
-              {environment.isMobile && (
-                <p className="font-medium text-blue-600">
-                  The app will detect when you return from your wallet and connect automatically
+              {environment.hasEthereum ? (
+                <p className="font-medium text-green-600">
+                  Wallet detected and ready to connect!
                 </p>
+              ) : (
+                <>
+                  <p>
+                    {environment.isMobile 
+                      ? "Tap a wallet option to open the app, then return here to connect."
+                      : "Make sure you have a Web3 wallet installed in your browser"
+                    }
+                  </p>
+                  <p>New to crypto wallets? We recommend starting with MetaMask.</p>
+                </>
               )}
             </div>
           </div>

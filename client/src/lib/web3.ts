@@ -79,27 +79,59 @@ export class Web3Service {
       return await this.connectToEthereum();
     }
 
-    // If no wallet detected, try to redirect to popular wallet apps
-    const currentUrl = window.location.href;
-    const encodedUrl = encodeURIComponent(currentUrl);
-    
-    // Try MetaMask mobile deep link first
-    const metamaskUrl = `https://metamask.app.link/dapp/${window.location.host}${window.location.pathname}`;
-    
-    // Try Trust Wallet deep link
-    const trustWalletUrl = `https://link.trustwallet.com/open_url?coin_id=60&url=${encodedUrl}`;
-    
-    // Try Rainbow Wallet
-    const rainbowUrl = `https://rnbwapp.com/to/${encodedUrl}`;
-    
-    // Show options to user
-    const walletOptions = [
-      { name: 'MetaMask', url: metamaskUrl },
-      { name: 'Trust Wallet', url: trustWalletUrl },
-      { name: 'Rainbow', url: rainbowUrl }
-    ];
-    
-    throw new Error(`No wallet detected. Please open this app in a Web3 wallet browser or install a wallet: ${walletOptions.map(w => w.name).join(', ')}`);
+    // Wait for wallet injection with multiple attempts
+    return new Promise<WalletState>((resolve, reject) => {
+      let attempts = 0;
+      const maxAttempts = 30; // Wait up to 6 seconds
+      
+      const checkForWallet = async () => {
+        attempts++;
+        
+        // Check for any ethereum provider
+        if ((window as any).ethereum) {
+          try {
+            const result = await this.connectToEthereum();
+            resolve(result);
+            return;
+          } catch (error) {
+            console.log('Connection attempt failed:', error);
+          }
+        }
+        
+        // Check for Trust Wallet specifically
+        if ((window as any).trustwallet && (window as any).trustwallet.ethereum) {
+          try {
+            (window as any).ethereum = (window as any).trustwallet.ethereum;
+            const result = await this.connectToEthereum();
+            resolve(result);
+            return;
+          } catch (error) {
+            console.log('Trust Wallet connection failed:', error);
+          }
+        }
+        
+        // Check for Coinbase Wallet
+        if ((window as any).coinbaseWalletExtension) {
+          try {
+            (window as any).ethereum = (window as any).coinbaseWalletExtension;
+            const result = await this.connectToEthereum();
+            resolve(result);
+            return;
+          } catch (error) {
+            console.log('Coinbase Wallet connection failed:', error);
+          }
+        }
+        
+        if (attempts < maxAttempts) {
+          setTimeout(checkForWallet, 200);
+        } else {
+          reject(new Error('No wallet detected. Please make sure you opened this app from within a wallet browser, or try opening it in MetaMask, Trust Wallet, or another Web3 wallet app.'));
+        }
+      };
+      
+      // Start checking immediately
+      checkForWallet();
+    });
   }
 
   private async connectToEthereum(): Promise<WalletState> {
@@ -150,17 +182,18 @@ export class Web3Service {
   async connectWallet(): Promise<WalletState> {
     const env = this.detectEnvironment();
     
-    // Desktop browser
-    if (env.isDesktop) {
-      if (!env.hasEthereum) {
-        // Redirect to MetaMask installation or show options
-        window.open('https://metamask.io/download/', '_blank');
-        throw new Error("Please install MetaMask extension for your browser, then refresh and try again.");
-      }
+    // Check if we're in a wallet browser first (regardless of desktop/mobile)
+    if (env.hasEthereum) {
       return await this.connectToEthereum();
     }
     
-    // Mobile environment
+    // Desktop browser without wallet
+    if (env.isDesktop) {
+      window.open('https://metamask.io/download/', '_blank');
+      throw new Error("Please install MetaMask extension for your browser, then refresh and try again.");
+    }
+    
+    // Mobile environment - try to detect wallet injection
     if (env.isMobile) {
       return await this.attemptMobileWalletConnection();
     }
