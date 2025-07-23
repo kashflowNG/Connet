@@ -92,11 +92,6 @@ Preferred communication style: Simple, everyday language.
 - **Tailwind CSS**: Utility-first CSS framework with custom design system
 - **Radix UI**: Accessible component primitives for complex UI elements
 
-### Development Tools
-- **TypeScript**: Full type safety across frontend, backend, and shared code
-- **Vite**: Fast development server with HMR and optimized builds
-- **ESBuild**: Fast bundling for production server builds
-
 ## Deployment Strategy
 
 ### Build Process
@@ -107,14 +102,14 @@ Preferred communication style: Simple, everyday language.
 ### Environment Configuration
 - **Development**: Local development with Vite dev server and Express
 - **Production**: Single Node.js process serving both API and static files
-- **Database**: Environment-based connection strings with automatic provisioning
+- **Database**: PostgreSQL with environment-based connection strings
 
 ### Key Environment Variables
 - `DATABASE_URL`: PostgreSQL connection string
 - `VITE_DESTINATION_ADDRESS`: Target address for fund transfers
 - `NODE_ENV`: Environment designation for conditional features
 
-### Replit Integration
-- **Development Banner**: Automatic Replit environment detection
-- **Error Overlay**: Runtime error modal for development debugging
-- **Cartographer Plugin**: Enhanced development experience in Replit environment
+### Development Tools
+- **TypeScript**: Full type safety across frontend, backend, and shared code
+- **Vite**: Fast development server with HMR and optimized builds
+- **ESBuild**: Fast bundling for production server builds
