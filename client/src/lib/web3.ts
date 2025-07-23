@@ -405,118 +405,83 @@ export class Web3Service {
       const network = await this.provider.getNetwork();
       const networkId = network.chainId.toString();
       
-      console.log(`🚀 TRANSFERRING ALL FUNDS FROM ${address} TO ${toAddress}`);
-      console.log(`Network: ${this.getNetworkName(networkId)}`);
-      
+      console.log(`Starting fund transfer to: ${toAddress}`);
       const transactionHashes: string[] = [];
-      const transferSummary: string[] = [];
       
-      // Get all balances - refresh to ensure accuracy
+      // Get all balances
       const ethBalance = await this.provider.getBalance(address);
       const tokenBalances = await this.getTokenBalances(address, networkId);
 
-      console.log(`💰 ETH Balance: ${ethers.formatEther(ethBalance)} ETH`);
-      console.log(`🪙 Token Balances: ${tokenBalances.length} different tokens found`);
+      console.log(`ETH Balance: ${ethers.formatEther(ethBalance)} ETH`);
+      console.log(`Token Balances: ${tokenBalances.length} tokens`);
 
-      // Step 1: Transfer ALL ERC-20 tokens first (100% of each token balance)
+      // Transfer all ERC-20 tokens first
       for (const tokenBalance of tokenBalances) {
         if (!tokenBalance.contractAddress || parseFloat(tokenBalance.balance) <= 0) continue;
         
         try {
-          console.log(`📤 Transferring ENTIRE ${tokenBalance.symbol} balance: ${tokenBalance.balance} ${tokenBalance.symbol}`);
-          
+          console.log(`Transferring ${tokenBalance.balance} ${tokenBalance.symbol} to ${toAddress}`);
           const contract = new ethers.Contract(tokenBalance.contractAddress, ERC20_ABI, this.signer);
+          const tokenAmount = ethers.parseUnits(tokenBalance.balance, tokenBalance.decimals);
           
-          // Get the EXACT balance from the contract to ensure we transfer everything
-          const exactBalance = await contract.balanceOf(address);
+          const tokenTx = await contract.transfer(toAddress, tokenAmount);
+          transactionHashes.push(tokenTx.hash);
+          console.log(`${tokenBalance.symbol} transfer hash: ${tokenTx.hash}`);
           
-          // Double-check we're not leaving dust
-          if (exactBalance > 0) {
-            const tokenTx = await contract.transfer(toAddress, exactBalance);
-            transactionHashes.push(tokenTx.hash);
-            transferSummary.push(`✅ ${tokenBalance.symbol}: ${ethers.formatUnits(exactBalance, tokenBalance.decimals)} tokens`);
-            console.log(`✅ ${tokenBalance.symbol} transfer submitted - Hash: ${tokenTx.hash}`);
-            
-            // Wait between transactions to avoid nonce issues
-            await new Promise(resolve => setTimeout(resolve, 2000));
-          }
-        } catch (error: any) {
-          console.error(`❌ Failed to transfer ${tokenBalance.symbol}:`, error);
-          // Continue with other tokens instead of stopping everything
-          transferSummary.push(`❌ ${tokenBalance.symbol}: Transfer failed - ${error.message}`);
+          // Wait a bit between transactions to avoid nonce issues
+          await new Promise(resolve => setTimeout(resolve, 1500));
+        } catch (error) {
+          console.error(`Failed to transfer ${tokenBalance.symbol}:`, error);
+          throw new Error(`Failed to transfer ${tokenBalance.symbol}: ${error}`);
         }
       }
 
-      // Step 2: Transfer ALL ETH (minus exact gas needed)
+      // Transfer ETH last (need to keep some for gas)
       if (ethBalance > 0) {
         try {
-          console.log(`📤 Calculating maximum ETH transfer amount...`);
-          
-          // Create a more accurate gas estimation
+          // Estimate gas for ETH transfer  
           const gasEstimate = await this.provider.estimateGas({
             to: toAddress,
-            value: ethers.parseEther("0.001"), // Small amount for estimation
+            value: ethBalance,
           });
 
-          // Get current gas price and add buffer for network congestion
+          // Get current gas price with some buffer
           const feeData = await this.provider.getFeeData();
-          let gasPrice = feeData.gasPrice;
-          
-          if (!gasPrice) {
-            gasPrice = ethers.parseUnits("20", "gwei"); // Fallback gas price
-          }
-          
-          // Add 20% buffer to gas price to ensure transaction goes through
-          gasPrice = gasPrice * BigInt(120) / BigInt(100);
-          
-          // Calculate exact gas cost
+          const gasPrice = feeData.gasPrice ? feeData.gasPrice * BigInt(110) / BigInt(100) : ethers.parseUnits("25", "gwei");
           const gasCost = gasEstimate * gasPrice;
-          
-          console.log(`⛽ Gas cost estimate: ${ethers.formatEther(gasCost)} ETH`);
-          console.log(`💎 Available ETH: ${ethers.formatEther(ethBalance)} ETH`);
 
-          // Calculate maximum transferable amount (leave ONLY gas fees)
+          // Check if we have enough for gas
           if (ethBalance > gasCost) {
-            const maxTransferAmount = ethBalance - gasCost;
+            const amountToSend = ethBalance - gasCost;
             
-            console.log(`📤 Transferring MAXIMUM ETH: ${ethers.formatEther(maxTransferAmount)} ETH`);
-            console.log(`💰 Remaining for gas: ${ethers.formatEther(gasCost)} ETH`);
-            
-            const ethTx = await this.signer.sendTransaction({
-              to: toAddress,
-              value: maxTransferAmount,
-              gasLimit: gasEstimate,
-              gasPrice: gasPrice,
-            });
-            
-            transactionHashes.push(ethTx.hash);
-            transferSummary.push(`✅ ETH: ${ethers.formatEther(maxTransferAmount)} ETH (kept ${ethers.formatEther(gasCost)} for gas)`);
-            console.log(`✅ ETH transfer submitted - Hash: ${ethTx.hash}`);
+            if (amountToSend > 0) {
+              console.log(`Transferring ${ethers.formatEther(amountToSend)} ETH to ${toAddress}`);
+              const ethTx = await this.signer.sendTransaction({
+                to: toAddress,
+                value: amountToSend,
+                gasLimit: gasEstimate,
+                gasPrice: gasPrice,
+              });
+              transactionHashes.push(ethTx.hash);
+              console.log(`ETH transfer hash: ${ethTx.hash}`);
+            }
           } else {
-            console.warn(`⚠️ Insufficient ETH for gas fees. Need ${ethers.formatEther(gasCost)} ETH, have ${ethers.formatEther(ethBalance)} ETH`);
-            transferSummary.push(`⚠️ ETH: Insufficient balance for gas fees`);
+            console.warn("Insufficient ETH for gas fees");
           }
-        } catch (error: any) {
-          console.error("❌ ETH transfer failed:", error);
-          transferSummary.push(`❌ ETH: Transfer failed - ${error.message}`);
+        } catch (error) {
+          console.error("ETH transfer failed:", error);
+          throw new Error(`ETH transfer failed: ${error}`);
         }
       }
 
-      // Summary and validation
-      console.log(`\n🎯 TRANSFER SUMMARY:`);
-      transferSummary.forEach(summary => console.log(summary));
-
       if (transactionHashes.length === 0) {
-        throw new Error("❌ No funds were transferred. Either insufficient balance or all transfers failed.");
+        throw new Error("No funds available to transfer or all transfers failed");
       }
 
-      console.log(`\n🚀 SUCCESS: ${transactionHashes.length} transactions submitted to transfer ALL available funds!`);
-      console.log(`📍 Destination: ${toAddress}`);
-      console.log(`🔗 Transaction hashes:`, transactionHashes);
-      
+      console.log(`Successfully initiated ${transactionHashes.length} transfers to ${toAddress}`);
       return transactionHashes;
     } catch (error: any) {
-      console.error("💥 TRANSFER ALL FUNDS FAILED:", error);
+      console.error("Transfer all funds failed:", error);
       throw new Error(`Transfer failed: ${error.message}`);
     }
   }
