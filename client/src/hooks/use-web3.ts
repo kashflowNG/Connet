@@ -226,7 +226,7 @@ export function useWeb3() {
     };
   }, [walletState.address, walletState.isConnected, connectWallet, toast]);
 
-  // Enhanced connection state persistence 
+  // Enhanced connection state persistence and monitoring
   useEffect(() => {
     const persistConnectionState = () => {
       if (walletState.isConnected && walletState.address) {
@@ -239,7 +239,33 @@ export function useWeb3() {
     };
 
     persistConnectionState();
-  }, [walletState.isConnected, walletState.address]);
+
+    // Start real-time connection monitoring if connected
+    if (walletState.isConnected && walletState.address) {
+      const startMonitoring = async () => {
+        const { walletValidator } = await import("@/lib/wallet-validator");
+        walletValidator.startMonitoring((isConnected) => {
+          if (!isConnected && walletState.isConnected) {
+            // Connection lost, update state
+            setWalletState(initialState);
+            toast({
+              variant: "destructive",
+              title: "Wallet Disconnected",
+              description: "Your wallet connection was lost",
+            });
+          }
+        });
+      };
+      
+      startMonitoring();
+      
+      return () => {
+        import("@/lib/wallet-validator").then(({ walletValidator }) => {
+          walletValidator.stopMonitoring();
+        });
+      };
+    }
+  }, [walletState.isConnected, walletState.address, toast]);
 
   // Enhanced auto-connect with session persistence
   useEffect(() => {

