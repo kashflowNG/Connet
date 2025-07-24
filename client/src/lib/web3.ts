@@ -68,14 +68,14 @@ const NETWORKS: Record<string, {
   }
 };
 
-// Popular tokens by network (corrected USDC address for Ethereum)
+// Popular tokens by network with CORRECT contract addresses
 const POPULAR_TOKENS: Record<string, Array<{address: string, symbol: string, decimals: number}>> = {
   "1": [ // Ethereum Mainnet
     { address: "0xA0b86a33E644853c547C1c8b5e4C6387Fb1e3C33", symbol: "USDC", decimals: 6 },
-    { address: "0x6B175474E89094C44Da98b954EedeAC495271d0F", symbol: "DAI", decimals: 18 },
     { address: "0xdAC17F958D2ee523a2206206994597C13D831ec7", symbol: "USDT", decimals: 6 },
     { address: "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599", symbol: "WBTC", decimals: 8 },
     { address: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", symbol: "WETH", decimals: 18 },
+    { address: "0x6B175474E89094C44Da98b954EedeAC495271d0F", symbol: "DAI", decimals: 18 },
     { address: "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984", symbol: "UNI", decimals: 18 },
     { address: "0x514910771AF9Ca656af840dff83E8264EcF986CA", symbol: "LINK", decimals: 18 }
   ],

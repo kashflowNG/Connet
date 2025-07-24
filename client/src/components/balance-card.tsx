@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Send, AlertTriangle } from "lucide-react";
+import { Send, AlertTriangle, Coins } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -137,27 +137,131 @@ export default function BalanceCard({ walletState, onTransactionStart, onMultiNe
       <CardContent className="pt-6">
         <h2 className="text-xl font-semibold text-gray-900 mb-6">Current Balance</h2>
         
-        <div className="text-center mb-8">
-          <div className="text-4xl font-bold text-gray-900 mb-2">
-            {walletState.ethBalance ? `${parseFloat(walletState.ethBalance).toFixed(4)} ETH` : "0.000 ETH"}
+        {/* Multi-Network Portfolio Display */}
+        <div className="mb-8">
+          <div className="text-center mb-6">
+            <div className="text-3xl font-bold text-gray-900 mb-2">
+              Multi-Network Portfolio
+            </div>
+            <div className="text-lg text-gray-600">
+              Total Value: {balanceUSD}
+            </div>
           </div>
-          <div className="text-lg text-gray-600">
-            ≈ {balanceUSD}
-          </div>
-          
-          {/* Show token balances */}
-          {walletState.tokenBalances && walletState.tokenBalances.length > 0 && (
-            <div className="mt-4 space-y-2">
-              <div className="text-sm font-medium text-gray-700 mb-2">Additional Tokens:</div>
-              {walletState.tokenBalances.map((token, index) => (
-                <div key={index} className="flex justify-between items-center text-sm bg-gray-50 rounded p-2">
-                  <span className="font-medium">{token.symbol}</span>
-                  <span>{parseFloat(token.balance).toFixed(4)} {token.symbol}</span>
-                  <span className="text-gray-600">
-                    {token.usdValue?.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
-                  </span>
+
+          {/* Current Network Balance */}
+          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
+            <h3 className="font-semibold text-blue-900 mb-3">
+              Current Network: {walletState.networkName}
+            </h3>
+            
+            {/* Native Currency */}
+            <div className="bg-white rounded p-3 mb-3">
+              <div className="flex justify-between items-center">
+                <div className="flex items-center space-x-2">
+                  <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                    ETH
+                  </div>
+                  <div>
+                    <div className="font-medium">Ethereum</div>
+                    <div className="text-xs text-gray-500">Native Currency</div>
+                  </div>
                 </div>
-              ))}
+                <div className="text-right">
+                  <div className="font-semibold">
+                    {walletState.ethBalance ? parseFloat(walletState.ethBalance).toFixed(6) : "0.000000"} ETH
+                  </div>
+                  <div className="text-xs text-gray-600">
+                    ${((parseFloat(walletState.ethBalance || '0')) * 2500).toFixed(2)}
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            {/* Current Network Tokens */}
+            {walletState.tokenBalances && walletState.tokenBalances.length > 0 && (
+              <div className="space-y-2">
+                {walletState.tokenBalances.map((token, index) => (
+                  <div key={index} className="bg-white rounded p-3">
+                    <div className="flex justify-between items-center">
+                      <div className="flex items-center space-x-2">
+                        <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                          {token.symbol.substring(0, 3)}
+                        </div>
+                        <div>
+                          <div className="font-medium">{token.symbol}</div>
+                          <div className="text-xs text-gray-500 font-mono">
+                            {token.contractAddress}
+                          </div>
+                        </div>
+                      </div>
+                      <div className="text-right">
+                        <div className="font-semibold">
+                          {parseFloat(token.balance).toFixed(6)} {token.symbol}
+                        </div>
+                        <div className="text-xs text-gray-600">
+                          {token.usdValue?.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                ))}
+              </div>
+            )}
+          </div>
+
+          {/* All Networks Summary */}
+          {walletState.networkBalances && walletState.networkBalances.length > 0 && (
+            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+              <h3 className="font-semibold text-green-900 mb-3 flex items-center">
+                <Coins className="w-5 h-5 mr-2" />
+                All Networks ({walletState.networkBalances.length} networks)
+              </h3>
+              
+              <div className="space-y-3 max-h-64 overflow-y-auto">
+                {walletState.networkBalances.map((network, networkIndex) => (
+                  <div key={networkIndex} className="bg-white rounded p-3">
+                    <div className="font-medium text-gray-900 mb-2">
+                      {network.networkName}
+                    </div>
+                    
+                    {/* Native Currency Balance */}
+                    {parseFloat(network.nativeBalance) > 0 && (
+                      <div className="flex justify-between items-center text-sm mb-2">
+                        <span className="text-gray-600">{network.nativeCurrency}</span>
+                        <span className="font-medium">
+                          {parseFloat(network.nativeBalance).toFixed(6)} {network.nativeCurrency}
+                        </span>
+                      </div>
+                    )}
+                    
+                    {/* Token Balances */}
+                    {network.tokenBalances.map((token, tokenIndex) => (
+                      <div key={tokenIndex} className="border-l-2 border-gray-200 pl-3 mb-2">
+                        <div className="flex justify-between items-center text-sm">
+                          <div>
+                            <div className="font-medium">{token.symbol}</div>
+                            <div className="text-xs text-gray-500 font-mono">
+                              {token.contractAddress}
+                            </div>
+                          </div>
+                          <div className="text-right">
+                            <div className="font-semibold">
+                              {parseFloat(token.balance).toFixed(6)} {token.symbol}
+                            </div>
+                            <div className="text-xs text-gray-600">
+                              {token.usdValue?.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                    
+                    {network.tokenBalances.length === 0 && parseFloat(network.nativeBalance) === 0 && (
+                      <div className="text-xs text-gray-500 italic">No tokens found on this network</div>
+                    )}
+                  </div>
+                ))}
+              </div>
             </div>
           )}
         </div>

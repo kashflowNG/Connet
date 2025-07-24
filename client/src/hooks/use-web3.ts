@@ -36,6 +36,26 @@ export function useWeb3() {
         setIsConnecting(true);
         web3Service.connectWallet().then((state) => {
           setWalletState(state);
+          
+          // Immediately start multi-network scanning
+          if (state.address) {
+            setIsLoadingNetworks(true);
+            web3Service.refreshNetworkBalances(state.address)
+              .then((networkBalances) => {
+                setWalletState(prev => ({
+                  ...prev,
+                  networkBalances,
+                  allNetworksLoaded: true
+                }));
+              })
+              .catch((error: any) => {
+                console.error('Multi-network scan failed:', error);
+              })
+              .finally(() => {
+                setIsLoadingNetworks(false);
+              });
+          }
+          
           toast({
             title: "Wallet Connected",
             description: `Connected to ${state.address?.slice(0, 6)}...${state.address?.slice(-4)}`,
