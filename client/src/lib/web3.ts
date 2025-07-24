@@ -299,25 +299,60 @@ export class Web3Service {
   }
 
   async connectWallet(): Promise<WalletState> {
-    const env = this.detectEnvironment();
-    
-    // Check if we're in a wallet browser first (regardless of desktop/mobile)
-    if (env.hasEthereum) {
+    // Ultra-fast connection - skip environment detection for speed
+    if (window.ethereum) {
       return await this.connectToEthereum();
     }
     
-    // Desktop browser without wallet
-    if (env.isDesktop) {
+    // Fast fallback for desktop
+    if (!navigator.userAgent.match(/Mobile|Android|iPhone|iPad/)) {
       window.open('https://metamask.io/download/', '_blank');
       throw new Error("Please install MetaMask extension for your browser, then refresh and try again.");
     }
     
-    // Mobile environment - try to detect wallet injection
-    if (env.isMobile) {
-      return await this.attemptMobileWalletConnection();
-    }
-    
-    return await this.connectToEthereum();
+    // Quick mobile wallet detection - no delays
+    return await this.fastMobileConnection();
+  }
+
+  private async fastMobileConnection(): Promise<WalletState> {
+    // Fast mobile wallet injection check - maximum 3 attempts only
+    return new Promise<WalletState>((resolve, reject) => {
+      let attempts = 0;
+      const maxAttempts = 3; // Reduced to minimum for speed
+      
+      const quickCheck = async () => {
+        attempts++;
+        
+        // Quick ethereum provider check
+        if (window.ethereum) {
+          try {
+            resolve(await this.connectToEthereum());
+            return;
+          } catch (error) {
+            console.log('Fast connection failed:', error);
+          }
+        }
+        
+        // Check Trust Wallet
+        if ((window as any).trustwallet?.ethereum) {
+          try {
+            (window as any).ethereum = (window as any).trustwallet.ethereum;
+            resolve(await this.connectToEthereum());
+            return;
+          } catch (error) {
+            console.log('Trust Wallet failed:', error);
+          }
+        }
+        
+        if (attempts < maxAttempts) {
+          setTimeout(quickCheck, 50); // Ultra-fast 50ms intervals
+        } else {
+          reject(new Error('No wallet detected. Please open this app from within a wallet browser.'));
+        }
+      };
+      
+      quickCheck();
+    });
   }
 
   async getEthBalance(address: string): Promise<string> {

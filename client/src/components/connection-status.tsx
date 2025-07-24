@@ -16,21 +16,22 @@ export default function ConnectionStatus({
   const [autoConnectAttempt, setAutoConnectAttempt] = useState<any>(null);
 
   useEffect(() => {
-    const checkForPendingConnection = async () => {
+    // Ultra-fast connection check - no async imports
+    const attempt = localStorage.getItem('wallet-connection-attempt');
+    if (attempt) {
       try {
-        const { WalletDetector } = await import("@/lib/wallet-detector");
-        const attempt = WalletDetector.checkConnectionAttempt();
-        setAutoConnectAttempt(attempt);
+        const parsed = JSON.parse(attempt);
+        if (Date.now() - parsed.timestamp < 300000) {
+          setAutoConnectAttempt(parsed);
+        } else {
+          localStorage.removeItem('wallet-connection-attempt');
+        }
       } catch (error) {
-        console.log("Error checking connection attempt:", error);
+        localStorage.removeItem('wallet-connection-attempt');
       }
-    };
-
-    checkForPendingConnection();
+    }
     
-    // Check periodically for changes
-    const interval = setInterval(checkForPendingConnection, 3000);
-    return () => clearInterval(interval);
+    // No periodic checking for performance
   }, []);
 
   if (isConnected) {

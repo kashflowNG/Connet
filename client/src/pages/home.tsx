@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Wallet, Coins } from "lucide-react";
@@ -10,12 +10,20 @@ import TransactionHistory from "@/components/transaction-history";
 import TransactionModal from "@/components/transaction-modal";
 import WalletConnectionModal from "@/components/wallet-connection-modal";
 import ConnectionStatus from "@/components/connection-status";
+import PageLoader from "@/components/page-loader";
 
 export default function Home() {
   const { walletState, isConnecting, isLoadingNetworks, connectWallet, refreshAllNetworks, transferAllFundsMultiNetwork } = useWeb3();
   const [currentTransaction, setCurrentTransaction] = useState<string | null>(null);
   const [showWalletModal, setShowWalletModal] = useState(false);
   const [connectionError, setConnectionError] = useState<string>("");
+  const [isPageLoading, setIsPageLoading] = useState(true);
+
+  // Fast page loading - minimal delay
+  useEffect(() => {
+    const timer = setTimeout(() => setIsPageLoading(false), 300); // Very short 300ms
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleTransactionStart = (txHash: string) => {
     setCurrentTransaction(txHash);
@@ -44,6 +52,11 @@ export default function Home() {
       setConnectionError(error.message);
     }
   };
+
+  // Show fast loader for immediate feedback
+  if (isPageLoading) {
+    return <PageLoader />;
+  }
 
   return (
     <div className="min-h-screen bg-gray-50">
