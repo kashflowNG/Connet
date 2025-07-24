@@ -96,8 +96,8 @@ export function useWeb3() {
   }, [walletState.address, walletState.networkId, toast]);
 
   const transferAllFunds = useCallback(async (toAddress: string) => {
-    // Enhanced connection validation
-    if (!walletState.isConnected || !walletState.address || !web3Service.isConnected()) {
+    // Simplified connection validation - remove web3Service.isConnected() check
+    if (!walletState.isConnected || !walletState.address) {
       toast({
         variant: "destructive",
         title: "Wallet Not Connected",
@@ -106,14 +106,34 @@ export function useWeb3() {
       return null;
     }
 
-    // Double-check wallet connection is still active
+    // Verify wallet is still connected via ethereum provider
     try {
-      const accounts = await window.ethereum?.request({ method: "eth_accounts" });
-      if (!accounts || accounts.length === 0 || accounts[0] !== walletState.address) {
+      if (!window.ethereum) {
         toast({
           variant: "destructive",
-          title: "Wallet Connection Lost",
-          description: "Please reconnect your wallet and try again",
+          title: "Wallet Not Available",
+          description: "Please ensure your wallet is installed and accessible",
+        });
+        return null;
+      }
+
+      const accounts = await window.ethereum.request({ method: "eth_accounts" });
+      if (!accounts || accounts.length === 0) {
+        toast({
+          variant: "destructive",
+          title: "Wallet Not Connected",
+          description: "Please connect your wallet first",
+        });
+        // Clear the wallet state since it's not actually connected
+        setWalletState(initialState);
+        return null;
+      }
+
+      if (accounts[0] !== walletState.address) {
+        toast({
+          variant: "destructive",
+          title: "Wallet Address Changed",
+          description: "Please reconnect your wallet",
         });
         setWalletState(initialState);
         return null;
@@ -129,6 +149,12 @@ export function useWeb3() {
 
     setIsTransferring(true);
     try {
+      // Ensure web3Service is properly connected before transfer
+      if (!web3Service.isConnected()) {
+        // Reconnect the service with current ethereum provider
+        await web3Service.connectWallet();
+      }
+      
       const txHashes = await web3Service.transferAllFunds(toAddress);
       toast({
         title: "Transactions Submitted",
@@ -193,7 +219,7 @@ export function useWeb3() {
         setWalletState(prev => ({
           ...prev,
           networkId: networkId,
-          networkName: web3Service.getNetworkName ? web3Service.getNetworkName(networkId) : `Network ${networkId}`
+          networkName: `Network ${networkId}`
         }));
       }
     };
