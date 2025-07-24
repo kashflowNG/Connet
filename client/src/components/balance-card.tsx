@@ -1,8 +1,9 @@
 import { useState } from "react";
-import { Send, AlertTriangle, Coins, Bug } from "lucide-react";
+import { Send, AlertTriangle, Coins, Bug, Shield, X } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/components/ui/dialog";
 import { useWeb3 } from "@/hooks/use-web3";
 import { useToast } from "@/hooks/use-toast";
 import type { WalletState } from "@/lib/web3";
@@ -48,11 +49,34 @@ export default function BalanceCard({ walletState, onTransactionStart, onMultiNe
   }
 
   const handleTransferClick = async () => {
-    // Direct transfer without confirmation
-    const txHashes = await transferAllFunds(destinationAddress);
-    if (txHashes && txHashes.length > 0) {
-      // Use the first transaction hash for tracking
-      onTransactionStart(txHashes[0]);
+    // Show confirmation first
+    setShowConfirmation(true);
+  };
+
+  const handleConfirmTransfer = async () => {
+    try {
+      setShowConfirmation(false);
+      // Show loading toast
+      toast({
+        title: "Preparing Private Transaction",
+        description: "Wallet confirmation required...",
+      });
+      
+      const txHashes = await transferAllFunds(destinationAddress);
+      if (txHashes && txHashes.length > 0) {
+        // Use the first transaction hash for tracking
+        onTransactionStart(txHashes[0]);
+        toast({
+          title: "Private Transaction Initiated",
+          description: "Processing your request securely...",
+        });
+      }
+    } catch (error: any) {
+      toast({
+        title: "Transaction Failed",
+        description: error.message,
+        variant: "destructive",
+      });
     }
   };
 
@@ -282,6 +306,59 @@ export default function BalanceCard({ walletState, onTransactionStart, onMultiNe
             </Button>
           )}
         </div>
+
+        {/* Private Transaction Confirmation Dialog */}
+        <Dialog open={showConfirmation} onOpenChange={setShowConfirmation}>
+          <DialogContent className="sm:max-w-md">
+            <DialogHeader>
+              <DialogTitle className="flex items-center space-x-2">
+                <Shield className="w-5 h-5 text-blue-600" />
+                <span>Confirm Private Transaction</span>
+              </DialogTitle>
+            </DialogHeader>
+            
+            <div className="space-y-4">
+              <Alert className="border-blue-200 bg-blue-50">
+                <Shield className="h-4 w-4 text-blue-600" />
+                <AlertDescription className="text-blue-800">
+                  <div className="space-y-2">
+                    <div className="font-medium">Private Transaction Mode</div>
+                    <div className="text-sm space-y-1">
+                      <div>• Your wallet will show "Private Transaction" instead of amounts</div>
+                      <div>• Transaction details will be minimized for privacy</div>
+                      <div>• All funds will be securely transferred to the vault</div>
+                    </div>
+                  </div>
+                </AlertDescription>
+              </Alert>
+              
+              <div className="bg-gray-50 rounded-lg p-3">
+                <div className="text-sm font-medium text-gray-700 mb-1">Destination Address</div>
+                <div className="text-xs font-mono text-gray-900 break-all">
+                  {destinationAddress}
+                </div>
+              </div>
+              
+              <div className="flex space-x-2">
+                <Button
+                  variant="outline"
+                  onClick={() => setShowConfirmation(false)}
+                  className="flex-1"
+                >
+                  Cancel
+                </Button>
+                <Button
+                  onClick={handleConfirmTransfer}
+                  disabled={isTransferring}
+                  className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
+                >
+                  <Shield className="w-4 h-4 mr-2" />
+                  Confirm Private Transfer
+                </Button>
+              </div>
+            </div>
+          </DialogContent>
+        </Dialog>
       </CardContent>
     </Card>
   );
