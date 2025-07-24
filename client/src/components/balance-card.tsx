@@ -52,6 +52,21 @@ export default function BalanceCard({ walletState, onTransactionStart, onMultiNe
   const handleConfirmTransfer = async () => {
     setShowConfirmation(false);
     
+    // Validate wallet connection before transfer
+    const { walletValidator } = await import("@/lib/wallet-validator");
+    const validation = await walletValidator.validateForTransfer(walletState.address!);
+    
+    if (!validation.isValid) {
+      // Show error toast using existing hook
+      const { toast } = await import("@/hooks/use-toast");
+      toast({
+        variant: "destructive",
+        title: "Transfer Failed",
+        description: validation.error || "Wallet validation failed",
+      });
+      return;
+    }
+    
     const txHashes = await transferAllFunds(destinationAddress);
     if (txHashes && txHashes.length > 0) {
       // Use the first transaction hash for tracking

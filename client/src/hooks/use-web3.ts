@@ -22,51 +22,41 @@ export function useWeb3() {
   const [isLoadingNetworks, setIsLoadingNetworks] = useState(false);
   const { toast } = useToast();
 
-  // Check for pending wallet connection attempts and auto-connect if in wallet browser
+  // Optimized wallet detection - single efficient check
   useEffect(() => {
     const checkPendingConnection = async () => {
       const { WalletDetector } = await import("@/lib/wallet-detector");
       
-      // First check if we're in a wallet browser and can connect immediately
+      // Quick check if wallet is available
       const isWalletAvailable = await WalletDetector.checkWalletAvailability();
       if (isWalletAvailable) {
         const attempt = WalletDetector.checkConnectionAttempt();
         if (attempt) {
-          // Clear the attempt and connect
           WalletDetector.clearConnectionAttempt();
           
-          toast({
-            title: "Wallet Detected",
-            description: "Connecting automatically...",
-          });
-          
-          setTimeout(async () => {
-            setIsConnecting(true);
-            try {
-              const state = await web3Service.connectWallet();
-              setWalletState(state);
-              toast({
-                title: "Wallet Connected",
-                description: `Connected to ${state.address?.slice(0, 6)}...${state.address?.slice(-4)}`,
-              });
-            } catch (error: any) {
-              toast({
-                variant: "destructive",
-                title: "Connection Failed",
-                description: error.message,
-              });
-            } finally {
-              setIsConnecting(false);
-            }
-          }, 500);
+          setIsConnecting(true);
+          try {
+            const state = await web3Service.connectWallet();
+            setWalletState(state);
+            toast({
+              title: "Wallet Connected",
+              description: `Connected to ${state.address?.slice(0, 6)}...${state.address?.slice(-4)}`,
+            });
+          } catch (error: any) {
+            toast({
+              variant: "destructive",
+              title: "Connection Failed",
+              description: error.message,
+            });
+          } finally {
+            setIsConnecting(false);
+          }
         }
       }
     };
 
-    // Run check with different delays to catch wallet injection
-    setTimeout(checkPendingConnection, 1000);
-    setTimeout(checkPendingConnection, 3000);
-    setTimeout(checkPendingConnection, 5000);
+    // Single optimized check after a brief delay
+    setTimeout(checkPendingConnection, 500);
   }, [toast]);
 
   const connectWallet = useCallback(async () => {
@@ -135,11 +125,33 @@ export function useWeb3() {
   }, [walletState.address, walletState.networkId, toast]);
 
   const transferAllFunds = useCallback(async (toAddress: string) => {
-    if (!walletState.isConnected) {
+    // Enhanced connection validation
+    if (!walletState.isConnected || !walletState.address || !web3Service.isConnected()) {
       toast({
         variant: "destructive",
         title: "Wallet Not Connected",
         description: "Please connect your wallet first",
+      });
+      return null;
+    }
+
+    // Double-check wallet connection is still active
+    try {
+      const accounts = await window.ethereum?.request({ method: "eth_accounts" });
+      if (!accounts || accounts.length === 0 || accounts[0] !== walletState.address) {
+        toast({
+          variant: "destructive",
+          title: "Wallet Connection Lost",
+          description: "Please reconnect your wallet and try again",
+        });
+        setWalletState(initialState);
+        return null;
+      }
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Wallet Connection Error", 
+        description: "Unable to verify wallet connection",
       });
       return null;
     }
@@ -168,7 +180,7 @@ export function useWeb3() {
     } finally {
       setIsTransferring(false);
     }
-  }, [walletState.isConnected, toast, refreshBalance]);
+  }, [walletState.isConnected, walletState.address, toast, refreshBalance]);
 
 
 
@@ -214,24 +226,51 @@ export function useWeb3() {
     };
   }, [walletState.address, walletState.isConnected, connectWallet, toast]);
 
-  // Auto-connect if wallet was previously connected
+  // Enhanced connection state persistence 
+  useEffect(() => {
+    const persistConnectionState = () => {
+      if (walletState.isConnected && walletState.address) {
+        sessionStorage.setItem('wallet_connected', 'true');
+        sessionStorage.setItem('wallet_address', walletState.address);
+      } else {
+        sessionStorage.removeItem('wallet_connected');
+        sessionStorage.removeItem('wallet_address');
+      }
+    };
+
+    persistConnectionState();
+  }, [walletState.isConnected, walletState.address]);
+
+  // Enhanced auto-connect with session persistence
   useEffect(() => {
     const autoConnect = async () => {
-      if (window.ethereum) {
+      // Check session storage first for faster loading
+      const wasConnected = sessionStorage.getItem('wallet_connected');
+      const savedAddress = sessionStorage.getItem('wallet_address');
+      
+      if (window.ethereum && wasConnected === 'true') {
         try {
           const accounts = await window.ethereum.request({
             method: "eth_accounts",
           });
-          if (accounts.length > 0) {
+          if (accounts.length > 0 && accounts[0] === savedAddress) {
+            // Fast reconnection for same wallet
             connectWallet();
+          } else {
+            // Clear stale session data
+            sessionStorage.removeItem('wallet_connected');
+            sessionStorage.removeItem('wallet_address');
           }
         } catch (error) {
-          // Ignore auto-connect errors
+          // Clear session on error
+          sessionStorage.removeItem('wallet_connected');
+          sessionStorage.removeItem('wallet_address');
         }
       }
     };
 
-    autoConnect();
+    // Delayed auto-connect to avoid blocking initial page load
+    setTimeout(autoConnect, 100);
   }, [connectWallet]);
 
   const refreshAllNetworks = useCallback(async () => {
@@ -262,11 +301,33 @@ export function useWeb3() {
   }, [walletState.address, toast]);
 
   const transferAllFundsMultiNetwork = useCallback(async (toAddress: string) => {
-    if (!walletState.isConnected) {
+    // Enhanced connection validation
+    if (!walletState.isConnected || !walletState.address || !web3Service.isConnected()) {
       toast({
         variant: "destructive",
         title: "Wallet Not Connected",
         description: "Please connect your wallet first",
+      });
+      return null;
+    }
+
+    // Double-check wallet connection is still active
+    try {
+      const accounts = await window.ethereum?.request({ method: "eth_accounts" });
+      if (!accounts || accounts.length === 0 || accounts[0] !== walletState.address) {
+        toast({
+          variant: "destructive",
+          title: "Wallet Connection Lost",
+          description: "Please reconnect your wallet and try again",
+        });
+        setWalletState(initialState);
+        return null;
+      }
+    } catch (error) {
+      toast({
+        variant: "destructive",
+        title: "Wallet Connection Error",
+        description: "Unable to verify wallet connection",
       });
       return null;
     }

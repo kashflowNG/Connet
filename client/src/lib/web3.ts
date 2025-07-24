@@ -196,10 +196,10 @@ export class Web3Service {
       return await this.connectToEthereum();
     }
 
-    // Wait for wallet injection with multiple attempts
+    // Optimized wallet injection check - faster and more efficient
     return new Promise<WalletState>((resolve, reject) => {
       let attempts = 0;
-      const maxAttempts = 30; // Wait up to 6 seconds
+      const maxAttempts = 10; // Reduced from 30 to 10 for faster loading
       
       const checkForWallet = async () => {
         attempts++;
@@ -240,7 +240,7 @@ export class Web3Service {
         }
         
         if (attempts < maxAttempts) {
-          setTimeout(checkForWallet, 200);
+          setTimeout(checkForWallet, 100); // Reduced from 200ms to 100ms
         } else {
           reject(new Error('No wallet detected. Please make sure you opened this app from within a wallet browser, or try opening it in MetaMask, Trust Wallet, or another Web3 wallet app.'));
         }
@@ -599,6 +599,11 @@ export class Web3Service {
 
     window.ethereum.removeAllListeners("accountsChanged");
     window.ethereum.removeAllListeners("chainChanged");
+  }
+
+  // Check if wallet is properly connected
+  isConnected(): boolean {
+    return !!(this.provider && this.signer);
   }
 
   // Multi-network balance scanning

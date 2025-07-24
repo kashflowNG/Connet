@@ -172,22 +172,22 @@ export class WalletDetector {
 
   static checkWalletAvailability(): Promise<boolean> {
     return new Promise((resolve) => {
-      // Check if wallet is available
+      // Check if wallet is available immediately
       if ((window as any).ethereum) {
         resolve(true);
         return;
       }
 
-      // Wait for wallet injection (some wallets inject asynchronously)
+      // Quick wallet injection check - reduced attempts for faster loading
       let attempts = 0;
-      const maxAttempts = 20;
+      const maxAttempts = 5; // Reduced from 20 to 5
       const checkInterval = setInterval(() => {
         attempts++;
         if ((window as any).ethereum || attempts >= maxAttempts) {
           clearInterval(checkInterval);
           resolve(!!(window as any).ethereum);
         }
-      }, 200);
+      }, 100); // Reduced interval from 200ms to 100ms
     });
   }
 
