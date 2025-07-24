@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Send, AlertTriangle, Coins } from "lucide-react";
+import { Send, AlertTriangle, Coins, Bug } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -135,7 +135,24 @@ export default function BalanceCard({ walletState, onTransactionStart, onMultiNe
   return (
     <Card>
       <CardContent className="pt-6">
-        <h2 className="text-xl font-semibold text-gray-900 mb-6">Current Balance</h2>
+        <div className="flex justify-between items-center mb-6">
+          <h2 className="text-xl font-semibold text-gray-900">Current Balance</h2>
+          <details className="text-xs">
+            <summary className="cursor-pointer text-blue-600 hover:text-blue-800 flex items-center gap-1">
+              <Bug className="h-3 w-3" />
+              Debug Info
+            </summary>
+            <div className="mt-2 p-2 bg-gray-50 rounded text-xs font-mono">
+              <div><strong>Connection:</strong> {walletState.isConnected ? 'Connected' : 'Disconnected'}</div>
+              <div><strong>Address:</strong> {walletState.address || 'None'}</div>
+              <div><strong>Network:</strong> {walletState.networkId || 'None'}</div>
+              <div><strong>ETH Balance:</strong> {walletState.ethBalance || '0'}</div>
+              <div><strong>Token Count:</strong> {walletState.tokenBalances?.length || 0}</div>
+              <div><strong>USD Value:</strong> ${walletState.totalUsdValue || 0}</div>
+              <div><strong>Window.Ethereum:</strong> {typeof window !== 'undefined' && window.ethereum ? 'Available' : 'Not Available'}</div>
+            </div>
+          </details>
+        </div>
         
         {/* Multi-Network Portfolio Display */}
         <div className="mb-8">
