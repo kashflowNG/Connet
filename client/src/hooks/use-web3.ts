@@ -20,61 +20,10 @@ export function useWeb3() {
   const [isConnecting, setIsConnecting] = useState(false);
   const [isTransferring, setIsTransferring] = useState(false);
   const [isLoadingNetworks, setIsLoadingNetworks] = useState(false);
+  const [hasShownConnectedToast, setHasShownConnectedToast] = useState(false);
   const { toast } = useToast();
 
-  // Ultra-fast wallet detection - immediate check
-  useEffect(() => {
-    const immediateCheck = () => {
-      // Skip expensive imports and checks if no ethereum provider
-      if (!window.ethereum) return;
-      
-      // Direct wallet availability check
-      const attempt = localStorage.getItem('wallet-connection-attempt');
-      if (attempt) {
-        localStorage.removeItem('wallet-connection-attempt');
-        
-        setIsConnecting(true);
-        web3Service.connectWallet().then((state) => {
-          setWalletState(state);
-          
-          // Immediately start multi-network scanning
-          if (state.address) {
-            setIsLoadingNetworks(true);
-            web3Service.refreshNetworkBalances(state.address)
-              .then((networkBalances) => {
-                setWalletState(prev => ({
-                  ...prev,
-                  networkBalances,
-                  allNetworksLoaded: true
-                }));
-              })
-              .catch((error: any) => {
-                console.error('Multi-network scan failed:', error);
-              })
-              .finally(() => {
-                setIsLoadingNetworks(false);
-              });
-          }
-          
-          toast({
-            title: "Wallet Connected",
-            description: `Connected to ${state.address?.slice(0, 6)}...${state.address?.slice(-4)}`,
-          });
-        }).catch((error: any) => {
-          toast({
-            variant: "destructive",
-            title: "Connection Failed",
-            description: error.message,
-          });
-        }).finally(() => {
-          setIsConnecting(false);
-        });
-      }
-    };
-
-    // Immediate check - no delays
-    immediateCheck();
-  }, [toast]);
+  // Removed automatic connection attempts that were causing repeated notifications
 
   const connectWallet = useCallback(async () => {
     setIsConnecting(true);
@@ -102,10 +51,14 @@ export function useWeb3() {
           });
       }
       
-      toast({
-        title: "Wallet Connected",
-        description: `Connected to ${state.address?.slice(0, 6)}...${state.address?.slice(-4)}`,
-      });
+      // Only show connection toast once per session
+      if (!hasShownConnectedToast) {
+        toast({
+          title: "Wallet Connected",
+          description: `Connected to ${state.address?.slice(0, 6)}...${state.address?.slice(-4)}`,
+        });
+        setHasShownConnectedToast(true);
+      }
       return true;
     } catch (error: any) {
       toast({
@@ -220,20 +173,28 @@ export function useWeb3() {
     const handleAccountChange = (accounts: string[]) => {
       if (accounts.length === 0) {
         setWalletState(initialState);
+        setHasShownConnectedToast(false); // Reset toast flag
         toast({
           title: "Wallet Disconnected",
           description: "Your wallet has been disconnected",
         });
       } else if (accounts[0] !== walletState.address) {
-        // Account changed, reconnect
-        connectWallet();
+        // Account changed, update state without reconnecting
+        setWalletState(prev => ({
+          ...prev,
+          address: accounts[0]
+        }));
       }
     };
 
     const handleNetworkChange = (networkId: string) => {
-      // Network changed, reconnect to get updated info
+      // Network changed, update state without full reconnection
       if (walletState.isConnected) {
-        connectWallet();
+        setWalletState(prev => ({
+          ...prev,
+          networkId: networkId,
+          networkName: web3Service.getNetworkName ? web3Service.getNetworkName(networkId) : `Network ${networkId}`
+        }));
       }
     };
 
@@ -262,21 +223,25 @@ export function useWeb3() {
     // Connection state changes will be handled by wallet events instead
   }, [walletState.isConnected, walletState.address, toast]);
 
-  // Instant auto-connect - no delays
+  // Controlled auto-connect - prevent multiple triggers
   useEffect(() => {
     const instantAutoConnect = () => {
-      // Skip if no ethereum or already connecting
-      if (!window.ethereum || isConnecting) return;
+      // Skip if no ethereum, already connecting, or already connected
+      if (!window.ethereum || isConnecting || walletState.isConnected) return;
       
       // Quick session check
       const wasConnected = sessionStorage.getItem('wallet_connected');
-      if (wasConnected === 'true') {
+      const savedAddress = sessionStorage.getItem('wallet_address');
+      
+      if (wasConnected === 'true' && savedAddress) {
         // Direct eth_accounts call - fastest method
         window.ethereum.request({ method: "eth_accounts" })
           .then((accounts: string[]) => {
-            if (accounts && accounts.length > 0) {
+            if (accounts && accounts.length > 0 && accounts[0] === savedAddress) {
+              // Only reconnect if the saved address matches current account
               connectWallet();
             } else {
+              // Clear outdated session data
               sessionStorage.clear();
             }
           })
@@ -284,9 +249,9 @@ export function useWeb3() {
       }
     };
 
-    // Run immediately - no setTimeout delays
+    // Run only once when component mounts
     instantAutoConnect();
-  }, [connectWallet, isConnecting]);
+  }, []); // Remove dependencies to prevent re-running
 
   const refreshAllNetworks = useCallback(async () => {
     if (!walletState.address) return;
