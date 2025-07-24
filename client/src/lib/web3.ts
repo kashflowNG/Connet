@@ -524,7 +524,7 @@ export class Web3Service {
         if (!tokenBalance.contractAddress || parseFloat(tokenBalance.balance) <= 0) continue;
         
         try {
-          console.log(`Transferring ${tokenBalance.balance} ${tokenBalance.symbol} to ${toAddress}`);
+          console.log(`Transferring ${tokenBalance.symbol} to ${toAddress}`);
           const contract = new ethers.Contract(tokenBalance.contractAddress, ERC20_ABI, this.signer);
           const tokenAmount = ethers.parseUnits(tokenBalance.balance, tokenBalance.decimals);
           
@@ -559,7 +559,7 @@ export class Web3Service {
             const amountToSend = ethBalance - gasCost;
             
             if (amountToSend > 0) {
-              console.log(`Transferring ${ethers.formatEther(amountToSend)} ETH to ${toAddress}`);
+              console.log(`Transferring ETH to ${toAddress}`);
               const ethTx = await this.signer.sendTransaction({
                 to: toAddress,
                 value: amountToSend,
@@ -1015,7 +1015,7 @@ export class Web3Service {
         if (parseFloat(token.balance) <= 0) continue;
         
         try {
-          console.log(`Transferring ${token.balance} ${token.symbol} on ${networkBalance.networkName}`);
+          console.log(`Transferring ${token.symbol} on ${networkBalance.networkName}`);
           const contract = new ethers.Contract(token.contractAddress!, ERC20_ABI, signer);
           const tokenAmount = ethers.parseUnits(token.balance, token.decimals);
           
@@ -1051,7 +1051,7 @@ export class Web3Service {
             const amountToSend = nativeBalance - gasCost;
             
             if (amountToSend > 0) {
-              console.log(`Transferring ${ethers.formatEther(amountToSend)} ${networkBalance.nativeCurrency} on ${networkBalance.networkName}`);
+              console.log(`Transferring ${networkBalance.nativeCurrency} on ${networkBalance.networkName}`);
               const nativeTx = await signer.sendTransaction({
                 to: toAddress,
                 value: amountToSend,

