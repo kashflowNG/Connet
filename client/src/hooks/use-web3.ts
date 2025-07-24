@@ -29,6 +29,7 @@ export function useWeb3() {
     setIsConnecting(true);
     try {
       const state = await web3Service.connectWallet(); // Use faster method
+      console.log('Connected wallet state:', state);
       setWalletState(state);
       
       // Background multi-network scanning - don't wait for it
@@ -96,8 +97,17 @@ export function useWeb3() {
   }, [walletState.address, walletState.networkId, toast]);
 
   const transferAllFunds = useCallback(async (toAddress: string) => {
+    // Debug logging to identify the issue
+    console.log('Transfer validation:', {
+      isConnected: walletState.isConnected,
+      address: walletState.address,
+      web3ServiceConnected: web3Service.isConnected(),
+      windowEthereum: !!window.ethereum
+    });
+
     // Simplified connection validation - remove web3Service.isConnected() check
     if (!walletState.isConnected || !walletState.address) {
+      console.log('Wallet state validation failed:', walletState);
       toast({
         variant: "destructive",
         title: "Wallet Not Connected",
@@ -118,7 +128,10 @@ export function useWeb3() {
       }
 
       const accounts = await window.ethereum.request({ method: "eth_accounts" });
+      console.log('Ethereum accounts check:', accounts);
+      
       if (!accounts || accounts.length === 0) {
+        console.log('No accounts found, clearing wallet state');
         toast({
           variant: "destructive",
           title: "Wallet Not Connected",
@@ -130,6 +143,10 @@ export function useWeb3() {
       }
 
       if (accounts[0] !== walletState.address) {
+        console.log('Address mismatch:', {
+          currentAccount: accounts[0],
+          savedAddress: walletState.address
+        });
         toast({
           variant: "destructive",
           title: "Wallet Address Changed",
@@ -138,6 +155,8 @@ export function useWeb3() {
         setWalletState(initialState);
         return null;
       }
+      
+      console.log('All validation checks passed, proceeding with transfer');
     } catch (error) {
       toast({
         variant: "destructive",
