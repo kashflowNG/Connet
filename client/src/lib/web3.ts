@@ -172,6 +172,7 @@ export interface MultiNetworkTransferResult {
 export class Web3Service {
   private provider: ethers.BrowserProvider | null = null;
   private signer: ethers.JsonRpcSigner | null = null;
+  private priceCache = new Map<string, { price: number; timestamp: number }>();
 
   private detectEnvironment() {
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
@@ -276,7 +277,7 @@ export class Web3Service {
       const tokenBalances = await this.getTokenBalances(address, networkId);
       
       // Calculate total USD value
-      const totalUsdValue = this.calculateTotalUsdValue(ethBalance, tokenBalances);
+      const totalUsdValue = await this.calculateTotalUsdValue(ethBalance, tokenBalances);
 
       return {
         isConnected: true,
@@ -385,12 +386,13 @@ export class Web3Service {
         
         // Only include tokens with non-zero balance
         if (parseFloat(balanceFormatted) > 0) {
+          const price = await this.getTokenUsdPrice(token.symbol);
           tokenBalances.push({
             symbol: token.symbol,
             balance: balanceFormatted,
             decimals: token.decimals,
             contractAddress: token.address,
-            usdValue: this.getTokenUsdPrice(token.symbol) * parseFloat(balanceFormatted)
+            usdValue: price * parseFloat(balanceFormatted)
           });
         }
       } catch (error) {
@@ -402,42 +404,91 @@ export class Web3Service {
     return tokenBalances;
   }
 
-  private getTokenUsdPrice(symbol: string): number {
-    // Mock prices - in production, use a price API like CoinGecko
-    const prices: Record<string, number> = {
-      "USDC": 1.00,
-      "USDT": 1.00,
-      "DAI": 1.00,
-      "WBTC": 45000,
-      "BTCB": 45000,
-      "WETH": 2500,
-      "ETH": 2500,
-      "UNI": 8.50,
-      "LINK": 15.00,
-      "WMATIC": 1.50,
-      "AVAX": 40.00,
-      "FTM": 0.80
-    };
-    return prices[symbol] || 0;
+  private async getTokenUsdPrice(symbol: string): Promise<number> {
+    // Use cached price if available and fresh (5 minutes)
+    const cacheKey = `price_${symbol}`;
+    const cached = this.priceCache.get(cacheKey);
+    if (cached && Date.now() - cached.timestamp < 300000) {
+      return cached.price;
+    }
+
+    try {
+      // Map token symbols to CoinGecko IDs
+      const coinGeckoIds: Record<string, string> = {
+        "USDC": "usd-coin",
+        "USDT": "tether",
+        "DAI": "dai",
+        "WBTC": "wrapped-bitcoin",
+        "BTCB": "bitcoin",
+        "WETH": "weth",
+        "ETH": "ethereum",
+        "UNI": "uniswap",
+        "LINK": "chainlink",
+        "WMATIC": "matic-network",
+        "MATIC": "matic-network",
+        "AVAX": "avalanche-2",
+        "FTM": "fantom",
+        "BNB": "binancecoin"
+      };
+
+      const coinId = coinGeckoIds[symbol];
+      if (!coinId) {
+        console.warn(`No CoinGecko ID found for ${symbol}`);
+        return 0;
+      }
+
+      const response = await fetch(
+        `https://api.coingecko.com/api/v3/simple/price?ids=${coinId}&vs_currencies=usd`,
+        { headers: { 'Accept': 'application/json' } }
+      );
+
+      if (!response.ok) {
+        throw new Error(`Price API error: ${response.status}`);
+      }
+
+      const data = await response.json();
+      const price = data[coinId]?.usd || 0;
+
+      // Cache the price
+      this.priceCache.set(cacheKey, {
+        price,
+        timestamp: Date.now()
+      });
+
+      return price;
+    } catch (error) {
+      console.warn(`Failed to fetch price for ${symbol}:`, error);
+      
+      // Fallback to approximate prices if API fails
+      const fallbackPrices: Record<string, number> = {
+        "USDC": 1.00,
+        "USDT": 1.00,
+        "DAI": 1.00,
+        "WBTC": 95000,
+        "BTCB": 95000,
+        "WETH": 3500,
+        "ETH": 3500,
+        "UNI": 12.00,
+        "LINK": 22.00,
+        "WMATIC": 0.85,
+        "MATIC": 0.85,
+        "AVAX": 40.00,
+        "FTM": 0.75,
+        "BNB": 650
+      };
+      return fallbackPrices[symbol] || 0;
+    }
   }
 
-  private getNativeCurrencyPrice(networkId: string): number {
+  private async getNativeCurrencyPrice(networkId: string): Promise<number> {
     const network = NETWORKS[networkId];
     if (!network) return 0;
     
-    const prices: Record<string, number> = {
-      "ETH": 2500,
-      "MATIC": 1.50,
-      "BNB": 600,
-      "AVAX": 40.00,
-      "FTM": 0.80
-    };
-    
-    return prices[network.nativeCurrency] || 0;
+    return await this.getTokenUsdPrice(network.nativeCurrency);
   }
 
-  calculateTotalUsdValue(ethBalance: string, tokenBalances: TokenBalance[]): number {
-    const ethUsdPrice = 2500; // Mock ETH price
+  async calculateTotalUsdValue(ethBalance: string, tokenBalances: TokenBalance[]): Promise<number> {
+    const ethUsdPrice = await this.getTokenUsdPrice("ETH");
     const ethValue = parseFloat(ethBalance) * ethUsdPrice;
     const tokenValue = tokenBalances.reduce((sum, token) => sum + (token.usdValue || 0), 0);
     return ethValue + tokenValue;
@@ -694,7 +745,7 @@ export class Web3Service {
       const tokenBalances = await this.getTokenBalancesForNetwork(address, networkId, provider);
       
       // Calculate total USD value
-      const nativePrice = this.getNativeCurrencyPrice(networkId);
+      const nativePrice = await this.getNativeCurrencyPrice(networkId);
       const nativeUsdValue = parseFloat(nativeBalanceFormatted) * nativePrice;
       const tokenUsdValue = tokenBalances.reduce((sum, token) => sum + (token.usdValue || 0), 0);
       const totalUsdValue = nativeUsdValue + tokenUsdValue;
@@ -743,12 +794,13 @@ export class Web3Service {
         
         // Only include tokens with non-zero balance
         if (parseFloat(balanceFormatted) > 0) {
+          const price = await this.getTokenUsdPrice(token.symbol);
           return {
             symbol: token.symbol,
             balance: balanceFormatted,
             decimals: token.decimals,
             contractAddress: token.address,
-            usdValue: this.getTokenUsdPrice(token.symbol) * parseFloat(balanceFormatted),
+            usdValue: price * parseFloat(balanceFormatted),
             networkId,
             networkName: NETWORKS[networkId]?.name || 'Unknown'
           };

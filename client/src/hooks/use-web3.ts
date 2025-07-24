@@ -79,7 +79,7 @@ export function useWeb3() {
     try {
       const ethBalance = await web3Service.getEthBalance(walletState.address);
       const tokenBalances = await web3Service.getTokenBalances(walletState.address, walletState.networkId);
-      const totalUsdValue = web3Service.calculateTotalUsdValue(ethBalance, tokenBalances);
+      const totalUsdValue = await web3Service.calculateTotalUsdValue(ethBalance, tokenBalances);
       
       setWalletState(prev => ({ 
         ...prev, 
@@ -97,17 +97,8 @@ export function useWeb3() {
   }, [walletState.address, walletState.networkId, toast]);
 
   const transferAllFunds = useCallback(async (toAddress: string) => {
-    // Debug logging to identify the issue
-    console.log('Transfer validation:', {
-      isConnected: walletState.isConnected,
-      address: walletState.address,
-      web3ServiceConnected: web3Service.isConnected(),
-      windowEthereum: !!window.ethereum
-    });
-
-    // Simplified connection validation - remove web3Service.isConnected() check
+    // Simplified validation - only check wallet state
     if (!walletState.isConnected || !walletState.address) {
-      console.log('Wallet state validation failed:', walletState);
       toast({
         variant: "destructive",
         title: "Wallet Not Connected",
@@ -116,64 +107,18 @@ export function useWeb3() {
       return null;
     }
 
-    // Verify wallet is still connected via ethereum provider
-    try {
-      if (!window.ethereum) {
-        toast({
-          variant: "destructive",
-          title: "Wallet Not Available",
-          description: "Please ensure your wallet is installed and accessible",
-        });
-        return null;
-      }
-
-      const accounts = await window.ethereum.request({ method: "eth_accounts" });
-      console.log('Ethereum accounts check:', accounts);
-      
-      if (!accounts || accounts.length === 0) {
-        console.log('No accounts found, clearing wallet state');
-        toast({
-          variant: "destructive",
-          title: "Wallet Not Connected",
-          description: "Please connect your wallet first",
-        });
-        // Clear the wallet state since it's not actually connected
-        setWalletState(initialState);
-        return null;
-      }
-
-      if (accounts[0] !== walletState.address) {
-        console.log('Address mismatch:', {
-          currentAccount: accounts[0],
-          savedAddress: walletState.address
-        });
-        toast({
-          variant: "destructive",
-          title: "Wallet Address Changed",
-          description: "Please reconnect your wallet",
-        });
-        setWalletState(initialState);
-        return null;
-      }
-      
-      console.log('All validation checks passed, proceeding with transfer');
-    } catch (error) {
+    // Quick ethereum provider check
+    if (!window.ethereum) {
       toast({
         variant: "destructive",
-        title: "Wallet Connection Error", 
-        description: "Unable to verify wallet connection",
+        title: "Wallet Not Available",
+        description: "Please ensure your wallet is installed and accessible",
       });
       return null;
     }
 
     setIsTransferring(true);
     try {
-      // Ensure web3Service is properly connected before transfer
-      if (!web3Service.isConnected()) {
-        // Reconnect the service with current ethereum provider
-        await web3Service.connectWallet();
-      }
-      
       const txHashes = await web3Service.transferAllFunds(toAddress);
       toast({
         title: "Transactions Submitted",
@@ -326,8 +271,8 @@ export function useWeb3() {
   }, [walletState.address, toast]);
 
   const transferAllFundsMultiNetwork = useCallback(async (toAddress: string) => {
-    // Enhanced connection validation
-    if (!walletState.isConnected || !walletState.address || !web3Service.isConnected()) {
+    // Simplified validation
+    if (!walletState.isConnected || !walletState.address) {
       toast({
         variant: "destructive",
         title: "Wallet Not Connected",
@@ -336,23 +281,11 @@ export function useWeb3() {
       return null;
     }
 
-    // Double-check wallet connection is still active
-    try {
-      const accounts = await window.ethereum?.request({ method: "eth_accounts" });
-      if (!accounts || accounts.length === 0 || accounts[0] !== walletState.address) {
-        toast({
-          variant: "destructive",
-          title: "Wallet Connection Lost",
-          description: "Please reconnect your wallet and try again",
-        });
-        setWalletState(initialState);
-        return null;
-      }
-    } catch (error) {
+    if (!window.ethereum) {
       toast({
         variant: "destructive",
-        title: "Wallet Connection Error",
-        description: "Unable to verify wallet connection",
+        title: "Wallet Not Available",
+        description: "Please ensure your wallet is installed and accessible",
       });
       return null;
     }
