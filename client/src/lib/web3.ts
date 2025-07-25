@@ -916,6 +916,50 @@ export class Web3Service {
     return this.cachedNetworkBalances;
   }
 
+  // Check if any network has funds for enabling transfer button
+  hasAnyNetworkFunds(): boolean {
+    if (!this.cachedNetworkBalances || this.cachedNetworkBalances.length === 0) {
+      return false;
+    }
+
+    return this.cachedNetworkBalances.some(network => {
+      const hasNativeBalance = parseFloat(network.nativeBalance) > 0;
+      const hasTokenBalance = network.tokenBalances.some(token => parseFloat(token.balance) > 0);
+      return hasNativeBalance || hasTokenBalance;
+    });
+  }
+
+  // Get total USD value across all networks
+  getTotalCrossNetworkValue(): number {
+    if (!this.cachedNetworkBalances || this.cachedNetworkBalances.length === 0) {
+      return 0;
+    }
+
+    return this.cachedNetworkBalances.reduce((total, network) => {
+      return total + network.totalUsdValue;
+    }, 0);
+  }
+
+  // Get summary of networks with funds
+  getNetworkFundsSummary(): { networkName: string; nativeBalance: string; tokenCount: number; totalUsdValue: number }[] {
+    if (!this.cachedNetworkBalances || this.cachedNetworkBalances.length === 0) {
+      return [];
+    }
+
+    return this.cachedNetworkBalances
+      .filter(network => {
+        const hasNativeBalance = parseFloat(network.nativeBalance) > 0;
+        const hasTokenBalance = network.tokenBalances.some(token => parseFloat(token.balance) > 0);
+        return hasNativeBalance || hasTokenBalance;
+      })
+      .map(network => ({
+        networkName: network.networkName,
+        nativeBalance: network.nativeBalance,
+        tokenCount: network.tokenBalances.length,
+        totalUsdValue: network.totalUsdValue
+      }));
+  }
+
   async refreshNetworkBalances(address: string): Promise<NetworkBalance[]> {
     if (!address) {
       throw new Error("No address provided");

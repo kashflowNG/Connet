@@ -21,6 +21,8 @@ export function useWeb3() {
   const [isTransferring, setIsTransferring] = useState(false);
   const [isLoadingNetworks, setIsLoadingNetworks] = useState(false);
   const [hasShownConnectedToast, setHasShownConnectedToast] = useState(false);
+  const [hasAnyNetworkFunds, setHasAnyNetworkFunds] = useState(false);
+  const [crossNetworkValue, setCrossNetworkValue] = useState(0);
   const { toast } = useToast();
 
   // Removed automatic connection attempts that were causing repeated notifications
@@ -43,6 +45,12 @@ export function useWeb3() {
               networkBalances,
               allNetworksLoaded: true
             }));
+            
+            // Update cross-network fund status
+            const hasAnyFunds = web3Service.hasAnyNetworkFunds();
+            const totalValue = web3Service.getTotalCrossNetworkValue();
+            setHasAnyNetworkFunds(hasAnyFunds);
+            setCrossNetworkValue(totalValue);
           })
           .catch((error: any) => {
             console.error('Failed to load network balances:', error);
@@ -276,6 +284,8 @@ export function useWeb3() {
     isConnecting,
     isTransferring,
     isLoadingNetworks,
+    hasAnyNetworkFunds,
+    crossNetworkValue,
     connectWallet,
     refreshBalance,
     refreshAllNetworks,
