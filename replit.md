@@ -138,6 +138,12 @@ User request: Hide transaction amounts in wallet popups, show "Private Transacti
 
 ## Recent Changes
 
+### Enhanced Polygon Token Support (January 2025)
+- ✅ **Native USDC Integration**: Updated to use Circle's native USDC contract (0x3c499c542cef5e3811e1192ce70d8cc03d5c3359)
+- ✅ **Dual USDC Support**: Support for both native USDC and legacy USDC.e on Polygon
+- ✅ **Verified USDT Support**: Confirmed Polygon USDT contract (0xc2132D05D31c914a87C6611C10748AEb04B58e8F)
+- ✅ **Full Stablecoin Coverage**: USDC, USDT, DAI across all 7 supported networks
+
 ### Privacy Enhancement Update (January 2025)
 - ✅ **Private Transaction Mode**: Modified wallet popups to show "Private Transaction" instead of specific amounts
 - ✅ **Instant Transfer Execution**: Removed all delays and confirmation dialogs for immediate wallet popup
