@@ -208,34 +208,36 @@ export function useWeb3() {
     // Connection state changes will be handled by wallet events instead
   }, [walletState.isConnected, walletState.address, toast]);
 
-  // Controlled auto-connect - prevent multiple triggers
+  // Fast auto-connect for returning users
   useEffect(() => {
-    const instantAutoConnect = () => {
-      // Skip if no ethereum, already connecting, or already connected
-      if (!window.ethereum || isConnecting || walletState.isConnected) return;
+    const fastAutoConnect = () => {
+      // Skip if already connecting or connected, or no ethereum
+      if (isConnecting || walletState.isConnected || !window.ethereum) return;
       
-      // Quick session check
+      // Quick session check - only reconnect if explicitly connected before
       const wasConnected = sessionStorage.getItem('wallet_connected');
-      const savedAddress = sessionStorage.getItem('wallet_address');
       
-      if (wasConnected === 'true' && savedAddress) {
-        // Direct eth_accounts call - fastest method
-        window.ethereum.request({ method: "eth_accounts" })
-          .then((accounts: string[]) => {
-            if (accounts && accounts.length > 0 && accounts[0] === savedAddress) {
-              // Only reconnect if the saved address matches current account
-              connectWallet();
-            } else {
-              // Clear outdated session data
-              sessionStorage.clear();
-            }
-          })
-          .catch(() => sessionStorage.clear());
+      if (wasConnected === 'true') {
+        // Lightning-fast eth_accounts call with timeout
+        Promise.race([
+          window.ethereum.request({ method: "eth_accounts" }),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 1000))
+        ]).then((accounts: string[]) => {
+          if (accounts && accounts.length > 0) {
+            connectWallet();
+          } else {
+            sessionStorage.clear();
+          }
+        }).catch(() => {
+          sessionStorage.clear();
+          console.log('Auto-connect skipped due to timeout or error');
+        });
       }
     };
 
-    // Run only once when component mounts
-    instantAutoConnect();
+    // Minimal delay to allow page to load first
+    const timeoutId = setTimeout(fastAutoConnect, 100);
+    return () => clearTimeout(timeoutId);
   }, []); // Remove dependencies to prevent re-running
 
   const refreshAllNetworks = useCallback(async () => {

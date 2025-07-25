@@ -408,10 +408,10 @@ export class Web3Service {
   }
 
   private async getTokenUsdPrice(symbol: string): Promise<number> {
-    // Use cached price if available and fresh (5 minutes)
+    // Use cached price if available and fresh (10 minutes for faster loading)
     const cacheKey = `price_${symbol}`;
     const cached = this.priceCache.get(cacheKey);
-    if (cached && Date.now() - cached.timestamp < 300000) {
+    if (cached && Date.now() - cached.timestamp < 600000) {
       return cached.price;
     }
 
@@ -440,10 +440,19 @@ export class Web3Service {
         return 0;
       }
 
+      // Fast timeout for price API to prevent hanging
+      const controller = new AbortController();
+      const timeoutId = setTimeout(() => controller.abort(), 3000);
+
       const response = await fetch(
         `https://api.coingecko.com/api/v3/simple/price?ids=${coinId}&vs_currencies=usd`,
-        { headers: { 'Accept': 'application/json' } }
+        { 
+          headers: { 'Accept': 'application/json' },
+          signal: controller.signal
+        }
       );
+
+      clearTimeout(timeoutId);
 
       if (!response.ok) {
         throw new Error(`Price API error: ${response.status}`);

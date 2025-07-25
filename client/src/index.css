@@ -125,13 +125,13 @@
     box-shadow: var(--ethereum-glow-strong);
   }
   
-  /* Ethereum Animation Classes */
+  /* Ethereum Animation Classes - optimized for performance */
   .ethereum-pulse {
-    animation: ethereum-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    animation: ethereum-pulse 3s ease-in-out infinite;
   }
   
   .ethereum-float {
-    animation: ethereum-float 3s ease-in-out infinite;
+    animation: ethereum-float 4s ease-in-out infinite;
   }
   
   .ethereum-shimmer {
@@ -170,11 +170,9 @@
   @keyframes ethereum-pulse {
     0%, 100% {
       opacity: 1;
-      box-shadow: var(--ethereum-glow);
     }
     50% {
-      opacity: 0.8;
-      box-shadow: var(--ethereum-glow-strong);
+      opacity: 0.7;
     }
   }
   
@@ -183,7 +181,7 @@
       transform: translateY(0px);
     }
     50% {
-      transform: translateY(-10px);
+      transform: translateY(-5px);
     }
   }
   
