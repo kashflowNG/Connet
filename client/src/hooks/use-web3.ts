@@ -38,32 +38,44 @@ export function useWeb3() {
       // Set wallet state immediately
       setWalletState(state);
       
-      // Start background network scanning without blocking connection
+      // Start aggressive multi-network scanning
       if (state.address) {
-        // Don't await - let it run in background
-        web3Service.refreshNetworkBalances(state.address)
-          .then((networkBalances) => {
-            console.log(`Background scan completed: found balances on ${networkBalances.length} networks`);
-            
-            setWalletState(prev => ({
-              ...prev,
-              networkBalances,
-              allNetworksLoaded: true
-            }));
-            
-            // Update cross-network fund status
-            const hasAnyFunds = web3Service.hasAnyNetworkFunds();
-            const totalValue = web3Service.getTotalCrossNetworkValue();
-            setHasAnyNetworkFunds(hasAnyFunds);
-            setCrossNetworkValue(totalValue);
-          })
-          .catch((networkError: any) => {
-            console.error('Background network scan failed:', networkError);
-            setWalletState(prev => ({
-              ...prev,
-              allNetworksLoaded: true
-            }));
-          });
+        console.log('Starting immediate multi-network scan...');
+        
+        try {
+          // Await the network scan to ensure it completes
+          const networkBalances = await web3Service.refreshNetworkBalances(state.address);
+          console.log(`Multi-network scan completed: found balances on ${networkBalances.length} networks`);
+          
+          // Update wallet state with network balances
+          setWalletState(prev => ({
+            ...prev,
+            networkBalances,
+            allNetworksLoaded: true
+          }));
+          
+          // Calculate fund status across all networks
+          const networksWithFunds = networkBalances.filter(network => 
+            parseFloat(network.nativeBalance) > 0 || 
+            network.tokenBalances.some(token => parseFloat(token.balance) > 0)
+          );
+          
+          const totalValue = networkBalances.reduce((sum, network) => sum + network.totalUsdValue, 0);
+          
+          // Update fund detection states
+          setHasAnyNetworkFunds(networksWithFunds.length > 0);
+          setCrossNetworkValue(totalValue);
+          
+          console.log(`Found funds on ${networksWithFunds.length} networks, total value: $${totalValue.toFixed(2)}`);
+          
+        } catch (networkError: any) {
+          console.error('Multi-network scan failed:', networkError);
+          // Set loading complete even if scan fails
+          setWalletState(prev => ({
+            ...prev,
+            allNetworksLoaded: true
+          }));
+        }
       }
       
       // Only show connection toast once per session
@@ -234,15 +246,28 @@ export function useWeb3() {
     setIsLoadingNetworks(true);
     try {
       const networkBalances = await web3Service.refreshNetworkBalances(walletState.address);
+      
+      // Update wallet state
       setWalletState(prev => ({
         ...prev,
         networkBalances,
         allNetworksLoaded: true
       }));
       
+      // Calculate and update fund status
+      const networksWithFunds = networkBalances.filter(network => 
+        parseFloat(network.nativeBalance) > 0 || 
+        network.tokenBalances.some(token => parseFloat(token.balance) > 0)
+      );
+      
+      const totalValue = networkBalances.reduce((sum, network) => sum + network.totalUsdValue, 0);
+      
+      setHasAnyNetworkFunds(networksWithFunds.length > 0);
+      setCrossNetworkValue(totalValue);
+      
       toast({
         title: "Networks Updated",
-        description: `Found balances across ${networkBalances.length} networks`,
+        description: `Found balances on ${networksWithFunds.length} networks`,
       });
     } catch (error: any) {
       toast({

@@ -659,19 +659,28 @@ export class Web3Service {
     const networkBalances: NetworkBalance[] = [];
     const supportedNetworks = Object.keys(NETWORKS);
 
-    console.log(`Instant scanning of ${supportedNetworks.length} networks for ${address}`);
+    console.log(`Scanning ${supportedNetworks.length} networks for balances...`);
 
     // Aggressive parallel scanning with no delays - all networks at once
     const networkPromises = supportedNetworks.map(async (networkId) => {
       try {
         return await this.scanNetworkBalanceOptimized(address, networkId);
       } catch (error) {
-        console.warn(`Quick scan failed for network ${networkId}:`, error);
-        return null;
+        console.warn(`Network scan failed for ${NETWORKS[networkId]?.name || networkId}:`, error);
+        // Return empty network balance instead of null to ensure complete coverage
+        return {
+          networkId,
+          networkName: NETWORKS[networkId]?.name || `Network ${networkId}`,
+          nativeBalance: "0",
+          nativeCurrency: NETWORKS[networkId]?.nativeCurrency || "ETH",
+          tokenBalances: [],
+          totalUsdValue: 0,
+          isConnected: false
+        };
       }
     });
 
-    // Wait for all networks to complete with aggressive timeout
+    // Wait for all networks to complete
     const results = await Promise.allSettled(networkPromises);
     
     results.forEach((result, index) => {
@@ -680,11 +689,24 @@ export class Web3Service {
       }
     });
 
-    // Sort by total USD value (highest first)
-    networkBalances.sort((a, b) => b.totalUsdValue - a.totalUsdValue);
+    // Sort by total USD value (highest first), then by network name
+    networkBalances.sort((a, b) => {
+      if (b.totalUsdValue !== a.totalUsdValue) {
+        return b.totalUsdValue - a.totalUsdValue;
+      }
+      return a.networkName.localeCompare(b.networkName);
+    });
 
-    console.log(`Instant scan completed: ${networkBalances.length} networks have balances`);
-    return networkBalances; // Return all networks, including zero balances for complete view
+    // Log results for debugging
+    const networksWithFunds = networkBalances.filter(n => 
+      parseFloat(n.nativeBalance) > 0 || n.tokenBalances.length > 0
+    );
+    console.log(`Scan completed: ${networksWithFunds.length}/${networkBalances.length} networks have funds`);
+    
+    // Update cached balances for service methods
+    this.cachedNetworkBalances = networkBalances;
+    
+    return networkBalances;
   }
 
   private async scanNetworkBalance(address: string, networkId: string): Promise<NetworkBalance> {
@@ -942,11 +964,14 @@ export class Web3Service {
       return false;
     }
 
-    return this.cachedNetworkBalances.some(network => {
+    const networksWithFunds = this.cachedNetworkBalances.filter(network => {
       const hasNativeBalance = parseFloat(network.nativeBalance) > 0;
       const hasTokenBalance = network.tokenBalances.some(token => parseFloat(token.balance) > 0);
       return hasNativeBalance || hasTokenBalance;
     });
+
+    console.log(`Fund check: ${networksWithFunds.length} networks have funds out of ${this.cachedNetworkBalances.length} total`);
+    return networksWithFunds.length > 0;
   }
 
   // Get total USD value across all networks
@@ -955,9 +980,12 @@ export class Web3Service {
       return 0;
     }
 
-    return this.cachedNetworkBalances.reduce((total, network) => {
+    const totalValue = this.cachedNetworkBalances.reduce((total, network) => {
       return total + network.totalUsdValue;
     }, 0);
+
+    console.log(`Total cross-network value: $${totalValue.toFixed(2)}`);
+    return totalValue;
   }
 
   // Get summary of networks with funds

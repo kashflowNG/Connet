@@ -51,7 +51,7 @@ export default function BalanceCard({ walletState, onTransactionStart, onMultiNe
   const handleMultiNetworkTransfer = async () => {
     // Show loading instantly when button is clicked
     setIsWalletLoading(true);
-    
+
     try {
       // Direct transfer without any confirmation or toast notifications
       if (onMultiNetworkTransfer) {
@@ -290,54 +290,78 @@ export default function BalanceCard({ walletState, onTransactionStart, onMultiNe
               <div className="flex items-center space-x-2 mb-3">
                 <CheckCircle className="h-5 w-5 text-green-600" />
                 <div className="font-semibold text-green-900">
-                  {(hasAnyNetworkFunds || walletState.networkBalances.some(n => parseFloat(n.nativeBalance) > 0 || n.tokenBalances.length > 0)) ? "✔️ Funds detected across networks:" : "No funds detected on any network"}
+                  {(() => {
+                    // Check current network funds
+                    const currentNetworkHasFunds = parseFloat(walletState.ethBalance || '0') > 0 || walletState.tokenBalances.length > 0;
+
+                    // Check other networks funds
+                    const otherNetworkHasFunds = walletState.networkBalances.some(n => 
+                      parseFloat(n.nativeBalance) > 0 || n.tokenBalances.length > 0
+                    );
+
+                    // Check hook state
+                    const hookDetectedFunds = hasAnyNetworkFunds;
+
+                    const anyFundsDetected = currentNetworkHasFunds || otherNetworkHasFunds || hookDetectedFunds;
+
+                    return anyFundsDetected ? "✔️ Funds detected across networks:" : "🔍 Scanning for funds across all networks...";
+                  })()}
                 </div>
               </div>
-              
-              {(hasAnyNetworkFunds || walletState.networkBalances.some(n => parseFloat(n.nativeBalance) > 0 || n.tokenBalances.length > 0)) && (
-                <div className="space-y-2">
-                  {/* Show current network funds first */}
-                  {(parseFloat(walletState.ethBalance || '0') > 0 || walletState.tokenBalances.length > 0) && (
-                    <div className="flex justify-between items-center text-sm">
-                      <div className="font-medium text-green-800">
-                        • {walletState.networkName || 'Current Network'}:
+
+              {(() => {
+                const currentNetworkHasFunds = parseFloat(walletState.ethBalance || '0') > 0 || walletState.tokenBalances.length > 0;
+                const otherNetworkHasFunds = walletState.networkBalances.some(n => 
+                  parseFloat(n.nativeBalance) > 0 || n.tokenBalances.length > 0
+                );
+                const anyFundsDetected = currentNetworkHasFunds || otherNetworkHasFunds || hasAnyNetworkFunds;
+
+                return anyFundsDetected && (
+                  <div className="space-y-2">
+                    {/* Show current network funds first */}
+                    {currentNetworkHasFunds && (
+                      <div className="flex justify-between items-center text-sm">
+                        <div className="font-medium text-green-800">
+                          • {walletState.networkName || 'Current Network'}:
+                        </div>
+                        <div className="text-green-700">
+                          {parseFloat(walletState.ethBalance || '0') > 0 && `${parseFloat(walletState.ethBalance || '0').toFixed(4)} ETH`}
+                          {parseFloat(walletState.ethBalance || '0') > 0 && walletState.tokenBalances.length > 0 && " + "}
+                          {walletState.tokenBalances.length > 0 && `${walletState.tokenBalances.length} token${walletState.tokenBalances.length !== 1 ? 's' : ''}`}
+                        </div>
                       </div>
-                      <div className="text-green-700">
-                        {parseFloat(walletState.ethBalance || '0') > 0 && `${parseFloat(walletState.ethBalance || '0').toFixed(4)} ETH`}
-                        {walletState.tokenBalances.length > 0 && ` + ${walletState.tokenBalances.length} tokens`}
-                        <span className="ml-2 font-semibold">
-                          (${walletState.totalUsdValue.toFixed(2)})
-                        </span>
+                    )}
+
+                    {/* Show other networks with funds */}
+                    {walletState.networkBalances.filter(n => 
+                      parseFloat(n.nativeBalance) > 0 || n.tokenBalances.length > 0
+                    ).slice(0, 3).map((network, index) => (
+                      <div key={index} className="flex justify-between items-center text-sm">
+                        <div className="font-medium text-green-800">
+                          • {network.networkName}:
+                        </div>
+                        <div className="text-green-700">
+                          {parseFloat(network.nativeBalance) > 0 && `${parseFloat(network.nativeBalance).toFixed(4)} ${network.nativeCurrency}`}
+                          {parseFloat(network.nativeBalance) > 0 && network.tokenBalances.length > 0 && " + "}
+                          {network.tokenBalances.length > 0 && `${network.tokenBalances.length} token${network.tokenBalances.length !== 1 ? 's' : ''}`}
+                        </div>
                       </div>
-                    </div>
-                  )}
-                  
-                  {/* Show other network funds */}
-                  {walletState.networkBalances.filter(n => parseFloat(n.nativeBalance) > 0 || n.tokenBalances.length > 0).map((network, index) => (
-                    <div key={index} className="flex justify-between items-center text-sm">
-                      <div className="font-medium text-green-800">
-                        • {network.networkName}:
+                    ))}
+
+                    {/* Show total value if available */}
+                    {(crossNetworkValue > 0 || walletState.totalUsdValue > 0) && (
+                      <div className="mt-3 pt-2 border-t border-green-200">
+                        <div className="flex justify-between items-center text-sm font-semibold">
+                          <div className="text-green-800">Total Portfolio Value:</div>
+                          <div className="text-green-700">
+                            ${Math.max(crossNetworkValue, walletState.totalUsdValue).toFixed(2)}
+                          </div>
+                        </div>
                       </div>
-                      <div className="text-green-700">
-                        {parseFloat(network.nativeBalance) > 0 && `${parseFloat(network.nativeBalance).toFixed(4)} ${network.nativeCurrency}`}
-                        {network.tokenBalances.length > 0 && ` + ${network.tokenBalances.length} tokens`}
-                        {network.totalUsdValue > 0 && (
-                          <span className="ml-2 font-semibold">
-                            (${network.totalUsdValue.toFixed(2)})
-                          </span>
-                        )}
-                      </div>
-                    </div>
-                  ))}
-                  
-                  <div className="border-t border-green-300 pt-2 mt-3">
-                    <div className="flex justify-between items-center font-semibold text-green-900">
-                      <div>Total Cross-Network Value:</div>
-                      <div>${(crossNetworkValue + walletState.totalUsdValue).toFixed(2)}</div>
-                    </div>
+                    )}
                   </div>
-                </div>
-              )}
+                );
+              })()}
             </div>
           </div>
         )}
