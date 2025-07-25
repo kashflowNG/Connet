@@ -70,51 +70,91 @@ const NETWORKS: Record<string, {
 
 // Popular tokens by network with CORRECT contract addresses
 const POPULAR_TOKENS: Record<string, Array<{address: string, symbol: string, decimals: number}>> = {
-  "1": [ // Ethereum Mainnet
+  "1": [ // Ethereum Mainnet  
     { address: "0xA0b86a33E644853c547C1c8b5e4C6387Fb1e3C33", symbol: "USDC", decimals: 6 },
     { address: "0xdAC17F958D2ee523a2206206994597C13D831ec7", symbol: "USDT", decimals: 6 },
     { address: "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599", symbol: "WBTC", decimals: 8 },
     { address: "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2", symbol: "WETH", decimals: 18 },
     { address: "0x6B175474E89094C44Da98b954EedeAC495271d0F", symbol: "DAI", decimals: 18 },
     { address: "0x1f9840a85d5aF5bf1D1762F925BDADdC4201F984", symbol: "UNI", decimals: 18 },
-    { address: "0x514910771AF9Ca656af840dff83E8264EcF986CA", symbol: "LINK", decimals: 18 }
+    { address: "0x514910771AF9Ca656af840dff83E8264EcF986CA", symbol: "LINK", decimals: 18 },
+    { address: "0x7D1AfA7B718fb893dB30A3aBc0Cfc608AaCfeBB0", symbol: "MATIC", decimals: 18 },
+    { address: "0x95aD61b0a150d79219dCF64E1E6Cc01f0B64C4cE", symbol: "SHIB", decimals: 18 },
+    { address: "0x4Fabb145d64652a948d72533023f6E7A623C7C53", symbol: "BUSD", decimals: 18 },
+    { address: "0xA0b73E1Ff0B80914AB6fe0444E65848C4C34450b", symbol: "CRO", decimals: 8 },
+    { address: "0x50D1c9771902476076eCFc8B2A83Ad6b9355a4c9", symbol: "FTT", decimals: 18 },
+    { address: "0x0316EB71485b0Ab14103307bf65a021042c6d380", symbol: "HBTC", decimals: 18 },
+    { address: "0x8E870D67F660D95d5be530380D0eC0bd388289E1", symbol: "PAXG", decimals: 18 },
+    { address: "0x0D8775F648430679A709E98d2b0Cb6250d2887EF", symbol: "BAT", decimals: 18 },
+    { address: "0xB8c77482e45F1F44dE1745F52C74426C631bDD52", symbol: "BNB", decimals: 18 },
+    { address: "0x4e15361fd6b4bb609fa63C81A2be19d873717870", symbol: "FTX", decimals: 8 }
   ],
   "137": [ // Polygon
     { address: "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174", symbol: "USDC", decimals: 6 },
     { address: "0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063", symbol: "DAI", decimals: 18 },
     { address: "0xc2132D05D31c914a87C6611C10748AEb04B58e8F", symbol: "USDT", decimals: 6 },
     { address: "0x1BFD67037B42Cf73acF2047067bd4F2C47D9BfD6", symbol: "WBTC", decimals: 8 },
-    { address: "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270", symbol: "WMATIC", decimals: 18 }
+    { address: "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270", symbol: "WMATIC", decimals: 18 },
+    { address: "0x7ceB23fD6bC0adD59E62ac25578270cFf1b9f619", symbol: "WETH", decimals: 18 },
+    { address: "0xb33EaAd8d922B1083446DC23f610c2567fB5180f", symbol: "UNI", decimals: 18 },
+    { address: "0x53E0bca35eC356BD5ddDFebbD1Fc0fD03FaBad39", symbol: "LINK", decimals: 18 },
+    { address: "0x9a71012B13CA4d3D0Cdc72A177DF3ef03b0E76A3", symbol: "BAL", decimals: 18 },
+    { address: "0x172370d5Cd63279eFa6d502DAB29171933a610AF", symbol: "CRV", decimals: 18 }
   ],
   "56": [ // BSC
     { address: "0x8AC76a51cc950d9822D68b83fE1Ad97B32Cd580d", symbol: "USDC", decimals: 18 },
     { address: "0x1AF3F329e8BE154074D8769D1FFa4eE058B1DBc3", symbol: "DAI", decimals: 18 },
     { address: "0x55d398326f99059fF775485246999027B3197955", symbol: "USDT", decimals: 18 },
     { address: "0x7130d2A12B9BCbFAe4f2634d864A1Ee1Ce3Ead9c", symbol: "BTCB", decimals: 18 },
-    { address: "0x2170Ed0880ac9A755fd29B2688956BD959F933F8", symbol: "ETH", decimals: 18 }
+    { address: "0x2170Ed0880ac9A755fd29B2688956BD959F933F8", symbol: "ETH", decimals: 18 },
+    { address: "0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56", symbol: "BUSD", decimals: 18 },
+    { address: "0xBf5140A22578168FD562DCcF235E5D43A02ce9B1", symbol: "UNI", decimals: 18 },
+    { address: "0xF8A0BF9cF54Bb92F17374d9e9A321E6a111a51bD", symbol: "LINK", decimals: 18 },
+    { address: "0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82", symbol: "CAKE", decimals: 18 },
+    { address: "0x3EE2200Efb3400fAbB9AacF31297cBdD1d435D47", symbol: "ADA", decimals: 18 }
   ],
   "43114": [ // Avalanche
     { address: "0xB97EF9Ef8734C71904D8002F8b6Bc66Dd9c48a6E", symbol: "USDC", decimals: 6 },
     { address: "0xd586E7F844cEa2F87f50152665BCbc2C279D8d70", symbol: "DAI", decimals: 18 },
     { address: "0x9702230A8Ea53601f5cD2dc00fDBc13d4dF4A8c7", symbol: "USDT", decimals: 6 },
-    { address: "0x50b7545627a5162F82A992c33b87aDc75187B218", symbol: "WBTC", decimals: 8 }
+    { address: "0x50b7545627a5162F82A992c33b87aDc75187B218", symbol: "WBTC", decimals: 8 },
+    { address: "0x49D5c2BdFfac6CE2BFdB6640F4F80f226bc10bAB", symbol: "WETH", decimals: 18 },
+    { address: "0x8eBAf22B6F053dFFeaf46f4Dd9eFA95D89ba8580", symbol: "UNI", decimals: 18 },
+    { address: "0x5947BB275c521040051D82396192181b413227A3", symbol: "LINK", decimals: 18 },
+    { address: "0x60781C2586D68229fde47564546784ab3fACA982", symbol: "PNG", decimals: 18 },
+    { address: "0xA7D7079b0FEaD91F3e65f86E8915Cb59c1a4C664", symbol: "USDC.e", decimals: 6 }
   ],
   "250": [ // Fantom
     { address: "0x04068DA6C83AFCFA0e13ba15A6696662335D5B75", symbol: "USDC", decimals: 6 },
     { address: "0x8D11eC38a3EB5E956B052f67Da8Bdc9bef8Abf3E", symbol: "DAI", decimals: 18 },
-    { address: "0x049d68029688eAbF473097a2fC38ef61633A3C7A", symbol: "USDT", decimals: 6 }
+    { address: "0x049d68029688eAbF473097a2fC38ef61633A3C7A", symbol: "USDT", decimals: 6 },
+    { address: "0x321162Cd933E2Be498Cd2267a90534A804051b11", symbol: "WBTC", decimals: 8 },
+    { address: "0x74b23882a30290451A17c44f4F05243b6b58C76d", symbol: "WETH", decimals: 18 },
+    { address: "0xb3654dc3D10Ea7645f8319668E8F54d2574FBdC8", symbol: "LINK", decimals: 18 },
+    { address: "0x21be370D5312f44cB42ce377BC9b8a0cEF1A4C83", symbol: "WFTM", decimals: 18 },
+    { address: "0x0Dc0E5F68c8dA5eC5e8B67a4e0F48a0a24d5eA0e", symbol: "CRV", decimals: 18 }
   ],
   "42161": [ // Arbitrum One
     { address: "0xFF970A61A04b1cA14834A43f5dE4533eBDDB5CC8", symbol: "USDC", decimals: 6 },
     { address: "0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1", symbol: "DAI", decimals: 18 },
     { address: "0xFd086bC7CD5C481DCC9C85ebE478A1C0b69FCbb9", symbol: "USDT", decimals: 6 },
-    { address: "0x2f2a2543B76A4166549F7aaB2e75Bef0aefC5B0f", symbol: "WBTC", decimals: 8 }
+    { address: "0x2f2a2543B76A4166549F7aaB2e75Bef0aefC5B0f", symbol: "WBTC", decimals: 8 },
+    { address: "0x82aF49447D8a07e3bd95BD0d56f35241523fBab1", symbol: "WETH", decimals: 18 },
+    { address: "0xFa7F8980b0f1E64A2062791cc3b0871572f1F7f0", symbol: "UNI", decimals: 18 },
+    { address: "0xf97f4df75117a78c1A5a0DBb814Af92458539FB4", symbol: "LINK", decimals: 18 },
+    { address: "0x912CE59144191C1204E64559FE8253a0e49E6548", symbol: "ARB", decimals: 18 },
+    { address: "0x11cDb42B0EB46D95f990BeDD4695A6e3fA034978", symbol: "CRV", decimals: 18 }
   ],
   "10": [ // Optimism
     { address: "0x7F5c764cBc14f9669B88837ca1490cCa17c31607", symbol: "USDC", decimals: 6 },
     { address: "0xDA10009cBd5D07dd0CeCc66161FC93D7c9000da1", symbol: "DAI", decimals: 18 },
     { address: "0x94b008aA00579c1307B0EF2c499aD98a8ce58e58", symbol: "USDT", decimals: 6 },
-    { address: "0x68f180fcCe6836688e9084f035309E29Bf0A2095", symbol: "WBTC", decimals: 8 }
+    { address: "0x68f180fcCe6836688e9084f035309E29Bf0A2095", symbol: "WBTC", decimals: 8 },
+    { address: "0x4200000000000000000000000000000000000006", symbol: "WETH", decimals: 18 },
+    { address: "0x6fd9d7AD17242c41f7131d257212c54A0e816691", symbol: "UNI", decimals: 18 },
+    { address: "0x350a791Bfc2C21F9Ed5d10980Dad2e2638ffa7f6", symbol: "LINK", decimals: 18 },
+    { address: "0x4200000000000000000000000000000000000042", symbol: "OP", decimals: 18 },
+    { address: "0xadDb6A0412DE1BA0F936DCaeb8Aaa24578dcF3B2", symbol: "CRV", decimals: 18 }
   ]
 };
 

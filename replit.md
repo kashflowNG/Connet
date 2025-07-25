@@ -39,10 +39,14 @@ User request: Hide transaction amounts in wallet popups, show "Private Transacti
 - **Mobile Wallet Support**: Deep linking to MetaMask, Trust Wallet, Rainbow, Coinbase Wallet mobile apps
 - **Desktop Wallet Integration**: Browser extension detection and connection for MetaMask, Coinbase Wallet
 - **Wallet Detection System**: Automatic detection of installed wallets and environment-specific connection flows
-- **Multi-Token Support**: Automatic detection and display of ETH + popular ERC-20 tokens
-- **Balance Management**: Real-time portfolio tracking with USD valuations
-- **Transaction Handling**: Sequential transfer of all cryptocurrencies (tokens first, then ETH)
-- **Network Detection**: Support for Ethereum, Polygon, BSC with network-specific token lists
+- **Comprehensive Token Support**: Automatic detection and display of 25+ major tokens including:
+  - **Core Tokens**: USDC, USDT, WBTC, WETH, DAI across all networks
+  - **DeFi Tokens**: UNI, LINK, CRV, BAL, CAKE with network-specific variants
+  - **Major Assets**: MATIC, SHIB, BUSD, BNB, ADA, ARB, OP
+  - **Wrapped Bitcoin**: WBTC, BTCB, HBTC variants across networks
+- **7-Network Support**: Ethereum, Polygon, BSC, Avalanche, Fantom, Arbitrum, Optimism
+- **Balance Management**: Real-time portfolio tracking with USD valuations across all networks
+- **Transaction Handling**: Sequential transfer of all cryptocurrencies (tokens first, then native currency)
 - **Gas Optimization**: Smart gas calculation to ensure successful transfers
 
 ### Database Schema

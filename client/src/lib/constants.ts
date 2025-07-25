@@ -18,6 +18,14 @@ export const APP_CONFIG = {
     { id: '42161', name: 'Arbitrum', currency: 'ETH' },
     { id: '10', name: 'Optimism', currency: 'ETH' }
   ],
+
+  // Major token support across all networks
+  majorTokens: [
+    'USDC', 'USDT', 'WBTC', 'WETH', 'DAI', 'UNI', 'LINK', 
+    'MATIC', 'SHIB', 'BUSD', 'CRO', 'FTT', 'HBTC', 'PAXG', 
+    'BAT', 'BNB', 'BTCB', 'BAL', 'CRV', 'CAKE', 'ADA', 
+    'PNG', 'WFTM', 'ARB', 'OP'
+  ],
   
   // UI settings
   theme: {
