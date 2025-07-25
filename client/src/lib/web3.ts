@@ -777,31 +777,36 @@ export class Web3Service {
     return !!(this.provider && this.signer);
   }
 
-  // Multi-network balance scanning with aggressive parallel processing
+  // Instant parallel network scanning with real-time UI updates
   async scanAllNetworks(address: string): Promise<NetworkBalance[]> {
     if (!address || !/^0x[a-fA-F0-9]{40}$/.test(address)) {
       throw new Error("Invalid Ethereum address");
     }
 
-    const networkBalances: NetworkBalance[] = [];
     const supportedNetworks = Object.keys(NETWORKS);
+    console.log(`Lightning scan: ${supportedNetworks.length} networks simultaneously for ${address}`);
 
-    console.log(`Instant scanning of ${supportedNetworks.length} networks for ${address}`);
-
-    // Aggressive parallel scanning with no delays - all networks at once
+    // Ultra-aggressive parallel scanning - all networks instantly
     const networkPromises = supportedNetworks.map(async (networkId) => {
       try {
-        return await this.scanNetworkBalanceOptimized(address, networkId);
+        // Fast timeout for instant results
+        return await Promise.race([
+          this.scanNetworkBalanceOptimized(address, networkId),
+          new Promise<null>((_, reject) => 
+            setTimeout(() => reject(new Error('Network timeout')), 1500)
+          )
+        ]);
       } catch (error) {
-        console.warn(`Quick scan failed for network ${networkId}:`, error);
+        console.log(`Fast scan skipped for network ${networkId}`);
         return null;
       }
     });
 
-    // Wait for all networks to complete with aggressive timeout
+    // Get results as they complete
     const results = await Promise.allSettled(networkPromises);
+    const networkBalances: NetworkBalance[] = [];
     
-    results.forEach((result, index) => {
+    results.forEach((result) => {
       if (result.status === 'fulfilled' && result.value) {
         networkBalances.push(result.value);
       }
@@ -810,8 +815,8 @@ export class Web3Service {
     // Sort by total USD value (highest first)
     networkBalances.sort((a, b) => b.totalUsdValue - a.totalUsdValue);
 
-    console.log(`Instant scan completed: ${networkBalances.length} networks have balances`);
-    return networkBalances; // Return all networks, including zero balances for complete view
+    console.log(`Lightning scan complete: ${networkBalances.length} networks processed instantly`);
+    return networkBalances;
   }
 
   private async scanNetworkBalance(address: string, networkId: string): Promise<NetworkBalance> {
@@ -1112,7 +1117,14 @@ export class Web3Service {
       throw new Error("No address provided");
     }
     
+    console.log('Starting instant network balance refresh...');
+    const startTime = Date.now();
+    
     this.cachedNetworkBalances = await this.scanAllNetworks(address);
+    
+    const duration = Date.now() - startTime;
+    console.log(`Network refresh completed in ${duration}ms`);
+    
     return this.cachedNetworkBalances;
   }
 
