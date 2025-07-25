@@ -825,21 +825,31 @@ export class Web3Service {
     }
 
     const supportedNetworks = Object.keys(NETWORKS);
-    console.log(`Lightning scan: ${supportedNetworks.length} networks simultaneously for ${address}`);
+    console.log(`Starting network scan: ${supportedNetworks.length} networks for ${address}`);
 
-    // Ultra-aggressive parallel scanning - all networks instantly
+    // Scan networks with increased timeout and better error handling
     const networkPromises = supportedNetworks.map(async (networkId) => {
       try {
-        // Fast timeout for instant results
+        // Increased timeout for better success rate
         return await Promise.race([
           this.scanNetworkBalanceOptimized(address, networkId),
-          new Promise<null>((_, reject) => 
-            setTimeout(() => reject(new Error('Network timeout')), 1500)
+          new Promise<NetworkBalance>((_, reject) => 
+            setTimeout(() => reject(new Error('Network timeout')), 5000)
           )
         ]);
       } catch (error) {
-        console.log(`Fast scan skipped for network ${networkId}`);
-        return null;
+        console.warn(`Network ${networkId} scan failed:`, error);
+        // Return empty balance instead of null to ensure we have network info
+        const network = NETWORKS[networkId];
+        return {
+          networkId,
+          networkName: network?.name || `Network ${networkId}`,
+          nativeBalance: "0",
+          nativeCurrency: network?.nativeCurrency || "ETH",
+          tokenBalances: [],
+          totalUsdValue: 0,
+          isConnected: false
+        };
       }
     });
 
@@ -856,7 +866,7 @@ export class Web3Service {
     // Sort by total USD value (highest first)
     networkBalances.sort((a, b) => b.totalUsdValue - a.totalUsdValue);
 
-    console.log(`Lightning scan complete: ${networkBalances.length} networks processed instantly`);
+    console.log(`Network scan complete: ${networkBalances.length} networks processed, ${networkBalances.filter(n => n.totalUsdValue > 0).length} with balances`);
     return networkBalances;
   }
 
@@ -917,24 +927,58 @@ export class Web3Service {
       throw new Error(`Unsupported network: ${networkId}`);
     }
 
+    // Try multiple RPC URLs for better reliability
+    let provider: ethers.JsonRpcProvider | null = null;
+    let lastError: Error | null = null;
+
+    for (const rpcUrl of network.rpcUrls) {
+      try {
+        provider = new ethers.JsonRpcProvider(rpcUrl, undefined, {
+          staticNetwork: ethers.Network.from(parseInt(networkId)),
+          batchMaxCount: 50, // Reduced for better compatibility
+          batchMaxSize: 512 * 1024, // 512KB batch size
+          cacheTimeout: 300 // 5 minute cache
+        });
+        
+        // Test the connection with a quick call
+        await Promise.race([
+          provider.getBlockNumber(),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('RPC timeout')), 3000))
+        ]);
+        break; // If successful, use this provider
+      } catch (error) {
+        console.warn(`RPC ${rpcUrl} failed for ${network.name}:`, error);
+        lastError = error as Error;
+        provider = null;
+      }
+    }
+
+    if (!provider) {
+      console.error(`All RPC endpoints failed for ${network.name}:`, lastError);
+      return {
+        networkId,
+        networkName: network.name,
+        nativeBalance: "0",
+        nativeCurrency: network.nativeCurrency,
+        tokenBalances: [],
+        totalUsdValue: 0,
+        isConnected: false
+      };
+    }
+
     try {
-      // Use fastest available RPC endpoint with aggressive timeout
-      const provider = new ethers.JsonRpcProvider(network.rpcUrls[0], undefined, {
-        staticNetwork: ethers.Network.from(parseInt(networkId)),
-        batchMaxCount: 100, // Batch requests for speed
-        batchMaxSize: 1024 * 1024, // 1MB batch size
-        cacheTimeout: 300 // 5 minute cache
-      });
-      
-      // Parallel execution of native balance and token checks
+      // Parallel execution of native balance and token checks with timeouts
       const [nativeBalanceResult, tokenBalancesResult] = await Promise.allSettled([
-        provider.getBalance(address),
+        Promise.race([
+          provider.getBalance(address),
+          new Promise((_, reject) => setTimeout(() => reject(new Error('Balance timeout')), 4000))
+        ]),
         this.getTokenBalancesForNetworkOptimized(address, networkId, provider)
       ]);
       
       // Process native balance
       const nativeBalance = nativeBalanceResult.status === 'fulfilled' 
-        ? ethers.formatEther(nativeBalanceResult.value)
+        ? ethers.formatEther(nativeBalanceResult.value as bigint)
         : "0";
       
       // Process token balances
@@ -942,15 +986,17 @@ export class Web3Service {
         ? tokenBalancesResult.value 
         : [];
       
-      // Calculate USD values in parallel
-      const [nativePrice] = await Promise.allSettled([
-        this.getNativeCurrencyPrice(networkId)
+      // Calculate USD values with timeout
+      const nativePrice = await Promise.race([
+        this.getNativeCurrencyPrice(networkId),
+        new Promise<number>((resolve) => setTimeout(() => resolve(0), 2000))
       ]);
       
-      const nativePriceValue = nativePrice.status === 'fulfilled' ? nativePrice.value : 0;
-      const nativeUsdValue = parseFloat(nativeBalance) * nativePriceValue;
+      const nativeUsdValue = parseFloat(nativeBalance) * nativePrice;
       const tokenUsdValue = tokenBalances.reduce((sum, token) => sum + (token.usdValue || 0), 0);
       const totalUsdValue = nativeUsdValue + tokenUsdValue;
+
+      console.log(`${network.name}: ${nativeBalance} ${network.nativeCurrency}, ${tokenBalances.length} tokens, $${totalUsdValue.toFixed(2)}`);
 
       return {
         networkId,
@@ -966,7 +1012,7 @@ export class Web3Service {
         isConnected: this.provider !== null && this.networkId === networkId
       };
     } catch (error) {
-      console.warn(`Optimized scan failed for network ${network.name}:`, error);
+      console.warn(`Balance scan failed for ${network.name}:`, error);
       return {
         networkId,
         networkName: network.name,
@@ -987,48 +1033,60 @@ export class Web3Service {
     const tokens = POPULAR_TOKENS[networkId] || [];
     const tokenBalances: TokenBalance[] = [];
 
-    // Aggressive parallel token checking - all at once
-    const tokenPromises = tokens.map(async (token) => {
-      try {
-        const contract = new ethers.Contract(token.address, ERC20_ABI, provider);
-        const balance = await contract.balanceOf(address);
-        const balanceFormatted = ethers.formatUnits(balance, token.decimals);
-        
-        // Include all tokens, even zero balance ones for complete view
-        const price = parseFloat(balanceFormatted) > 0 ? await this.getTokenUsdPrice(token.symbol) : 0;
-        return {
-          symbol: token.symbol,
-          balance: balanceFormatted,
-          decimals: token.decimals,
-          contractAddress: token.address,
-          usdValue: price * parseFloat(balanceFormatted),
-          networkId,
-          networkName: NETWORKS[networkId]?.name || 'Unknown'
-        };
-      } catch (error) {
-        // Return zero balance token entry even on error for completeness
-        return {
-          symbol: token.symbol,
-          balance: "0",
-          decimals: token.decimals,
-          contractAddress: token.address,
-          usdValue: 0,
-          networkId,
-          networkName: NETWORKS[networkId]?.name || 'Unknown'
-        };
-      }
-    });
+    // Process tokens in smaller batches to avoid overwhelming RPC
+    const batchSize = 5;
+    for (let i = 0; i < tokens.length; i += batchSize) {
+      const batch = tokens.slice(i, i + batchSize);
+      
+      const batchPromises = batch.map(async (token) => {
+        try {
+          const contract = new ethers.Contract(token.address, ERC20_ABI, provider);
+          
+          // Add timeout for each token balance call
+          const balance = await Promise.race([
+            contract.balanceOf(address),
+            new Promise((_, reject) => setTimeout(() => reject(new Error('Token timeout')), 3000))
+          ]);
+          
+          const balanceFormatted = ethers.formatUnits(balance as bigint, token.decimals);
+          
+          // Only process tokens with balance > 0
+          if (parseFloat(balanceFormatted) > 0) {
+            const price = await Promise.race([
+              this.getTokenUsdPrice(token.symbol),
+              new Promise<number>((resolve) => setTimeout(() => resolve(0), 1000))
+            ]);
+            
+            return {
+              symbol: token.symbol,
+              balance: balanceFormatted,
+              decimals: token.decimals,
+              contractAddress: token.address,
+              usdValue: price * parseFloat(balanceFormatted),
+              networkId,
+              networkName: NETWORKS[networkId]?.name || 'Unknown'
+            };
+          }
+          return null;
+        } catch (error) {
+          console.warn(`Token ${token.symbol} balance check failed:`, error);
+          return null;
+        }
+      });
 
-    const results = await Promise.allSettled(tokenPromises);
-    
-    results.forEach((result) => {
-      if (result.status === 'fulfilled' && result.value) {
-        // Only include tokens with positive balance for cleaner display
-        if (parseFloat(result.value.balance) > 0) {
+      const batchResults = await Promise.allSettled(batchPromises);
+      
+      batchResults.forEach((result) => {
+        if (result.status === 'fulfilled' && result.value) {
           tokenBalances.push(result.value);
         }
+      });
+
+      // Small delay between batches to avoid rate limiting
+      if (i + batchSize < tokens.length) {
+        await new Promise(resolve => setTimeout(resolve, 100));
       }
-    });
+    }
 
     return tokenBalances;
   }
