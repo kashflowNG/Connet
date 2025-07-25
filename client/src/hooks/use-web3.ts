@@ -67,17 +67,28 @@ export function useWeb3() {
             
             // Update cross-network fund status with improved detection
             const networksWithFunds = networkBalances.filter(n => {
-              const hasNativeBalance = parseFloat(n.nativeBalance) > 0.0001; // Minimum threshold
-              const hasTokenBalance = n.tokenBalances.some(token => parseFloat(token.balance) > 0.0001);
-              const hasUsdValue = n.totalUsdValue > 0.01; // Minimum $0.01 USD value
+              const hasNativeBalance = parseFloat(n.nativeBalance) > 0.000001; // Lower threshold for dust
+              const hasTokenBalance = n.tokenBalances.some(token => {
+                const balance = parseFloat(token.balance);
+                return balance > 0.000001; // Detect even tiny token amounts
+              });
+              const hasUsdValue = n.totalUsdValue > 0.001; // Lower USD threshold
+              
+              console.log(`Network ${n.networkName}: native=${n.nativeBalance}, tokens=${n.tokenBalances.length}, usd=${n.totalUsdValue.toFixed(6)}`);
+              
               return hasNativeBalance || hasTokenBalance || hasUsdValue;
             });
+            
             const hasAnyFunds = networksWithFunds.length > 0;
             const totalValue = networkBalances.reduce((sum, n) => sum + n.totalUsdValue, 0);
             
-            console.log(`Networks with funds: ${networksWithFunds.length}, Total value: $${totalValue.toFixed(2)}, Has any funds: ${hasAnyFunds}`);
+            // Additional check: if we have ANY token balances at all, consider it as having funds
+            const hasAnyTokens = networkBalances.some(n => n.tokenBalances.length > 0);
+            const finalHasFunds = hasAnyFunds || hasAnyTokens;
             
-            setHasAnyNetworkFunds(hasAnyFunds);
+            console.log(`Networks with funds: ${networksWithFunds.length}, Total value: $${totalValue.toFixed(6)}, Has any tokens: ${hasAnyTokens}, Final has funds: ${finalHasFunds}`);
+            
+            setHasAnyNetworkFunds(finalHasFunds);
             setCrossNetworkValue(totalValue);
             
             setIsLoadingNetworks(false);
