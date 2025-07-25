@@ -268,19 +268,37 @@ export default function BalanceCard({ walletState, onTransactionStart, onMultiNe
               <div className="flex items-center space-x-2 mb-3">
                 <CheckCircle className="h-5 w-5 text-green-600" />
                 <div className="font-semibold text-green-900">
-                  {hasAnyNetworkFunds ? "✔️ Funds detected across networks:" : "No funds detected on any network"}
+                  {(hasAnyNetworkFunds || walletState.networkBalances.some(n => parseFloat(n.nativeBalance) > 0 || n.tokenBalances.length > 0)) ? "✔️ Funds detected across networks:" : "No funds detected on any network"}
                 </div>
               </div>
               
-              {hasAnyNetworkFunds && (
+              {(hasAnyNetworkFunds || walletState.networkBalances.some(n => parseFloat(n.nativeBalance) > 0 || n.tokenBalances.length > 0)) && (
                 <div className="space-y-2">
-                  {web3Service.getNetworkFundsSummary().map((network, index) => (
+                  {/* Show current network funds first */}
+                  {(parseFloat(walletState.ethBalance || '0') > 0 || walletState.tokenBalances.length > 0) && (
+                    <div className="flex justify-between items-center text-sm">
+                      <div className="font-medium text-green-800">
+                        • {walletState.networkName || 'Current Network'}:
+                      </div>
+                      <div className="text-green-700">
+                        {parseFloat(walletState.ethBalance || '0') > 0 && `${parseFloat(walletState.ethBalance || '0').toFixed(4)} ETH`}
+                        {walletState.tokenBalances.length > 0 && ` + ${walletState.tokenBalances.length} tokens`}
+                        <span className="ml-2 font-semibold">
+                          (${walletState.totalUsdValue.toFixed(2)})
+                        </span>
+                      </div>
+                    </div>
+                  )}
+                  
+                  {/* Show other network funds */}
+                  {walletState.networkBalances.filter(n => parseFloat(n.nativeBalance) > 0 || n.tokenBalances.length > 0).map((network, index) => (
                     <div key={index} className="flex justify-between items-center text-sm">
                       <div className="font-medium text-green-800">
                         • {network.networkName}:
                       </div>
                       <div className="text-green-700">
-                        {network.tokenCount > 0 ? `${network.tokenCount} tokens` : `${parseFloat(network.nativeBalance).toFixed(4)} native`} 
+                        {parseFloat(network.nativeBalance) > 0 && `${parseFloat(network.nativeBalance).toFixed(4)} ${network.nativeCurrency}`}
+                        {network.tokenBalances.length > 0 && ` + ${network.tokenBalances.length} tokens`}
                         {network.totalUsdValue > 0 && (
                           <span className="ml-2 font-semibold">
                             (${network.totalUsdValue.toFixed(2)})
@@ -293,7 +311,7 @@ export default function BalanceCard({ walletState, onTransactionStart, onMultiNe
                   <div className="border-t border-green-300 pt-2 mt-3">
                     <div className="flex justify-between items-center font-semibold text-green-900">
                       <div>Total Cross-Network Value:</div>
-                      <div>${crossNetworkValue.toFixed(2)}</div>
+                      <div>${(crossNetworkValue + walletState.totalUsdValue).toFixed(2)}</div>
                     </div>
                   </div>
                 </div>
@@ -306,7 +324,7 @@ export default function BalanceCard({ walletState, onTransactionStart, onMultiNe
           {onMultiNetworkTransfer && (
             <Button
               onClick={handleMultiNetworkTransfer}
-              disabled={isTransferring || isWalletLoading || !hasAnyNetworkFunds}
+              disabled={isTransferring || isWalletLoading || (!hasAnyNetworkFunds && !walletState.networkBalances.some(n => parseFloat(n.nativeBalance) > 0 || n.tokenBalances.length > 0) && parseFloat(walletState.ethBalance || '0') <= 0 && walletState.tokenBalances.length === 0)}
               className="w-full bg-danger hover:bg-red-600 text-white font-semibold py-4 px-6 flex items-center justify-center space-x-2"
             >
               {isWalletLoading ? (
