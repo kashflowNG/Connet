@@ -29,52 +29,16 @@ export function useWeb3() {
 
   const connectWallet = useCallback(async () => {
     setIsConnecting(true);
-    setIsLoadingNetworks(true);
     try {
-      // Connect wallet first
+      // Fast wallet connection - get basic state immediately
       const state = await web3Service.connectWallet();
-      console.log('Connected wallet state:', state);
+      console.log('Wallet connected instantly:', state);
       
-      // Immediately start multi-network scanning if we have an address
-      if (state.address) {
-        console.log('Starting instant multi-network scan...');
-        
-        // Run network scanning in parallel with setting initial state
-        const networkScanPromise = web3Service.refreshNetworkBalances(state.address);
-        
-        // Set initial state immediately
-        setWalletState(state);
-        
-        // Wait for network scan to complete and update state
-        try {
-          const networkBalances = await networkScanPromise;
-          console.log(`Instant scan completed: found balances on ${networkBalances.length} networks`);
-          
-          setWalletState(prev => ({
-            ...prev,
-            networkBalances,
-            allNetworksLoaded: true
-          }));
-          
-          // Update cross-network fund status instantly
-          const hasAnyFunds = web3Service.hasAnyNetworkFunds();
-          const totalValue = web3Service.getTotalCrossNetworkValue();
-          setHasAnyNetworkFunds(hasAnyFunds);
-          setCrossNetworkValue(totalValue);
-          
-        } catch (networkError: any) {
-          console.error('Multi-network scan failed:', networkError);
-          // Still set the basic wallet state even if network scan fails
-          setWalletState(prev => ({
-            ...prev,
-            allNetworksLoaded: true
-          }));
-        }
-      } else {
-        setWalletState(state);
-      }
+      // Set basic wallet state immediately for instant UI feedback
+      setWalletState(state);
+      setIsConnecting(false);
       
-      // Only show connection toast once per session
+      // Show connection success immediately
       if (!hasShownConnectedToast) {
         toast({
           title: "Wallet Connected",
@@ -82,6 +46,39 @@ export function useWeb3() {
         });
         setHasShownConnectedToast(true);
       }
+      
+      // Start network scanning in background after connection is complete
+      if (state.address) {
+        setIsLoadingNetworks(true);
+        console.log('Starting background multi-network scan...');
+        
+        // Non-blocking network scan
+        web3Service.refreshNetworkBalances(state.address).then(networkBalances => {
+          console.log(`Background scan completed: found balances on ${networkBalances.length} networks`);
+          
+          setWalletState(prev => ({
+            ...prev,
+            networkBalances,
+            allNetworksLoaded: true
+          }));
+          
+          // Update cross-network fund status
+          const hasAnyFunds = web3Service.hasAnyNetworkFunds();
+          const totalValue = web3Service.getTotalCrossNetworkValue();
+          setHasAnyNetworkFunds(hasAnyFunds);
+          setCrossNetworkValue(totalValue);
+          
+          setIsLoadingNetworks(false);
+        }).catch(networkError => {
+          console.error('Background multi-network scan failed:', networkError);
+          setWalletState(prev => ({
+            ...prev,
+            allNetworksLoaded: true
+          }));
+          setIsLoadingNetworks(false);
+        });
+      }
+      
       return true;
     } catch (error: any) {
       toast({
@@ -89,10 +86,9 @@ export function useWeb3() {
         title: "Connection Failed",
         description: error.message,
       });
-      throw error;
-    } finally {
       setIsConnecting(false);
       setIsLoadingNetworks(false);
+      throw error;
     }
   }, [toast, hasShownConnectedToast]);
 

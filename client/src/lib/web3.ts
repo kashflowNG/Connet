@@ -300,9 +300,14 @@ export class Web3Service {
   }
 
   async connectWallet(): Promise<WalletState> {
-    // Ultra-fast connection - skip environment detection for speed
+    // Immediate connection - minimal checks for maximum speed
     if (window.ethereum) {
-      return await this.connectToEthereum();
+      try {
+        // Direct connection without delays
+        return await this.connectToEthereum();
+      } catch (error) {
+        console.log('Direct connection failed, trying alternatives...');
+      }
     }
     
     // Fast fallback for desktop
@@ -311,30 +316,30 @@ export class Web3Service {
       throw new Error("Please install MetaMask extension for your browser, then refresh and try again.");
     }
     
-    // Quick mobile wallet detection - no delays
+    // Instant mobile wallet detection - single attempt only
     return await this.fastMobileConnection();
   }
 
   private async fastMobileConnection(): Promise<WalletState> {
-    // Fast mobile wallet injection check - maximum 3 attempts only
+    // Lightning-fast mobile wallet injection check - single attempt only
     return new Promise<WalletState>((resolve, reject) => {
       let attempts = 0;
-      const maxAttempts = 3; // Reduced to minimum for speed
+      const maxAttempts = 1; // Single attempt for maximum speed
       
-      const quickCheck = async () => {
+      const instantCheck = async () => {
         attempts++;
         
-        // Quick ethereum provider check
+        // Immediate ethereum provider check
         if (window.ethereum) {
           try {
             resolve(await this.connectToEthereum());
             return;
           } catch (error) {
-            console.log('Fast connection failed:', error);
+            console.log('Instant connection failed:', error);
           }
         }
         
-        // Check Trust Wallet
+        // Quick Trust Wallet check
         if ((window as any).trustwallet?.ethereum) {
           try {
             (window as any).ethereum = (window as any).trustwallet.ethereum;
@@ -345,14 +350,12 @@ export class Web3Service {
           }
         }
         
-        if (attempts < maxAttempts) {
-          setTimeout(quickCheck, 50); // Ultra-fast 50ms intervals
-        } else {
-          reject(new Error('No wallet detected. Please open this app from within a wallet browser.'));
-        }
+        // Immediate failure if no wallet found
+        reject(new Error('No wallet detected. Please open this app from within a wallet browser like MetaMask, Trust Wallet, or Coinbase Wallet.'));
       };
       
-      quickCheck();
+      // Execute immediately
+      instantCheck();
     });
   }
 
