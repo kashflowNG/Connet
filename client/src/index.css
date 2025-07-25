@@ -245,6 +245,46 @@
   .text-glow {
     text-shadow: 0 0 20px var(--primary);
   }
+  
+  /* Image Enhancement Styles */
+  .hero-image-container {
+    position: relative;
+    display: inline-block;
+  }
+  
+  .hero-image-glow {
+    filter: drop-shadow(0 10px 30px hsla(192, 76%, 58%, 0.3));
+    transition: all 0.3s ease;
+  }
+  
+  .hero-image-glow:hover {
+    filter: drop-shadow(0 15px 40px hsla(192, 76%, 58%, 0.5));
+    transform: scale(1.02);
+  }
+  
+  .feature-image-hover {
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+  }
+  
+  .feature-image-hover:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+  }
+  
+  /* Background Image Animations */
+  .background-parallax {
+    background-attachment: fixed;
+    background-position: center;
+    background-repeat: no-repeat;
+    background-size: cover;
+  }
+  
+  .image-overlay {
+    background: linear-gradient(135deg, 
+      hsla(192, 76%, 58%, 0.1) 0%, 
+      hsla(180, 73%, 73%, 0.05) 50%, 
+      hsla(245, 75%, 35%, 0.1) 100%);
+  }
 }
 
 @layer keyframes {

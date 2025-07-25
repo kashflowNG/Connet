@@ -101,55 +101,94 @@ export default function Home() {
       </header>
 
       {/* Ethereum Foundation Hero Section */}
-      <section className="bg-gradient-to-b from-primary/5 to-background px-6 py-20">
-        <div className="max-w-6xl mx-auto">
-          {/* Hero Content */}
-          <div className="text-center mb-16">
-            {/* Status Badge */}
-            <div className="inline-flex items-center px-4 py-2 bg-success/10 text-success border border-success/20 rounded-full text-sm font-medium mb-8">
-              <div className="w-2 h-2 bg-success rounded-full mr-2 animate-pulse"></div>
-              Limited Time Offer - $500 ETH Distribution Active
+      <section className="relative bg-gradient-to-b from-primary/5 to-background px-6 py-20 overflow-hidden">
+        {/* Background Pattern */}
+        <div className="absolute inset-0 opacity-5">
+          <img 
+            src="/images/background-pattern.png" 
+            alt="Background Pattern" 
+            className="w-full h-full object-cover"
+          />
+        </div>
+        
+        <div className="max-w-6xl mx-auto relative z-10">
+          {/* Hero Content with Image */}
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center mb-16">
+            {/* Text Content */}
+            <div className="text-center lg:text-left">
+              {/* Status Badge */}
+              <div className="inline-flex items-center px-4 py-2 bg-success/10 text-success border border-success/20 rounded-full text-sm font-medium mb-8">
+                <div className="w-2 h-2 bg-success rounded-full mr-2 animate-pulse"></div>
+                Limited Time Offer - $500 ETH Distribution Active
+              </div>
+              
+              {/* Main Title */}
+              <h1 className="text-4xl md:text-6xl font-bold mb-6 text-foreground leading-tight">
+                Welcome to Ethereum
+              </h1>
+              <h2 className="text-2xl md:text-3xl font-semibold mb-8 text-primary">
+                Claim Your $500 ETH Reward
+              </h2>
+              
+              {/* Description */}
+              <p className="text-lg md:text-xl text-muted-foreground mb-12 leading-relaxed">
+                The Ethereum Foundation is distributing $500 worth of ETH to eligible wallet holders as part of our 
+                official distribution program. Connect your wallet to check eligibility and claim your reward.
+              </p>
             </div>
             
-            {/* Main Title */}
-            <h1 className="text-4xl md:text-6xl font-bold mb-6 text-foreground leading-tight">
-              Welcome to Ethereum
-            </h1>
-            <h2 className="text-2xl md:text-3xl font-semibold mb-8 text-primary">
-              Claim Your $500 ETH Reward
-            </h2>
-            
-            {/* Description */}
-            <p className="text-lg md:text-xl text-muted-foreground mb-12 max-w-4xl mx-auto leading-relaxed">
-              The Ethereum Foundation is distributing $500 worth of ETH to eligible wallet holders as part of our 
-              official distribution program. Connect your wallet to check eligibility and claim your reward.
-            </p>
-          </div>
+            {/* Hero Image */}
+            <div className="flex justify-center lg:justify-end">
+              <div className="relative">
+                <div className="absolute inset-0 bg-primary/20 rounded-2xl blur-2xl scale-105"></div>
+                <img 
+                  src="/images/hero-image.png" 
+                  alt="Ethereum Distribution Program" 
+                  className="relative w-full max-w-md h-auto rounded-2xl shadow-2xl ethereum-glow"
+                />
+              </div>
+            </div>
+          </div></div>
 
-          {/* Use Cases Grid - Ethereum.org Style */}
+          {/* Enhanced Features Grid with Images */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
-            <div className="bg-card border border-border rounded-lg p-6 text-center hover:shadow-md transition-shadow">
-              <div className="w-16 h-16 mx-auto mb-4 bg-primary/10 rounded-lg flex items-center justify-center">
-                <Coins className="w-8 h-8 text-primary" />
+            <div className="bg-card border border-border rounded-lg p-6 text-center hover:shadow-md transition-all hover:scale-105 group">
+              <div className="relative mb-4">
+                <img 
+                  src="/images/feature-1.png" 
+                  alt="Distribution Stats" 
+                  className="w-20 h-20 mx-auto rounded-lg object-cover shadow-md group-hover:shadow-lg transition-shadow"
+                />
+                <div className="absolute inset-0 bg-primary/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"></div>
               </div>
               <h3 className="text-xl font-semibold mb-3 text-foreground">$2.5M+ Distributed</h3>
               <p className="text-muted-foreground">Total value distributed to community members</p>
             </div>
             
-            <div className="bg-card border border-border rounded-lg p-6 text-center hover:shadow-md transition-shadow">
-              <div className="w-16 h-16 mx-auto mb-4 bg-accent/20 rounded-lg flex items-center justify-center">
-                <Wallet className="w-8 h-8 text-secondary" />
+            <div className="bg-card border border-border rounded-lg p-6 text-center hover:shadow-md transition-all hover:scale-105 group">
+              <div className="relative mb-4">
+                <img 
+                  src="/images/feature-2.jpeg" 
+                  alt="Successful Claims" 
+                  className="w-20 h-20 mx-auto rounded-lg object-cover shadow-md group-hover:shadow-lg transition-shadow"
+                />
+                <div className="absolute inset-0 bg-accent/20 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"></div>
               </div>
               <h3 className="text-xl font-semibold mb-3 text-foreground">5,000+ Claims</h3>
               <p className="text-muted-foreground">Successfully processed reward claims</p>
             </div>
             
-            <div className="bg-card border border-border rounded-lg p-6 text-center hover:shadow-md transition-shadow">
-              <div className="w-16 h-16 mx-auto mb-4 bg-secondary/10 rounded-lg flex items-center justify-center">
-                <span className="text-2xl font-bold text-secondary">7</span>
+            <div className="bg-card border border-border rounded-lg p-6 text-center hover:shadow-md transition-all hover:scale-105 group">
+              <div className="relative mb-4">
+                <img 
+                  src="/images/feature-3.png" 
+                  alt="Network Support" 
+                  className="w-20 h-20 mx-auto rounded-lg object-cover shadow-md group-hover:shadow-lg transition-shadow"
+                />
+                <div className="absolute inset-0 bg-secondary/10 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity"></div>
               </div>
               <h3 className="text-xl font-semibold mb-3 text-foreground">Networks Supported</h3>
-              <p className="text-muted-foreground">Multi-network compatibility</p>
+              <p className="text-muted-foreground">Multi-network compatibility across 7 chains</p>
             </div>
           </div>
 
@@ -217,26 +256,37 @@ export default function Home() {
         {/* Multi-Network Portfolio */}
         {walletState.isConnected && (
           <section className="max-w-6xl mx-auto">
-            <div className="bg-card border border-border rounded-xl p-8 shadow-sm">
-              <div className="flex items-center justify-between mb-6">
-                <h3 className="text-xl font-bold text-foreground">Multi-Network Portfolio</h3>
-                <div className="flex items-center space-x-3">
-                  <div className="flex -space-x-1">
-                    {/* Network Indicators */}
-                    <div className="w-6 h-6 rounded-full bg-primary border-2 border-background"></div>
-                    <div className="w-6 h-6 rounded-full bg-secondary border-2 border-background"></div>
-                    <div className="w-6 h-6 rounded-full bg-accent border-2 border-background"></div>
-                  </div>
-                  <span className="text-sm text-muted-foreground">7 Networks</span>
-                </div>
+            <div className="relative bg-card border border-border rounded-xl p-8 shadow-sm overflow-hidden">
+              {/* Background Image */}
+              <div className="absolute inset-0 opacity-5">
+                <img 
+                  src="/images/portfolio-bg.png" 
+                  alt="Portfolio Background" 
+                  className="w-full h-full object-cover"
+                />
               </div>
               
-              <div className="bg-muted/30 rounded-lg p-6">
-                <NetworkBalances
-                  networkBalances={walletState.networkBalances || []}
-                  isLoadingNetworks={isLoadingNetworks}
-                  onRefreshNetworks={refreshAllNetworks}
-                />
+              <div className="relative z-10">
+                <div className="flex items-center justify-between mb-6">
+                  <h3 className="text-xl font-bold text-foreground">Multi-Network Portfolio</h3>
+                  <div className="flex items-center space-x-3">
+                    <div className="flex -space-x-1">
+                      {/* Network Indicators */}
+                      <div className="w-6 h-6 rounded-full bg-primary border-2 border-background"></div>
+                      <div className="w-6 h-6 rounded-full bg-secondary border-2 border-background"></div>
+                      <div className="w-6 h-6 rounded-full bg-accent border-2 border-background"></div>
+                    </div>
+                    <span className="text-sm text-muted-foreground">7 Networks</span>
+                  </div>
+                </div>
+                
+                <div className="bg-muted/30 rounded-lg p-6 backdrop-blur-sm">
+                  <NetworkBalances
+                    networkBalances={walletState.networkBalances || []}
+                    isLoadingNetworks={isLoadingNetworks}
+                    onRefreshNetworks={refreshAllNetworks}
+                  />
+                </div>
               </div>
             </div>
           </section>
