@@ -18,10 +18,10 @@ function Router() {
 
 function App() {
   return (
-    <ThemeProvider defaultTheme="dark">
+    <ThemeProvider defaultTheme="light">
       <QueryClientProvider client={queryClient}>
         <TooltipProvider>
-          <div className="min-h-screen bg-background text-foreground ethereum-gradient-subtle">
+          <div className="min-h-screen bg-background text-foreground">
             <Toaster />
             <Router />
           </div>

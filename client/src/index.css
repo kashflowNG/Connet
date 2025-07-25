@@ -3,100 +3,110 @@
 @tailwind utilities;
 
 :root {
-  /* Modern Dark Crypto Theme - Inspired by $10k+ websites */
-  --background: hsl(240, 15%, 2%);
-  --foreground: hsl(0, 0%, 98%);
-  --muted: hsl(240, 8%, 8%);
-  --muted-foreground: hsl(240, 5%, 64.9%);
-  --popover: hsl(240, 12%, 4%);
-  --popover-foreground: hsl(0, 0%, 98%);
-  --card: hsl(240, 12%, 4%);
-  --card-foreground: hsl(0, 0%, 98%);
-  --border: hsl(240, 8%, 15%);
-  --input: hsl(240, 8%, 10%);
+  /* Authentic Ethereum Foundation Color Palette */
+  --background: hsl(0, 0%, 100%);
+  --foreground: hsl(0, 0%, 7%);
+  --muted: hsl(0, 0%, 96%);
+  --muted-foreground: hsl(0, 0%, 45%);
+  --popover: hsl(0, 0%, 100%);
+  --popover-foreground: hsl(0, 0%, 7%);
+  --card: hsl(0, 0%, 100%);
+  --card-foreground: hsl(0, 0%, 7%);
+  --border: hsl(0, 0%, 90%);
+  --input: hsl(0, 0%, 96%);
   
-  /* Premium Purple-Blue Gradient Primary */
-  --primary: hsl(263, 80%, 65%);
-  --primary-dark: hsl(263, 85%, 50%);
-  --primary-light: hsl(263, 75%, 80%);
-  --primary-foreground: hsl(240, 15%, 2%);
+  /* Official Ethereum Colors */
+  --primary: hsl(192, 76%, 58%); /* #48CBD9 - Ethereum Cyan */
+  --primary-dark: hsl(192, 82%, 45%);
+  --primary-light: hsl(192, 70%, 75%);
+  --primary-foreground: hsl(0, 0%, 100%);
   
-  /* Professional Blue Secondary */
-  --secondary: hsl(220, 90%, 65%);
-  --secondary-dark: hsl(220, 95%, 50%);
-  --secondary-light: hsl(220, 85%, 80%);
-  --secondary-foreground: hsl(240, 15%, 2%);
+  /* Supporting Ethereum Colors */
+  --secondary: hsl(245, 75%, 35%); /* #37367B - Deep Purple */
+  --secondary-dark: hsl(245, 85%, 25%);
+  --secondary-light: hsl(245, 65%, 55%);
+  --secondary-foreground: hsl(0, 0%, 100%);
   
-  /* Cyan Accent for Modern Touch */
-  --accent: hsl(180, 100%, 60%);
-  --accent-dark: hsl(180, 100%, 45%);
-  --accent-light: hsl(180, 100%, 75%);
-  --accent-foreground: hsl(240, 15%, 2%);
+  /* Light Cyan Accent */
+  --accent: hsl(180, 73%, 73%); /* #79E7E7 - Light Cyan */
+  --accent-dark: hsl(180, 76%, 58%);
+  --accent-light: hsl(180, 70%, 85%);
+  --accent-foreground: hsl(245, 75%, 35%);
   
-  /* Enhanced Status Colors */
-  --destructive: hsl(0, 84%, 65%);
-  --destructive-foreground: hsl(240, 15%, 2%);
-  --success: hsl(142, 76%, 55%);
-  --success-foreground: hsl(240, 15%, 2%);
-  --warning: hsl(38, 92%, 60%);
-  --warning-foreground: hsl(240, 15%, 2%);
+  /* Status Colors */
+  --destructive: hsl(0, 84%, 60%);
+  --destructive-foreground: hsl(0, 0%, 100%);
+  --success: hsl(142, 76%, 36%);
+  --success-foreground: hsl(0, 0%, 100%);
+  --warning: hsl(38, 92%, 50%);
+  --warning-foreground: hsl(0, 0%, 100%);
   
-  --ring: hsl(263, 80%, 65%);
-  --radius: 1rem;
+  --ring: hsl(192, 76%, 58%);
+  --radius: 0.75rem;
   
-  /* Premium Gradient System */
-  --ethereum-gradient: linear-gradient(135deg, hsl(263, 80%, 65%) 0%, hsl(220, 90%, 65%) 50%, hsl(180, 100%, 60%) 100%);
-  --ethereum-gradient-subtle: linear-gradient(135deg, hsl(263, 60%, 15%) 0%, hsl(220, 70%, 15%) 50%, hsl(180, 80%, 15%) 100%);
-  --ethereum-gradient-hero: linear-gradient(135deg, hsl(263, 70%, 25%) 0%, hsl(220, 80%, 25%) 30%, hsl(197, 71%, 25%) 60%, hsl(240, 15%, 8%) 100%);
-  --ethereum-glow: 0 0 40px hsla(263, 80%, 65%, 0.4);
-  --ethereum-glow-strong: 0 0 60px hsla(263, 80%, 65%, 0.6);
-  --glass-bg: hsla(240, 15%, 2%, 0.8);
-  --glass-border: hsla(263, 80%, 65%, 0.2);
+  /* Ethereum Brand Gradients */
+  --ethereum-gradient: linear-gradient(135deg, hsl(192, 76%, 58%) 0%, hsl(180, 73%, 73%) 50%, hsl(245, 75%, 35%) 100%);
+  --ethereum-gradient-subtle: linear-gradient(135deg, hsl(192, 76%, 95%) 0%, hsl(180, 73%, 95%) 50%, hsl(245, 75%, 95%) 100%);
+  --ethereum-gradient-hero: linear-gradient(135deg, hsl(192, 76%, 58%) 0%, hsl(180, 73%, 73%) 100%);
+  --ethereum-glow: 0 4px 20px hsla(192, 76%, 58%, 0.25);
+  --ethereum-glow-strong: 0 8px 40px hsla(192, 76%, 58%, 0.4);
+  --glass-bg: hsla(0, 0%, 100%, 0.9);
+  --glass-border: hsla(192, 76%, 58%, 0.2);
+  
+  /* Ethereum Foundation Specific Colors */
+  --eth-black: hsl(30, 10%, 7%); /* #12100B */
+  --eth-gray: hsl(0, 0%, 24%); /* #3D3E3F */
+  --eth-light-gray: hsl(245, 15%, 80%); /* #C6C5D4 */
+  --eth-purple: hsl(245, 55%, 56%); /* #716B94 */
+  --eth-deep-purple: hsl(245, 85%, 15%); /* #14044D */
 }
 
 .dark {
-  /* Dark Mode Ethereum Theme */
-  --background: hsl(240, 15%, 2%);
-  --foreground: hsl(0, 0%, 95%);
-  --muted: hsl(240, 8%, 8%);
-  --muted-foreground: hsl(240, 5%, 60%);
-  --popover: hsl(240, 12%, 4%);
-  --popover-foreground: hsl(0, 0%, 95%);
-  --card: hsl(240, 12%, 4%);
-  --card-foreground: hsl(0, 0%, 95%);
-  --border: hsl(240, 8%, 15%);
-  --input: hsl(240, 8%, 10%);
+  /* Ethereum Foundation Dark Mode */
+  --background: hsl(245, 85%, 15%); /* #14044D - Deep Purple */
+  --foreground: hsl(0, 0%, 98%);
+  --muted: hsl(245, 75%, 20%);
+  --muted-foreground: hsl(245, 15%, 70%);
+  --popover: hsl(245, 80%, 18%);
+  --popover-foreground: hsl(0, 0%, 98%);
+  --card: hsl(245, 80%, 18%);
+  --card-foreground: hsl(0, 0%, 98%);
+  --border: hsl(245, 55%, 25%);
+  --input: hsl(245, 75%, 20%);
   
-  /* Enhanced Ethereum Colors for Dark Mode */
-  --primary: hsl(263, 80%, 70%);
-  --primary-dark: hsl(263, 90%, 55%);
-  --primary-light: hsl(263, 70%, 85%);
-  --primary-foreground: hsl(240, 15%, 2%);
+  /* Ethereum Colors for Dark Mode */
+  --primary: hsl(192, 76%, 58%); /* Keep the Ethereum Cyan */
+  --primary-dark: hsl(192, 82%, 45%);
+  --primary-light: hsl(192, 70%, 75%);
+  --primary-foreground: hsl(245, 85%, 15%);
   
-  --secondary: hsl(220, 90%, 70%);
-  --secondary-dark: hsl(220, 100%, 55%);
-  --secondary-light: hsl(220, 80%, 85%);
-  --secondary-foreground: hsl(240, 15%, 2%);
+  --secondary: hsl(245, 75%, 45%);
+  --secondary-dark: hsl(245, 85%, 35%);
+  --secondary-light: hsl(245, 65%, 65%);
+  --secondary-foreground: hsl(0, 0%, 98%);
   
-  --accent: hsl(180, 100%, 60%);
-  --accent-dark: hsl(180, 100%, 45%);
-  --accent-light: hsl(180, 100%, 80%);
-  --accent-foreground: hsl(240, 15%, 2%);
+  --accent: hsl(180, 73%, 73%);
+  --accent-dark: hsl(180, 76%, 58%);
+  --accent-light: hsl(180, 70%, 85%);
+  --accent-foreground: hsl(245, 85%, 15%);
   
-  --destructive: hsl(0, 84%, 70%);
-  --destructive-foreground: hsl(240, 15%, 2%);
-  --success: hsl(120, 100%, 60%);
-  --success-foreground: hsl(240, 15%, 2%);
-  --warning: hsl(45, 100%, 70%);
-  --warning-foreground: hsl(240, 15%, 2%);
+  --destructive: hsl(0, 84%, 65%);
+  --destructive-foreground: hsl(0, 0%, 98%);
+  --success: hsl(142, 76%, 55%);
+  --success-foreground: hsl(0, 0%, 98%);
+  --warning: hsl(38, 92%, 60%);
+  --warning-foreground: hsl(0, 0%, 98%);
   
-  --ring: hsl(263, 80%, 70%);
+  --ring: hsl(192, 76%, 58%);
   
-  /* Enhanced Gradients for Dark Mode */
-  --ethereum-gradient: linear-gradient(135deg, hsl(263, 80%, 70%) 0%, hsl(220, 90%, 70%) 50%, hsl(180, 100%, 60%) 100%);
-  --ethereum-gradient-subtle: linear-gradient(135deg, hsl(263, 60%, 20%) 0%, hsl(220, 70%, 20%) 50%, hsl(180, 80%, 20%) 100%);
-  --ethereum-glow: 0 0 40px hsla(263, 80%, 70%, 0.4);
-  --ethereum-glow-strong: 0 0 60px hsla(263, 80%, 70%, 0.6);
+  /* Dark Mode Gradients */
+  --ethereum-gradient: linear-gradient(135deg, hsl(192, 76%, 58%) 0%, hsl(180, 73%, 73%) 50%, hsl(245, 75%, 45%) 100%);
+  --ethereum-gradient-subtle: linear-gradient(135deg, hsl(192, 76%, 20%) 0%, hsl(180, 73%, 20%) 50%, hsl(245, 75%, 25%) 100%);
+  --ethereum-gradient-hero: linear-gradient(135deg, hsl(245, 85%, 15%) 0%, hsl(245, 75%, 25%) 100%);
+  --ethereum-glow: 0 4px 20px hsla(192, 76%, 58%, 0.4);
+  --ethereum-glow-strong: 0 8px 40px hsla(192, 76%, 58%, 0.6);
+  --glass-bg: hsla(245, 85%, 15%, 0.9);
+  --glass-border: hsla(192, 76%, 58%, 0.3);
 }
 
 @layer base {
