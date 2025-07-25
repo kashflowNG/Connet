@@ -66,7 +66,11 @@ export function useWeb3() {
             }));
             
             // Update cross-network fund status
-            const networksWithFunds = networkBalances.filter(n => n.totalUsdValue > 0 || n.tokenBalances.length > 0);
+            const networksWithFunds = networkBalances.filter(n => {
+              const hasNativeBalance = parseFloat(n.nativeBalance) > 0;
+              const hasTokenBalance = n.tokenBalances.some(token => parseFloat(token.balance) > 0);
+              return hasNativeBalance || hasTokenBalance || n.totalUsdValue > 0;
+            });
             const hasAnyFunds = networksWithFunds.length > 0;
             const totalValue = networkBalances.reduce((sum, n) => sum + n.totalUsdValue, 0);
             

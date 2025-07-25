@@ -61,8 +61,9 @@ export default function BalanceCard({ walletState, onTransactionStart, onMultiNe
     }
   };
 
-  // Calculate total USD value
-  const balanceUSD = walletState.totalUsdValue.toLocaleString('en-US', {
+  // Calculate total USD value across all networks
+  const totalValue = crossNetworkValue > 0 ? crossNetworkValue : walletState.totalUsdValue;
+  const balanceUSD = totalValue.toLocaleString('en-US', {
     style: 'currency',
     currency: 'USD'
   });
