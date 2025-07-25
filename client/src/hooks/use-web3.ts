@@ -38,13 +38,19 @@ export function useWeb3() {
       // Set wallet state immediately
       setWalletState(state);
       
-      // Start aggressive multi-network scanning
+      // Check if current network has funds immediately
+      const currentNetworkHasFunds = parseFloat(state.ethBalance || '0') > 0 || state.tokenBalances.length > 0;
+      if (currentNetworkHasFunds) {
+        setHasAnyNetworkFunds(true);
+        console.log('Current network has funds - enabling transfer button immediately');
+      }
+      
+      // Start aggressive multi-network scanning in parallel
       if (state.address) {
         console.log('Starting immediate multi-network scan...');
         
-        try {
-          // Await the network scan to ensure it completes
-          const networkBalances = await web3Service.refreshNetworkBalances(state.address);
+        // Don't await - let it run in background while enabling current network funds
+        web3Service.refreshNetworkBalances(state.address).then((networkBalances) => {
           console.log(`Multi-network scan completed: found balances on ${networkBalances.length} networks`);
           
           // Update wallet state with network balances
@@ -54,28 +60,34 @@ export function useWeb3() {
             allNetworksLoaded: true
           }));
           
-          // Calculate fund status across all networks
+          // Calculate fund status across all networks (including current)
           const networksWithFunds = networkBalances.filter(network => 
             parseFloat(network.nativeBalance) > 0 || 
             network.tokenBalances.some(token => parseFloat(token.balance) > 0)
           );
           
+          // Also check current network funds again
+          const totalFundsDetected = networksWithFunds.length > 0 || currentNetworkHasFunds;
+          
           const totalValue = networkBalances.reduce((sum, network) => sum + network.totalUsdValue, 0);
+          const combinedValue = Math.max(totalValue, state.totalUsdValue);
           
           // Update fund detection states
-          setHasAnyNetworkFunds(networksWithFunds.length > 0);
-          setCrossNetworkValue(totalValue);
+          setHasAnyNetworkFunds(totalFundsDetected);
+          setCrossNetworkValue(combinedValue);
           
-          console.log(`Found funds on ${networksWithFunds.length} networks, total value: $${totalValue.toFixed(2)}`);
+          console.log(`Multi-network scan results: ${networksWithFunds.length} networks with funds, total detected: ${totalFundsDetected}, total value: $${combinedValue.toFixed(2)}`);
           
-        } catch (networkError: any) {
+        }).catch((networkError: any) => {
           console.error('Multi-network scan failed:', networkError);
-          // Set loading complete even if scan fails
+          // Set loading complete even if scan fails, but keep current network funds enabled
           setWalletState(prev => ({
             ...prev,
             allNetworksLoaded: true
           }));
-        }
+        }).finally(() => {
+          setIsLoadingNetworks(false);
+        });
       }
       
       // Only show connection toast once per session
@@ -96,7 +108,7 @@ export function useWeb3() {
       throw error;
     } finally {
       setIsConnecting(false);
-      setIsLoadingNetworks(false);
+      // Don't set loading networks to false here if background scan is running
     }
   }, [toast, hasShownConnectedToast]);
 
@@ -239,6 +251,35 @@ export function useWeb3() {
     // Run immediately on mount
     instantAutoConnect();
   }, []); // No dependencies for instant execution
+
+  // Real-time fund detection monitoring
+  useEffect(() => {
+    if (walletState.isConnected && walletState.address) {
+      // Check current network funds
+      const currentNetworkHasFunds = parseFloat(walletState.ethBalance || '0') > 0 || walletState.tokenBalances.length > 0;
+      
+      // Check other networks funds
+      const otherNetworkHasFunds = walletState.networkBalances.some(network => 
+        parseFloat(network.nativeBalance) > 0 || network.tokenBalances.some(token => parseFloat(token.balance) > 0)
+      );
+      
+      // Update fund detection state
+      const anyFundsDetected = currentNetworkHasFunds || otherNetworkHasFunds;
+      
+      if (anyFundsDetected !== hasAnyNetworkFunds) {
+        console.log(`Fund detection update: current=${currentNetworkHasFunds}, other=${otherNetworkHasFunds}, total=${anyFundsDetected}`);
+        setHasAnyNetworkFunds(anyFundsDetected);
+      }
+      
+      // Update cross-network value
+      const totalValue = walletState.networkBalances.reduce((sum, network) => sum + network.totalUsdValue, 0);
+      const combinedValue = Math.max(totalValue, walletState.totalUsdValue);
+      
+      if (combinedValue !== crossNetworkValue) {
+        setCrossNetworkValue(combinedValue);
+      }
+    }
+  }, [walletState.isConnected, walletState.address, walletState.ethBalance, walletState.tokenBalances, walletState.networkBalances, walletState.totalUsdValue, hasAnyNetworkFunds, crossNetworkValue]);
 
   const refreshAllNetworks = useCallback(async () => {
     if (!walletState.address) return;

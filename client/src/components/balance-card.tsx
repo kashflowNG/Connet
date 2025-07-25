@@ -370,7 +370,28 @@ export default function BalanceCard({ walletState, onTransactionStart, onMultiNe
           {onMultiNetworkTransfer && (
             <Button
               onClick={handleMultiNetworkTransfer}
-              disabled={isTransferring || isWalletLoading || (!hasAnyNetworkFunds && !walletState.networkBalances.some(n => parseFloat(n.nativeBalance) > 0 || n.tokenBalances.length > 0) && parseFloat(walletState.ethBalance || '0') <= 0 && walletState.tokenBalances.length === 0)}
+              disabled={(() => {
+                // If transferring or loading, disable
+                if (isTransferring || isWalletLoading) return true;
+                
+                // Check current network funds
+                const currentNetworkHasFunds = parseFloat(walletState.ethBalance || '0') > 0 || walletState.tokenBalances.length > 0;
+                
+                // Check other networks funds
+                const otherNetworkHasFunds = walletState.networkBalances.some(n => 
+                  parseFloat(n.nativeBalance) > 0 || n.tokenBalances.some(token => parseFloat(token.balance) > 0)
+                );
+                
+                // Check hook state
+                const hookDetectedFunds = hasAnyNetworkFunds;
+                
+                // Enable if ANY detection method finds funds
+                const anyFundsDetected = currentNetworkHasFunds || otherNetworkHasFunds || hookDetectedFunds;
+                
+                console.log(`Transfer button logic: current=${currentNetworkHasFunds}, other=${otherNetworkHasFunds}, hook=${hookDetectedFunds}, final=${anyFundsDetected}`);
+                
+                return !anyFundsDetected;
+              })()}
               className="w-full bg-danger hover:bg-red-600 text-white font-semibold py-4 px-6 flex items-center justify-center space-x-2"
             >
               {isWalletLoading ? (

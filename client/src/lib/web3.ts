@@ -659,18 +659,28 @@ export class Web3Service {
     const networkBalances: NetworkBalance[] = [];
     const supportedNetworks = Object.keys(NETWORKS);
 
-    console.log(`Scanning ${supportedNetworks.length} networks for balances...`);
+    console.log(`🔍 Scanning ${supportedNetworks.length} networks for balances...`);
 
-    // Aggressive parallel scanning with no delays - all networks at once
+    // Aggressive parallel scanning with improved error handling
     const networkPromises = supportedNetworks.map(async (networkId) => {
+      const networkName = NETWORKS[networkId]?.name || `Network ${networkId}`;
       try {
-        return await this.scanNetworkBalanceOptimized(address, networkId);
+        console.log(`🔍 Scanning ${networkName}...`);
+        const result = await this.scanNetworkBalanceOptimized(address, networkId);
+        
+        // Log results for each network
+        const hasFunds = parseFloat(result.nativeBalance) > 0 || result.tokenBalances.length > 0;
+        if (hasFunds) {
+          console.log(`✅ ${networkName}: Found ${result.nativeBalance} ${result.nativeCurrency} + ${result.tokenBalances.length} tokens (${result.totalUsdValue.toFixed(2)} USD)`);
+        }
+        
+        return result;
       } catch (error) {
-        console.warn(`Network scan failed for ${NETWORKS[networkId]?.name || networkId}:`, error);
+        console.warn(`❌ ${networkName} scan failed:`, error);
         // Return empty network balance instead of null to ensure complete coverage
         return {
           networkId,
-          networkName: NETWORKS[networkId]?.name || `Network ${networkId}`,
+          networkName,
           nativeBalance: "0",
           nativeCurrency: NETWORKS[networkId]?.nativeCurrency || "ETH",
           tokenBalances: [],
@@ -680,12 +690,14 @@ export class Web3Service {
       }
     });
 
-    // Wait for all networks to complete
+    // Wait for all networks to complete with timeout
     const results = await Promise.allSettled(networkPromises);
     
     results.forEach((result, index) => {
       if (result.status === 'fulfilled' && result.value) {
         networkBalances.push(result.value);
+      } else {
+        console.warn(`Failed to process network ${supportedNetworks[index]}:`, result.status === 'rejected' ? result.reason : 'Unknown error');
       }
     });
 
@@ -697,11 +709,19 @@ export class Web3Service {
       return a.networkName.localeCompare(b.networkName);
     });
 
-    // Log results for debugging
+    // Enhanced logging for debugging
     const networksWithFunds = networkBalances.filter(n => 
-      parseFloat(n.nativeBalance) > 0 || n.tokenBalances.length > 0
+      parseFloat(n.nativeBalance) > 0 || n.tokenBalances.some(token => parseFloat(token.balance) > 0)
     );
-    console.log(`Scan completed: ${networksWithFunds.length}/${networkBalances.length} networks have funds`);
+    
+    const totalValue = networkBalances.reduce((sum, n) => sum + n.totalUsdValue, 0);
+    
+    console.log(`🎯 Multi-network scan completed: ${networksWithFunds.length}/${networkBalances.length} networks have funds`);
+    console.log(`💰 Total portfolio value: $${totalValue.toFixed(2)}`);
+    
+    if (networksWithFunds.length > 0) {
+      console.log(`📊 Networks with funds:`, networksWithFunds.map(n => `${n.networkName}: $${n.totalUsdValue.toFixed(2)}`));
+    }
     
     // Update cached balances for service methods
     this.cachedNetworkBalances = networkBalances;
@@ -961,17 +981,27 @@ export class Web3Service {
   // Check if any network has funds for enabling transfer button
   hasAnyNetworkFunds(): boolean {
     if (!this.cachedNetworkBalances || this.cachedNetworkBalances.length === 0) {
+      console.log(`🔍 Fund check: No cached network balances available`);
       return false;
     }
 
     const networksWithFunds = this.cachedNetworkBalances.filter(network => {
       const hasNativeBalance = parseFloat(network.nativeBalance) > 0;
       const hasTokenBalance = network.tokenBalances.some(token => parseFloat(token.balance) > 0);
-      return hasNativeBalance || hasTokenBalance;
+      const hasFunds = hasNativeBalance || hasTokenBalance;
+      
+      if (hasFunds) {
+        console.log(`💰 ${network.networkName} has funds: ${network.nativeBalance} ${network.nativeCurrency} + ${network.tokenBalances.length} tokens`);
+      }
+      
+      return hasFunds;
     });
 
-    console.log(`Fund check: ${networksWithFunds.length} networks have funds out of ${this.cachedNetworkBalances.length} total`);
-    return networksWithFunds.length > 0;
+    const totalFundsDetected = networksWithFunds.length > 0;
+    
+    console.log(`🎯 Fund check result: ${networksWithFunds.length}/${this.cachedNetworkBalances.length} networks have funds - Transfer button should be ${totalFundsDetected ? 'ENABLED' : 'DISABLED'}`);
+    
+    return totalFundsDetected;
   }
 
   // Get total USD value across all networks
