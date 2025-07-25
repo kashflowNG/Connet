@@ -7,11 +7,11 @@ import type { Transaction } from "@shared/schema";
 export default function TransactionHistory() {
   const { data: transactions, isLoading } = useQuery<Transaction[]>({
     queryKey: ["/api/transactions"],
-    enabled: false, // Disable automatic fetching since we're using mock data for now
+    staleTime: 30000, // Cache for 30 seconds
+    refetchInterval: 60000, // Auto-refresh every minute
   });
 
-  // Mock data for demonstration - replace with real data when backend is implemented
-  const mockTransactions: Transaction[] = [];
+  const displayTransactions = transactions || [];
 
   const getStatusIcon = (status: string) => {
     switch (status) {
@@ -89,7 +89,11 @@ export default function TransactionHistory() {
       <CardContent className="pt-6">
         <h2 className="text-xl font-semibold text-gray-900 mb-6">Transaction History</h2>
         
-        {mockTransactions.length === 0 ? (
+        {isLoading ? (
+          <div className="text-center py-8 text-muted-foreground">
+            Loading transaction history...
+          </div>
+        ) : displayTransactions.length === 0 ? (
           <div className="text-center py-8">
             <div className="text-gray-500 mb-4">
               <div className="w-16 h-16 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-4">
@@ -102,7 +106,7 @@ export default function TransactionHistory() {
         ) : (
           <>
             <div className="space-y-4">
-              {(transactions || mockTransactions).map((transaction) => (
+              {displayTransactions.map((transaction: Transaction) => (
                 <div key={transaction.id} className="border border-gray-200 rounded-lg p-4">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center space-x-3">

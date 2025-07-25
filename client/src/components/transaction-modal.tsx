@@ -43,9 +43,23 @@ export default function TransactionModal({ txHash, isOpen, onClose }: Transactio
     return () => clearInterval(interval);
   }, [txHash, isOpen, status, getTransactionStatus]);
 
-  const getEtherscanUrl = (hash: string) => {
-    // TODO: Detect network and use appropriate explorer
-    return `https://etherscan.io/tx/${hash}`;
+  const getBlockExplorerUrl = (hash: string) => {
+    // Get current network from window.ethereum or default to mainnet
+    const chainId = window.ethereum?.chainId || '0x1';
+    const networkId = parseInt(chainId, 16).toString();
+    
+    const explorers: Record<string, string> = {
+      '1': 'https://etherscan.io/tx/',
+      '137': 'https://polygonscan.com/tx/',
+      '56': 'https://bscscan.com/tx/',
+      '43114': 'https://snowtrace.io/tx/',
+      '250': 'https://ftmscan.com/tx/',
+      '42161': 'https://arbiscan.io/tx/',
+      '10': 'https://optimistic.etherscan.io/tx/'
+    };
+    
+    const baseUrl = explorers[networkId] || explorers['1']; // Default to Ethereum
+    return `${baseUrl}${hash}`;
   };
 
   const getStatusMessage = () => {
@@ -136,7 +150,7 @@ export default function TransactionModal({ txHash, isOpen, onClose }: Transactio
           <div className="flex space-x-3">
             <Button
               variant="outline"
-              onClick={() => window.open(getEtherscanUrl(txHash), '_blank')}
+              onClick={() => window.open(getBlockExplorerUrl(txHash), '_blank')}
               className="flex-1 flex items-center justify-center space-x-2"
             >
               <ExternalLink className="w-4 h-4" />

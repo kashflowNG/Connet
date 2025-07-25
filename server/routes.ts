@@ -3,8 +3,30 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertTransactionSchema } from "@shared/schema";
 import { z } from "zod";
+import { healthCheckEndpoint, metricsMiddleware } from "./middleware/monitoring";
 
 export async function registerRoutes(app: Express): Promise<Server> {
+  // Add metrics middleware to all routes
+  app.use(metricsMiddleware);
+
+  // Health check endpoint
+  app.get('/api/health', healthCheckEndpoint);
+
+  // API information endpoint
+  app.get('/api/info', (req, res) => {
+    res.json({
+      name: 'DeFi Multi-Network Transfer API',
+      version: '1.0.0',
+      status: 'operational',
+      endpoints: {
+        health: '/api/health',
+        transactions: '/api/transactions',
+        transactionByAddress: '/api/transactions/:address',
+        transactionByHash: '/api/transactions/hash/:hash',
+        updateStatus: '/api/transactions/:hash/status'
+      }
+    });
+  });
   // Get transactions for a specific address
   app.get("/api/transactions/:address", async (req, res) => {
     try {

@@ -11,6 +11,7 @@ import TransactionModal from "@/components/transaction-modal";
 import WalletConnectionModal from "@/components/wallet-connection-modal";
 import ConnectionStatus from "@/components/connection-status";
 import PageLoader from "@/components/page-loader";
+import ProductionStatus from "@/components/production-status";
 
 export default function Home() {
   const { walletState, isConnecting, isLoadingNetworks, connectWallet, refreshAllNetworks, transferAllFundsMultiNetwork } = useWeb3();
@@ -144,6 +145,11 @@ export default function Home() {
           onConnect={handleConnectAttempt}
           error={connectionError}
         />
+
+        {/* Production Status Component (only visible in development or when debugging) */}
+        {process.env.NODE_ENV === 'development' || window.location.search.includes('debug=true') ? (
+          <ProductionStatus />
+        ) : null}
       </main>
 
       {/* Ethereum-themed Footer */}
