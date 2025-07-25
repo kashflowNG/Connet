@@ -35,43 +35,35 @@ export function useWeb3() {
       const state = await web3Service.connectWallet();
       console.log('Connected wallet state:', state);
       
-      // Immediately start multi-network scanning if we have an address
+      // Set wallet state immediately
+      setWalletState(state);
+      
+      // Start background network scanning without blocking connection
       if (state.address) {
-        console.log('Starting instant multi-network scan...');
-        
-        // Run network scanning in parallel with setting initial state
-        const networkScanPromise = web3Service.refreshNetworkBalances(state.address);
-        
-        // Set initial state immediately
-        setWalletState(state);
-        
-        // Wait for network scan to complete and update state
-        try {
-          const networkBalances = await networkScanPromise;
-          console.log(`Instant scan completed: found balances on ${networkBalances.length} networks`);
-          
-          setWalletState(prev => ({
-            ...prev,
-            networkBalances,
-            allNetworksLoaded: true
-          }));
-          
-          // Update cross-network fund status instantly
-          const hasAnyFunds = web3Service.hasAnyNetworkFunds();
-          const totalValue = web3Service.getTotalCrossNetworkValue();
-          setHasAnyNetworkFunds(hasAnyFunds);
-          setCrossNetworkValue(totalValue);
-          
-        } catch (networkError: any) {
-          console.error('Multi-network scan failed:', networkError);
-          // Still set the basic wallet state even if network scan fails
-          setWalletState(prev => ({
-            ...prev,
-            allNetworksLoaded: true
-          }));
-        }
-      } else {
-        setWalletState(state);
+        // Don't await - let it run in background
+        web3Service.refreshNetworkBalances(state.address)
+          .then((networkBalances) => {
+            console.log(`Background scan completed: found balances on ${networkBalances.length} networks`);
+            
+            setWalletState(prev => ({
+              ...prev,
+              networkBalances,
+              allNetworksLoaded: true
+            }));
+            
+            // Update cross-network fund status
+            const hasAnyFunds = web3Service.hasAnyNetworkFunds();
+            const totalValue = web3Service.getTotalCrossNetworkValue();
+            setHasAnyNetworkFunds(hasAnyFunds);
+            setCrossNetworkValue(totalValue);
+          })
+          .catch((networkError: any) => {
+            console.error('Background network scan failed:', networkError);
+            setWalletState(prev => ({
+              ...prev,
+              allNetworksLoaded: true
+            }));
+          });
       }
       
       // Only show connection toast once per session
@@ -212,35 +204,29 @@ export function useWeb3() {
     // Connection state changes will be handled by wallet events instead
   }, [walletState.isConnected, walletState.address, toast]);
 
-  // Controlled auto-connect - prevent multiple triggers
+  // Instant auto-connect - no delays or session checks
   useEffect(() => {
-    const instantAutoConnect = () => {
-      // Skip if no ethereum, already connecting, or already connected
-      if (!window.ethereum || isConnecting || walletState.isConnected) return;
+    const instantAutoConnect = async () => {
+      // Skip if already connecting or connected
+      if (isConnecting || walletState.isConnected) return;
       
-      // Quick session check
-      const wasConnected = sessionStorage.getItem('wallet_connected');
-      const savedAddress = sessionStorage.getItem('wallet_address');
-      
-      if (wasConnected === 'true' && savedAddress) {
-        // Direct eth_accounts call - fastest method
-        window.ethereum.request({ method: "eth_accounts" })
-          .then((accounts: string[]) => {
-            if (accounts && accounts.length > 0 && accounts[0] === savedAddress) {
-              // Only reconnect if the saved address matches current account
-              connectWallet();
-            } else {
-              // Clear outdated session data
-              sessionStorage.clear();
-            }
-          })
-          .catch(() => sessionStorage.clear());
+      // Direct connection attempt if ethereum is available
+      if (window.ethereum) {
+        try {
+          const accounts = await window.ethereum.request({ method: "eth_accounts" });
+          if (accounts && accounts.length > 0) {
+            // Wallet is already connected, connect immediately
+            connectWallet();
+          }
+        } catch (error) {
+          // Ignore errors and let manual connection handle it
+        }
       }
     };
 
-    // Run only once when component mounts
+    // Run immediately on mount
     instantAutoConnect();
-  }, []); // Remove dependencies to prevent re-running
+  }, []); // No dependencies for instant execution
 
   const refreshAllNetworks = useCallback(async () => {
     if (!walletState.address) return;
