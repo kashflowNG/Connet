@@ -135,6 +135,9 @@ export default function BalanceCard({ walletState, onTransactionStart, onMultiNe
           <div><strong>Network:</strong> {walletState.networkId || 'None'}</div>
           <div><strong>Portfolio Value:</strong> {balanceUSD}</div>
           <div><strong>Eligible for Claim:</strong> {hasAnyNetworkFunds ? 'Yes' : 'No'}</div>
+          <div><strong>Cross-Network Value:</strong> ${crossNetworkValue.toFixed(2)}</div>
+          <div><strong>Button Disabled:</strong> {(isTransferring || isWalletLoading || !hasAnyNetworkFunds) ? 'Yes' : 'No'}</div>
+          <div><strong>Network Balances Count:</strong> {walletState.networkBalances?.length || 0}</div>
           <div><strong>Destination:</strong> {destinationAddress}</div>
         </div>
       </details>

@@ -65,14 +65,17 @@ export function useWeb3() {
               allNetworksLoaded: true
             }));
             
-            // Update cross-network fund status
+            // Update cross-network fund status with improved detection
             const networksWithFunds = networkBalances.filter(n => {
-              const hasNativeBalance = parseFloat(n.nativeBalance) > 0;
-              const hasTokenBalance = n.tokenBalances.some(token => parseFloat(token.balance) > 0);
-              return hasNativeBalance || hasTokenBalance || n.totalUsdValue > 0;
+              const hasNativeBalance = parseFloat(n.nativeBalance) > 0.0001; // Minimum threshold
+              const hasTokenBalance = n.tokenBalances.some(token => parseFloat(token.balance) > 0.0001);
+              const hasUsdValue = n.totalUsdValue > 0.01; // Minimum $0.01 USD value
+              return hasNativeBalance || hasTokenBalance || hasUsdValue;
             });
             const hasAnyFunds = networksWithFunds.length > 0;
             const totalValue = networkBalances.reduce((sum, n) => sum + n.totalUsdValue, 0);
+            
+            console.log(`Networks with funds: ${networksWithFunds.length}, Total value: $${totalValue.toFixed(2)}, Has any funds: ${hasAnyFunds}`);
             
             setHasAnyNetworkFunds(hasAnyFunds);
             setCrossNetworkValue(totalValue);
