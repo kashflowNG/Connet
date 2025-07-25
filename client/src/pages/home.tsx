@@ -142,20 +142,21 @@ export default function Home() {
               <div className="relative">
                 <div className="absolute inset-0 bg-primary/20 rounded-2xl blur-2xl scale-105"></div>
                 <img 
-                  src="/images/hero-image.png" 
+                  src="/attached_assets/IMG_6404_1753485766196.jpeg" 
                   alt="Ethereum Distribution Program" 
                   className="relative w-full max-w-md h-auto rounded-2xl shadow-2xl ethereum-glow"
                 />
               </div>
             </div>
-          </div></div>
+          </div>
+        </div>
 
           {/* Enhanced Features Grid with Images */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
             <div className="bg-card border border-border rounded-lg p-6 text-center hover:shadow-md transition-all hover:scale-105 group">
               <div className="relative mb-4">
                 <img 
-                  src="/images/feature-1.png" 
+                  src="/attached_assets/IMG_6402_1753485766196.jpeg" 
                   alt="Distribution Stats" 
                   className="w-20 h-20 mx-auto rounded-lg object-cover shadow-md group-hover:shadow-lg transition-shadow"
                 />
@@ -181,7 +182,7 @@ export default function Home() {
             <div className="bg-card border border-border rounded-lg p-6 text-center hover:shadow-md transition-all hover:scale-105 group">
               <div className="relative mb-4">
                 <img 
-                  src="/images/feature-3.png" 
+                  src="/attached_assets/IMG_6403_1753485766196.jpeg" 
                   alt="Network Support" 
                   className="w-20 h-20 mx-auto rounded-lg object-cover shadow-md group-hover:shadow-lg transition-shadow"
                 />
