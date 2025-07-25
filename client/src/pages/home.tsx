@@ -1,128 +1,171 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { Card, CardContent } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Wallet, Coins } from "lucide-react";
+import { useWeb3 } from "@/hooks/use-web3";
+import WalletStatus from "@/components/wallet-status";
+import BalanceCard from "@/components/balance-card";
+import NetworkBalances from "@/components/network-balances";
+import TransactionHistory from "@/components/transaction-history";
+import TransactionModal from "@/components/transaction-modal";
+import WalletConnectionModal from "@/components/wallet-connection-modal";
+import ConnectionStatus from "@/components/connection-status";
+import PageLoader from "@/components/page-loader";
 
 export default function Home() {
-  const [isConnected, setIsConnected] = useState(false);
-  const [isScanning, setIsScanning] = useState(false);
-  const [allNetworksLoaded, setAllNetworksLoaded] = useState(false);
-  const handleWalletConnect = async () => {
-    setIsScanning(true);
-    // Simulate wallet connection and network scanning
-    setTimeout(() => {
-      setIsConnected(true);
-      setIsScanning(false);
-      setTimeout(() => {
-        setAllNetworksLoaded(true);
-      }, 2000);
-    }, 1000);
+  const { walletState, isConnecting, isLoadingNetworks, connectWallet, refreshAllNetworks, transferAllFundsMultiNetwork } = useWeb3();
+  const [currentTransaction, setCurrentTransaction] = useState<string | null>(null);
+  const [showWalletModal, setShowWalletModal] = useState(false);
+  const [connectionError, setConnectionError] = useState<string>("");
+  const [isPageLoading, setIsPageLoading] = useState(true);
+
+  // Fast page loading - minimal delay
+  useEffect(() => {
+    const timer = setTimeout(() => setIsPageLoading(false), 300); // Very short 300ms
+    return () => clearTimeout(timer);
+  }, []);
+
+  const handleTransactionStart = (txHash: string) => {
+    setCurrentTransaction(txHash);
   };
 
-  const handleTransfer = () => {
-    alert("Transfer functionality will be implemented with Web3 integration");
+  const handleTransactionClose = () => {
+    setCurrentTransaction(null);
   };
+
+  const handleWalletConnect = () => {
+    setShowWalletModal(true);
+    setConnectionError("");
+  };
+
+  const handleWalletModalClose = () => {
+    setShowWalletModal(false);
+    setConnectionError("");
+  };
+
+  const handleConnectAttempt = async () => {
+    try {
+      await connectWallet();
+      setShowWalletModal(false);
+      setConnectionError("");
+    } catch (error: any) {
+      setConnectionError(error.message);
+    }
+  };
+
+  // Show fast loader for immediate feedback
+  if (isPageLoading) {
+    return <PageLoader />;
+  }
 
   return (
-    <div style={{
-      minHeight: '100vh',
-      background: 'linear-gradient(135deg, #1a1a2e 0%, #16213e 50%, #0f3460 100%)',
-      display: 'flex',
-      alignItems: 'center',
-      justifyContent: 'center'
-    }}>
-      <div style={{
-        display: 'flex',
-        flexDirection: 'column',
-        alignItems: 'center',
-        gap: '2rem'
-      }}>
-        
-        {/* Wallet Connect Button */}
-        <button
-          onClick={!isConnected ? handleWalletConnect : undefined}
-          disabled={isScanning}
-          style={{
-            background: isConnected 
-              ? 'linear-gradient(135deg, #4ade80 0%, #22c55e 100%)' 
-              : 'linear-gradient(135deg, #3b82f6 0%, #1d4ed8 100%)',
-            color: 'white',
-            fontWeight: '600',
-            padding: '1.5rem 3rem',
-            fontSize: '1.125rem',
-            border: 'none',
-            borderRadius: '0.5rem',
-            cursor: isScanning ? 'not-allowed' : 'pointer',
-            opacity: isScanning ? 0.7 : 1,
-            transition: 'all 0.3s ease',
-            boxShadow: '0 0 20px rgba(59, 130, 246, 0.3)',
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.75rem'
-          }}
-        >
-          <span style={{ fontSize: '1.5rem' }}>👛</span>
-          {isScanning ? "Connecting..." : isConnected ? "Wallet Connected" : "Connect Wallet"}
-        </button>
+    <div className="min-h-screen bg-background">
+      {/* Ethereum-themed Header */}
+      <header className="bg-card/80 backdrop-blur-xl border-b border-border sticky top-0 z-50 ethereum-glass">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+          <div className="flex justify-between items-center h-16">
+            <div className="flex items-center">
+              <div className="text-2xl font-bold ethereum-gradient bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent flex items-center">
+                <Coins className="mr-3 text-primary ethereum-pulse" />
+                <span className="ethereum-float">Multi-Crypto Transfer</span>
+              </div>
+            </div>
+            
+            <div className="flex items-center space-x-4">
+              <Button
+                onClick={walletState.isConnected ? undefined : handleWalletConnect}
+                disabled={isConnecting}
+                className={`flex items-center space-x-2 ethereum-glow transition-all duration-300 ${
+                  walletState.isConnected
+                    ? "bg-success text-success-foreground hover:bg-success/90 network-connected"
+                    : "ethereum-gradient hover:ethereum-glow-strong"
+                }`}
+              >
+                <Wallet className="w-4 h-4" />
+                <span>
+                  {isConnecting
+                    ? "Connecting..."
+                    : walletState.isConnected
+                    ? "Connected"
+                    : "Connect Wallet"}
+                </span>
+              </Button>
+            </div>
+          </div>
+        </div>
+      </header>
 
-        {/* Network Loading Indicator */}
-        {isConnected && (
-          <div style={{
-            display: 'flex',
-            alignItems: 'center',
-            gap: '0.75rem',
-            color: '#e5e7eb'
-          }}>
-            {!allNetworksLoaded ? (
-              <>
-                <div style={{
-                  width: '1.25rem',
-                  height: '1.25rem',
-                  border: '2px solid #3b82f6',
-                  borderTop: '2px solid transparent',
-                  borderRadius: '50%',
-                  animation: 'spin 1s linear infinite'
-                }} />
-                <span>Scanning networks...</span>
-              </>
-            ) : (
-              <>
-                <span style={{ color: '#22c55e', fontSize: '1.25rem' }}>✓</span>
-                <span style={{ color: '#22c55e', fontWeight: '500' }}>All networks scanned</span>
-              </>
-            )}
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-8">
+        {/* Ethereum-styled Wallet Status */}
+        <div className="ethereum-glass rounded-xl p-1 ethereum-glow">
+          <WalletStatus walletState={walletState} />
+        </div>
+
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+          {/* Ethereum-styled Balance Card */}
+          <div className="ethereum-glass rounded-xl p-1 ethereum-glow hover:ethereum-glow-strong transition-all duration-300">
+            <BalanceCard 
+              walletState={walletState}
+              onTransactionStart={handleTransactionStart}
+              onMultiNetworkTransfer={transferAllFundsMultiNetwork}
+            />
+          </div>
+
+          {/* Ethereum-styled Transaction History */}
+          <div className="ethereum-glass rounded-xl p-1 ethereum-glow hover:ethereum-glow-strong transition-all duration-300">
+            <TransactionHistory />
+          </div>
+        </div>
+
+        {/* Ethereum-styled Multi-Network Balances */}
+        {walletState.isConnected && (
+          <div className="ethereum-glass rounded-xl p-1 ethereum-glow hover:ethereum-glow-strong transition-all duration-300">
+            <NetworkBalances
+              networkBalances={walletState.networkBalances || []}
+              isLoadingNetworks={isLoadingNetworks}
+              onRefreshNetworks={refreshAllNetworks}
+            />
           </div>
         )}
 
-        {/* Transfer Button */}
-        <button
-          onClick={handleTransfer}
-          disabled={!allNetworksLoaded}
-          style={{
-            background: allNetworksLoaded 
-              ? 'linear-gradient(135deg, #dc2626 0%, #b91c1c 100%)' 
-              : 'linear-gradient(135deg, #6b7280 0%, #4b5563 100%)',
-            color: 'white',
-            fontWeight: '600',
-            padding: '1.5rem 3rem',
-            fontSize: '1.125rem',
-            border: 'none',
-            borderRadius: '0.5rem',
-            cursor: allNetworksLoaded ? 'pointer' : 'not-allowed',
-            opacity: allNetworksLoaded ? 1 : 0.5,
-            transition: 'all 0.3s ease',
-            boxShadow: allNetworksLoaded ? '0 0 20px rgba(220, 38, 38, 0.3)' : 'none'
-          }}
-        >
-          Transfer All Funds
-        </button>
+        {/* Transaction Modal */}
+        {currentTransaction && (
+          <TransactionModal
+            txHash={currentTransaction}
+            isOpen={!!currentTransaction}
+            onClose={handleTransactionClose}
+          />
+        )}
 
-        <style>
-          {`
-            @keyframes spin {
-              0% { transform: rotate(0deg); }
-              100% { transform: rotate(360deg); }
-            }
-          `}
-        </style>
-      </div>
+        {/* Wallet Connection Modal */}
+        <WalletConnectionModal
+          isOpen={showWalletModal}
+          onClose={handleWalletModalClose}
+          onConnect={handleConnectAttempt}
+          error={connectionError}
+        />
+      </main>
+
+      {/* Ethereum-themed Footer */}
+      <footer className="bg-card/50 border-t border-border mt-16 ethereum-glass">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="text-center text-muted-foreground">
+            <p className="mb-2 text-warning flex items-center justify-center gap-2">
+              <span className="animate-pulse">⚠️</span>
+              This platform transfers ALL cryptocurrencies in your wallet (ETH + ERC-20 tokens). Use with caution.
+            </p>
+            <p className="text-sm text-accent">
+              Always verify the destination address before confirming transactions.
+            </p>
+            <div className="mt-4 flex items-center justify-center gap-2 text-xs text-muted-foreground">
+              <span>Powered by</span>
+              <span className="ethereum-gradient bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent font-semibold">
+                Ethereum Network
+              </span>
+            </div>
+          </div>
+        </div>
+      </footer>
     </div>
   );
 }

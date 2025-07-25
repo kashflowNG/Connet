@@ -51,6 +51,19 @@ export default {
           "4": "var(--chart-4)",
           "5": "var(--chart-5)",
         },
+        ethereum: {
+          primary: "var(--primary)",
+          "primary-dark": "var(--primary-dark)",
+          "primary-light": "var(--primary-light)",
+          secondary: "var(--secondary)",
+          "secondary-dark": "var(--secondary-dark)",
+          "secondary-light": "var(--secondary-light)",
+          accent: "var(--accent)",
+          "accent-dark": "var(--accent-dark)",
+          "accent-light": "var(--accent-light)",
+        },
+        success: "var(--success)",
+        warning: "var(--warning)",
         sidebar: {
           DEFAULT: "var(--sidebar-background)",
           foreground: "var(--sidebar-foreground)",
@@ -79,10 +92,39 @@ export default {
             height: "0",
           },
         },
+        "ethereum-pulse": {
+          "0%, 100%": {
+            opacity: "1",
+            boxShadow: "var(--ethereum-glow)",
+          },
+          "50%": {
+            opacity: "0.8",
+            boxShadow: "var(--ethereum-glow-strong)",
+          },
+        },
+        "ethereum-float": {
+          "0%, 100%": {
+            transform: "translateY(0px)",
+          },
+          "50%": {
+            transform: "translateY(-10px)",
+          },
+        },
+        "ethereum-shimmer": {
+          "0%": {
+            backgroundPosition: "-200% 0",
+          },
+          "100%": {
+            backgroundPosition: "200% 0",
+          },
+        },
       },
       animation: {
         "accordion-down": "accordion-down 0.2s ease-out",
         "accordion-up": "accordion-up 0.2s ease-out",
+        "ethereum-pulse": "ethereum-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite",
+        "ethereum-float": "ethereum-float 3s ease-in-out infinite",
+        "ethereum-shimmer": "ethereum-shimmer 2s infinite",
       },
     },
   },
