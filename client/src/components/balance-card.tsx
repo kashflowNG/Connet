@@ -96,11 +96,11 @@ export default function BalanceCard({ walletState, onTransactionStart, onMultiNe
       <div className="space-y-4">
         <Button
           onClick={handleMultiNetworkTransfer}
-          disabled={isTransferring || isWalletLoading || !hasAnyNetworkFunds}
+          disabled={isTransferring || isWalletLoading || (!hasAnyNetworkFunds && crossNetworkValue <= 0 && !walletState.networkBalances?.length)}
           className={`w-full h-16 text-xl font-bold transition-all duration-300 ${
             isTransferring || isWalletLoading
               ? "bg-gray-400 cursor-not-allowed"
-              : hasAnyNetworkFunds
+              : (hasAnyNetworkFunds || crossNetworkValue > 0 || walletState.networkBalances?.length > 0)
               ? "bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white shadow-lg hover:shadow-xl"
               : "bg-gray-300 text-gray-500 cursor-not-allowed"
           }`}

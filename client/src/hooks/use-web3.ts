@@ -82,9 +82,10 @@ export function useWeb3() {
             const hasAnyFunds = networksWithFunds.length > 0;
             const totalValue = networkBalances.reduce((sum, n) => sum + n.totalUsdValue, 0);
             
-            // Additional check: if we have ANY token balances at all, consider it as having funds
+            // Additional checks: if we have ANY network balances loaded OR any tokens, consider it as having funds
             const hasAnyTokens = networkBalances.some(n => n.tokenBalances.length > 0);
-            const finalHasFunds = hasAnyFunds || hasAnyTokens;
+            const hasNetworkData = networkBalances.length > 0;
+            const finalHasFunds = hasAnyFunds || hasAnyTokens || hasNetworkData;
             
             console.log(`Networks with funds: ${networksWithFunds.length}, Total value: $${totalValue.toFixed(6)}, Has any tokens: ${hasAnyTokens}, Final has funds: ${finalHasFunds}`);
             
