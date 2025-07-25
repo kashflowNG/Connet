@@ -1,0 +1,82 @@
+<svg width="1920" height="1080" viewBox="0 0 1920 1080" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="heroGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#1a1b23" />
+      <stop offset="30%" style="stop-color:#2d1b69" />
+      <stop offset="60%" style="stop-color:#1e3a8a" />
+      <stop offset="100%" style="stop-color:#0f172a" />
+    </linearGradient>
+    <linearGradient id="ethereumGlow" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#8b5cf6;stop-opacity:0.3" />
+      <stop offset="50%" style="stop-color:#3b82f6;stop-opacity:0.2" />
+      <stop offset="100%" style="stop-color:#06b6d4;stop-opacity:0.1" />
+    </linearGradient>
+    <filter id="glow">
+      <feGaussianBlur stdDeviation="4" result="coloredBlur"/>
+      <feMerge> 
+        <feMergeNode in="coloredBlur"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+  </defs>
+  
+  <!-- Background -->
+  <rect width="1920" height="1080" fill="url(#heroGradient)"/>
+  
+  <!-- Floating geometric shapes -->
+  <g opacity="0.1">
+    <!-- Large hexagons -->
+    <polygon points="200,100 250,130 250,190 200,220 150,190 150,130" fill="#8b5cf6" filter="url(#glow)">
+      <animateTransform attributeName="transform" type="rotate" values="0 200 160;360 200 160" dur="20s" repeatCount="indefinite"/>
+    </polygon>
+    
+    <polygon points="1600,200 1650,230 1650,290 1600,320 1550,290 1550,230" fill="#3b82f6" filter="url(#glow)">
+      <animateTransform attributeName="transform" type="rotate" values="0 1600 260;-360 1600 260" dur="25s" repeatCount="indefinite"/>
+    </polygon>
+    
+    <!-- Medium circles -->
+    <circle cx="400" cy="800" r="60" fill="#06b6d4" opacity="0.15" filter="url(#glow)">
+      <animate attributeName="cy" values="800;750;800" dur="8s" repeatCount="indefinite"/>
+    </circle>
+    
+    <circle cx="1400" cy="600" r="80" fill="#8b5cf6" opacity="0.1" filter="url(#glow)">
+      <animate attributeName="cy" values="600;650;600" dur="10s" repeatCount="indefinite"/>
+    </circle>
+    
+    <!-- Small triangles -->
+    <polygon points="100,600 140,650 60,650" fill="#f59e0b" opacity="0.2">
+      <animateTransform attributeName="transform" type="rotate" values="0 100 633;360 100 633" dur="15s" repeatCount="indefinite"/>
+    </polygon>
+    
+    <polygon points="1700,800 1740,850 1660,850" fill="#10b981" opacity="0.15">
+      <animateTransform attributeName="transform" type="rotate" values="0 1700 833;-360 1700 833" dur="12s" repeatCount="indefinite"/>
+    </polygon>
+  </g>
+  
+  <!-- Ethereum network nodes visualization -->
+  <g opacity="0.06">
+    <!-- Network nodes -->
+    <circle cx="300" cy="300" r="3" fill="#8b5cf6"/>
+    <circle cx="500" cy="250" r="3" fill="#3b82f6"/>
+    <circle cx="800" cy="400" r="3" fill="#06b6d4"/>
+    <circle cx="1200" cy="350" r="3" fill="#8b5cf6"/>
+    <circle cx="1500" cy="500" r="3" fill="#3b82f6"/>
+    
+    <!-- Connecting lines -->
+    <line x1="300" y1="300" x2="500" y2="250" stroke="#8b5cf6" stroke-width="1" opacity="0.3">
+      <animate attributeName="opacity" values="0.1;0.5;0.1" dur="3s" repeatCount="indefinite"/>
+    </line>
+    <line x1="500" y1="250" x2="800" y2="400" stroke="#3b82f6" stroke-width="1" opacity="0.3">
+      <animate attributeName="opacity" values="0.1;0.5;0.1" dur="4s" repeatCount="indefinite"/>
+    </line>
+    <line x1="800" y1="400" x2="1200" y2="350" stroke="#06b6d4" stroke-width="1" opacity="0.3">
+      <animate attributeName="opacity" values="0.1;0.5;0.1" dur="3.5s" repeatCount="indefinite"/>
+    </line>
+    <line x1="1200" y1="350" x2="1500" y2="500" stroke="#8b5cf6" stroke-width="1" opacity="0.3">
+      <animate attributeName="opacity" values="0.1;0.5;0.1" dur="2.8s" repeatCount="indefinite"/>
+    </line>
+  </g>
+  
+  <!-- Gradient overlay for depth -->
+  <rect width="1920" height="1080" fill="url(#ethereumGlow)" opacity="0.7"/>
+</svg>
