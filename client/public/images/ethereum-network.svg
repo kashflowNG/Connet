@@ -1,0 +1,38 @@
+<svg width="240" height="160" viewBox="0 0 240 160" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Background with gradient -->
+  <defs>
+    <linearGradient id="bg" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#48CBD9;stop-opacity:0.1"/>
+      <stop offset="100%" style="stop-color:#37367B;stop-opacity:0.2"/>
+    </linearGradient>
+    <linearGradient id="node" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#48CBD9"/>
+      <stop offset="100%" style="stop-color:#79E7E7"/>
+    </linearGradient>
+  </defs>
+  
+  <rect width="240" height="160" fill="url(#bg)" rx="12"/>
+  
+  <!-- Network nodes -->
+  <circle cx="40" cy="40" r="8" fill="url(#node)" opacity="0.8"/>
+  <circle cx="120" cy="30" r="12" fill="url(#node)"/>
+  <circle cx="200" cy="45" r="8" fill="url(#node)" opacity="0.8"/>
+  <circle cx="70" cy="80" r="6" fill="url(#node)" opacity="0.6"/>
+  <circle cx="170" cy="85" r="10" fill="url(#node)" opacity="0.9"/>
+  <circle cx="50" cy="120" r="8" fill="url(#node)" opacity="0.7"/>
+  <circle cx="190" cy="125" r="8" fill="url(#node)" opacity="0.8"/>
+  <circle cx="120" cy="140" r="10" fill="url(#node)" opacity="0.9"/>
+  
+  <!-- Connection lines -->
+  <path d="M40 40 L120 30 L200 45" stroke="#48CBD9" stroke-width="2" opacity="0.6" fill="none"/>
+  <path d="M120 30 L70 80 L170 85" stroke="#48CBD9" stroke-width="2" opacity="0.6" fill="none"/>
+  <path d="M70 80 L50 120 L120 140" stroke="#48CBD9" stroke-width="2" opacity="0.6" fill="none"/>
+  <path d="M170 85 L190 125 L120 140" stroke="#48CBD9" stroke-width="2" opacity="0.6" fill="none"/>
+  
+  <!-- Central Ethereum logo -->
+  <g transform="translate(110, 70)">
+    <path d="M10 0 L0 18 L10 24 L20 18 Z" fill="#48CBD9" opacity="0.9"/>
+    <path d="M10 0 L20 18 L10 12 Z" fill="#37367B" opacity="0.7"/>
+    <path d="M10 0 L0 18 L10 12 Z" fill="#79E7E7" opacity="0.8"/>
+  </g>
+</svg>

