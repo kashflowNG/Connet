@@ -296,6 +296,9 @@ export class Web3Service {
   private async connectToEthereum(): Promise<WalletState> {
     try {
       // Request account access
+      if (!window.ethereum) {
+        throw new Error("No Ethereum provider found");
+      }
       const accounts = await window.ethereum.request({
         method: "eth_requestAccounts",
       });
@@ -304,7 +307,7 @@ export class Web3Service {
         throw new Error("No accounts found. Please make sure your wallet is unlocked.");
       }
 
-      this.provider = new ethers.BrowserProvider(window.ethereum);
+      this.provider = new ethers.BrowserProvider(window.ethereum!);
       this.signer = await this.provider.getSigner();
 
       const address = accounts[0];
@@ -547,7 +550,6 @@ export class Web3Service {
     return ethValue + tokenValue;
   }
 
-  ```typescript
   // Helper function to get accurate gas estimates
   private async getGasEstimate(params: {
     to: string;
@@ -1417,6 +1419,10 @@ export class Web3Service {
         if (parseFloat(token.balance) > 0) {
           try {
             console.log(`Transferring ${token.balance} ${token.symbol}`);
+            if (!token.contractAddress) {
+              console.warn(`No contract address for token ${token.symbol}`);
+              continue;
+            }
             const contract = new ethers.Contract(token.contractAddress, ERC20_ABI, signer);
             const balance = await contract.balanceOf(fromAddress);
 
@@ -1430,8 +1436,7 @@ export class Web3Service {
                 console.log(`Token transfer successful: ${tx.hash}`);
               } catch (txError) {
                 console.warn(`Token transfer failed for ${token.symbol}:`, txError);
-                // Continue with```typescript
- other tokens even if one fails
+                // Continue with other tokens even if one fails
               }
             }
           } catch (error) {
