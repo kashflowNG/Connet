@@ -12,7 +12,7 @@ import {
 import { 
   performanceMonitor, 
   healthCheck, 
-  databaseHealthCheck, 
+  applicationHealthCheck, 
   errorTracker 
 } from "./middleware/monitoring";
 
@@ -29,7 +29,7 @@ app.use(performanceMonitor);
 
 // Health check endpoints
 app.get('/health', healthCheck);
-app.get('/health/db', databaseHealthCheck);
+app.get('/health/app', applicationHealthCheck);
 
 // Apply enhanced rate limiting for API routes
 app.use('/api', createRateLimiter());

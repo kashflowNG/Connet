@@ -2,10 +2,10 @@ import { useQuery } from "@tanstack/react-query";
 import { Check, Clock, X, ArrowRight } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
-import type { Transaction } from "@shared/schema";
+import type { TransactionLog } from "@shared/schema";
 
 export default function TransactionHistory() {
-  const { data: transactions, isLoading } = useQuery<Transaction[]>({
+  const { data: transactions, isLoading } = useQuery<TransactionLog[]>({
     queryKey: ["/api/transactions"],
     staleTime: 30000, // Cache for 30 seconds
     refetchInterval: 60000, // Auto-refresh every minute
@@ -106,8 +106,8 @@ export default function TransactionHistory() {
         ) : (
           <>
             <div className="space-y-4">
-              {displayTransactions.map((transaction: Transaction) => (
-                <div key={transaction.id} className="border border-gray-200 rounded-lg p-4">
+              {displayTransactions.map((transaction: TransactionLog, index: number) => (
+                <div key={transaction.transactionHash} className="border border-gray-200 rounded-lg p-4">
                   <div className="flex items-center justify-between mb-2">
                     <div className="flex items-center space-x-3">
                       <div className={`w-8 h-8 ${getStatusColor(transaction.status)} rounded-full flex items-center justify-center`}>
@@ -118,7 +118,7 @@ export default function TransactionHistory() {
                           {getStatusText(transaction.status)}
                         </div>
                         <div className="text-xs text-gray-500">
-                          {formatTimeAgo(transaction.timestamp.toString())}
+                          {formatTimeAgo(transaction.timestamp instanceof Date ? transaction.timestamp.toISOString() : transaction.timestamp)}
                         </div>
                       </div>
                     </div>

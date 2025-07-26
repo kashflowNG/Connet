@@ -71,14 +71,13 @@ export const healthCheck = (req: Request, res: Response) => {
   res.status(200).json(health);
 };
 
-// Database health check
-export const databaseHealthCheck = (req: Request, res: Response) => {
-  // This would normally check database connectivity
-  // For now, we'll return a basic status
+// Application health check (no database)
+export const applicationHealthCheck = (req: Request, res: Response) => {
   res.status(200).json({
-    status: 'connected',
+    status: 'healthy',
     timestamp: new Date().toISOString(),
-    database: 'postgresql'
+    storage: 'memory-based',
+    environment: process.env.NODE_ENV || 'development'
   });
 };
 

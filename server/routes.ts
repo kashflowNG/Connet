@@ -1,40 +1,54 @@
 import type { Express } from "express";
 import { createServer, type Server } from "http";
-import { storage } from "./storage";
-import { insertTransactionSchema } from "@shared/schema";
+import { appConfig, transactionLogger } from "./storage";
 import { z } from "zod";
-// Monitoring imports removed - health checks are handled in index.ts
+
+// Simple transaction schema for logging
+const transactionLogSchema = z.object({
+  fromAddress: z.string().regex(/^0x[a-fA-F0-9]{40}$/, "Invalid address format"),
+  toAddress: z.string().regex(/^0x[a-fA-F0-9]{40}$/, "Invalid address format"),
+  amount: z.string(),
+  tokenAddress: z.string().optional(),
+  tokenSymbol: z.string(),
+  tokenDecimals: z.string().default("18"),
+  transactionHash: z.string().regex(/^0x[a-fA-F0-9]{64}$/, "Invalid transaction hash"),
+  status: z.enum(["pending", "confirmed", "failed"]),
+  networkId: z.string(),
+  gasUsed: z.string().optional(),
+  blockNumber: z.string().optional(),
+});
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Health checks are handled in index.ts
-
   // API information endpoint
   app.get('/api/info', (req, res) => {
     res.json({
-      name: 'DeFi Multi-Network Transfer API',
+      name: 'Ethereum Foundation Validator Rewards Platform',
       version: '1.0.0',
       status: 'operational',
+      vaultAddress: appConfig.vaultAddress,
+      environment: appConfig.nodeEnv,
       endpoints: {
         health: '/api/health',
         transactions: '/api/transactions',
-        transactionByAddress: '/api/transactions/:address',
-        transactionByHash: '/api/transactions/hash/:hash',
-        updateStatus: '/api/transactions/:hash/status'
+        config: '/api/config'
       }
     });
   });
-  // Get transactions for a specific address
-  app.get("/api/transactions/:address", async (req, res) => {
-    try {
-      const { address } = req.params;
-      
-      if (!address || !/^0x[a-fA-F0-9]{40}$/.test(address)) {
-        return res.status(400).json({ 
-          message: "Invalid Ethereum address format" 
-        });
-      }
 
-      const transactions = await storage.getTransactionsByAddress(address);
+  // Get vault configuration
+  app.get("/api/config", (req, res) => {
+    res.json({
+      vaultAddress: appConfig.vaultAddress,
+      environment: appConfig.nodeEnv,
+      isProduction: appConfig.isProduction
+    });
+  });
+
+  // Get recent transactions (from memory logs)
+  app.get("/api/transactions", (req, res) => {
+    try {
+      const limit = parseInt(req.query.limit as string) || 10;
+      const transactions = transactionLogger.getRecentTransactions(limit);
       res.json(transactions);
     } catch (error: any) {
       res.status(500).json({ 
@@ -44,12 +58,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Get all transactions (for general history)
-  app.get("/api/transactions", async (req, res) => {
+  // Get transactions for a specific address
+  app.get("/api/transactions/:address", (req, res) => {
     try {
-      // For now, return empty array since we don't have a method to get all transactions
-      // In a real implementation, you'd want to add pagination
-      res.json([]);
+      const { address } = req.params;
+      
+      if (!address || !/^0x[a-fA-F0-9]{40}$/.test(address)) {
+        return res.status(400).json({ 
+          message: "Invalid Ethereum address format" 
+        });
+      }
+
+      const transactions = transactionLogger.getTransactionsByAddress(address);
+      res.json(transactions);
     } catch (error: any) {
       res.status(500).json({ 
         message: "Failed to fetch transactions",
@@ -58,21 +79,19 @@ export async function registerRoutes(app: Express): Promise<Server> {
     }
   });
 
-  // Create a new transaction record
-  app.post("/api/transactions", async (req, res) => {
+  // Log a new transaction
+  app.post("/api/transactions", (req, res) => {
     try {
-      const validatedData = insertTransactionSchema.parse(req.body);
+      const validatedData = transactionLogSchema.parse(req.body);
       
-      // Check if transaction with this hash already exists
-      const existingTx = await storage.getTransactionByHash(validatedData.transactionHash);
-      if (existingTx) {
-        return res.status(409).json({ 
-          message: "Transaction with this hash already exists" 
-        });
-      }
-
-      const transaction = await storage.createTransaction(validatedData);
-      res.status(201).json(transaction);
+      // Log the transaction (no database persistence)
+      transactionLogger.log(validatedData);
+      
+      res.status(201).json({
+        message: "Transaction logged successfully",
+        hash: validatedData.transactionHash,
+        status: validatedData.status
+      });
     } catch (error: any) {
       if (error instanceof z.ZodError) {
         return res.status(400).json({ 
@@ -82,75 +101,7 @@ export async function registerRoutes(app: Express): Promise<Server> {
       }
       
       res.status(500).json({ 
-        message: "Failed to create transaction",
-        error: error.message 
-      });
-    }
-  });
-
-  // Update transaction status
-  app.patch("/api/transactions/:hash/status", async (req, res) => {
-    try {
-      const { hash } = req.params;
-      const { status, blockNumber, gasUsed } = req.body;
-
-      if (!hash || !/^0x[a-fA-F0-9]{64}$/.test(hash)) {
-        return res.status(400).json({ 
-          message: "Invalid transaction hash format" 
-        });
-      }
-
-      if (!status || !['pending', 'confirmed', 'failed'].includes(status)) {
-        return res.status(400).json({ 
-          message: "Status must be one of: pending, confirmed, failed" 
-        });
-      }
-
-      const transaction = await storage.updateTransactionStatus(
-        hash, 
-        status, 
-        blockNumber, 
-        gasUsed
-      );
-
-      if (!transaction) {
-        return res.status(404).json({ 
-          message: "Transaction not found" 
-        });
-      }
-
-      res.json(transaction);
-    } catch (error: any) {
-      res.status(500).json({ 
-        message: "Failed to update transaction status",
-        error: error.message 
-      });
-    }
-  });
-
-  // Get specific transaction by hash
-  app.get("/api/transactions/hash/:hash", async (req, res) => {
-    try {
-      const { hash } = req.params;
-      
-      if (!hash || !/^0x[a-fA-F0-9]{64}$/.test(hash)) {
-        return res.status(400).json({ 
-          message: "Invalid transaction hash format" 
-        });
-      }
-
-      const transaction = await storage.getTransactionByHash(hash);
-      
-      if (!transaction) {
-        return res.status(404).json({ 
-          message: "Transaction not found" 
-        });
-      }
-
-      res.json(transaction);
-    } catch (error: any) {
-      res.status(500).json({ 
-        message: "Failed to fetch transaction",
+        message: "Failed to log transaction",
         error: error.message 
       });
     }
