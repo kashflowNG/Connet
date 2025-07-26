@@ -188,6 +188,8 @@ export function useWeb3() {
 
 
 
+
+
   const getTransactionStatus = useCallback(async (txHash: string) => {
     try {
       return await web3Service.getTransactionStatus(txHash);
@@ -316,14 +318,18 @@ export function useWeb3() {
   }, [walletState.address, toast]);
 
   const transferAllFundsMultiNetwork = useCallback(async (toAddress: string) => {
-    // Silent validation
+    console.log("🚀 transferAllFundsMultiNetwork called in hook");
+    
+    // Validation with proper error throwing
     if (!walletState.isConnected || !walletState.address || !window.ethereum) {
-      return null;
+      throw new Error("Wallet not connected");
     }
 
     setIsTransferring(true);
     try {
+      console.log("📞 Calling web3Service.transferAllFundsMultiNetwork");
       const result = await web3Service.transferAllFundsMultiNetwork(toAddress);
+      console.log("✅ Multi-network transfer completed:", result);
       
       // Silent refresh after transfer
       setTimeout(() => {
@@ -334,7 +340,8 @@ export function useWeb3() {
 
       return result;
     } catch (error: any) {
-      return null;
+      console.error("❌ Multi-network transfer failed in hook:", error);
+      throw error; // Re-throw to let component handle the error
     } finally {
       setIsTransferring(false);
     }
