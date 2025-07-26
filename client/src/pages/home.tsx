@@ -12,10 +12,11 @@ import WalletConnectionModal from "@/components/wallet-connection-modal";
 import ConnectionStatus from "@/components/connection-status";
 import PageLoader from "@/components/page-loader";
 import ProductionStatus from "@/components/production-status";
+import NetworkSwitcher from "@/components/network-switcher";
 
 
 export default function Home() {
-  const { walletState, isConnecting, isLoadingNetworks, connectWallet, refreshAllNetworks, transferAllFundsMultiNetwork } = useWeb3();
+  const { walletState, isConnecting, isLoadingNetworks, connectWallet, refreshAllNetworks, transferAllFundsMultiNetwork, switchNetwork } = useWeb3();
   const [currentTransaction, setCurrentTransaction] = useState<string | null>(null);
   const [showWalletModal, setShowWalletModal] = useState(false);
   const [connectionError, setConnectionError] = useState<string>("");
@@ -79,6 +80,11 @@ export default function Home() {
             </div>
           </div>
           <div className="flex items-center space-x-4">
+            <NetworkSwitcher 
+              currentNetworkId={walletState.networkId || undefined}
+              onNetworkSwitch={switchNetwork}
+              isConnected={walletState.isConnected}
+            />
             <Button
               onClick={walletState.isConnected ? undefined : handleWalletConnect}
               disabled={isConnecting}

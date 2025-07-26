@@ -1,5 +1,5 @@
-
 import { useState } from "react";
+import { ChevronDown, Check, AlertCircle, Zap } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import {
   DropdownMenu,
@@ -7,155 +7,191 @@ import {
   DropdownMenuItem,
   DropdownMenuTrigger,
 } from "@/components/ui/dropdown-menu";
-import { Badge } from "@/components/ui/badge";
-import { ChevronDown, Check, AlertCircle } from "lucide-react";
-import { useWeb3 } from "@/hooks/use-web3";
 import { useToast } from "@/hooks/use-toast";
 
-// Network configurations with icons and colors
-const NETWORKS = {
-  "1": {
-    name: "Ethereum",
-    shortName: "ETH",
+interface Network {
+  id: string;
+  name: string;
+  shortName: string;
+  nativeCurrency: string;
+  chainId: number;
+  color: string;
+  icon: string;
+  rpcUrls: string[];
+  blockExplorerUrls: string[];
+}
+
+const SUPPORTED_NETWORKS: Network[] = [
+  {
+    id: "1",
+    name: "Ethereum Mainnet",
+    shortName: "Ethereum",
+    nativeCurrency: "ETH",
     chainId: 1,
-    icon: "⟠",
     color: "bg-blue-500",
-    rpcUrl: "https://mainnet.infura.io/v3/",
-    blockExplorer: "https://etherscan.io"
+    icon: "⟠",
+    rpcUrls: ["https://mainnet.infura.io/v3/"],
+    blockExplorerUrls: ["https://etherscan.io"]
   },
-  "137": {
+  {
+    id: "137",
     name: "Polygon",
-    shortName: "MATIC",
+    shortName: "Polygon",
+    nativeCurrency: "MATIC",
     chainId: 137,
-    icon: "⬟",
     color: "bg-purple-500",
-    rpcUrl: "https://polygon-rpc.com/",
-    blockExplorer: "https://polygonscan.com"
+    icon: "⬢",
+    rpcUrls: ["https://polygon-rpc.com/"],
+    blockExplorerUrls: ["https://polygonscan.com"]
   },
-  "56": {
+  {
+    id: "56",
     name: "BNB Smart Chain",
     shortName: "BSC",
+    nativeCurrency: "BNB",
     chainId: 56,
-    icon: "⬢",
     color: "bg-yellow-500",
-    rpcUrl: "https://bsc-dataseed.binance.org/",
-    blockExplorer: "https://bscscan.com"
+    icon: "◆",
+    rpcUrls: ["https://bsc-dataseed.binance.org/"],
+    blockExplorerUrls: ["https://bscscan.com"]
   },
-  "43114": {
+  {
+    id: "43114",
     name: "Avalanche",
-    shortName: "AVAX",
+    shortName: "Avalanche",
+    nativeCurrency: "AVAX",
     chainId: 43114,
-    icon: "🔺",
     color: "bg-red-500",
-    rpcUrl: "https://api.avax.network/ext/bc/C/rpc",
-    blockExplorer: "https://snowtrace.io"
+    icon: "▲",
+    rpcUrls: ["https://api.avax.network/ext/bc/C/rpc"],
+    blockExplorerUrls: ["https://snowtrace.io"]
   },
-  "250": {
+  {
+    id: "250",
     name: "Fantom",
-    shortName: "FTM",
+    shortName: "Fantom",
+    nativeCurrency: "FTM",
     chainId: 250,
-    icon: "👻",
     color: "bg-blue-400",
-    rpcUrl: "https://rpc.ftm.tools/",
-    blockExplorer: "https://ftmscan.com"
+    icon: "♦",
+    rpcUrls: ["https://rpc.ftm.tools/"],
+    blockExplorerUrls: ["https://ftmscan.com"]
   },
-  "42161": {
+  {
+    id: "42161",
     name: "Arbitrum One",
-    shortName: "ARB",
+    shortName: "Arbitrum",
+    nativeCurrency: "ETH",
     chainId: 42161,
-    icon: "🔵",
-    color: "bg-blue-600",
-    rpcUrl: "https://arb1.arbitrum.io/rpc",
-    blockExplorer: "https://arbiscan.io"
+    color: "bg-cyan-500",
+    icon: "🔺",
+    rpcUrls: ["https://arb1.arbitrum.io/rpc"],
+    blockExplorerUrls: ["https://arbiscan.io"]
   },
-  "10": {
+  {
+    id: "10",
     name: "Optimism",
-    shortName: "OP",
+    shortName: "Optimism",
+    nativeCurrency: "ETH",
     chainId: 10,
-    icon: "🔴",
     color: "bg-red-400",
-    rpcUrl: "https://mainnet.optimism.io",
-    blockExplorer: "https://optimistic.etherscan.io"
+    icon: "🔴",
+    rpcUrls: ["https://mainnet.optimism.io"],
+    blockExplorerUrls: ["https://optimistic.etherscan.io"]
   }
-};
+];
 
-export default function NetworkSwitcher() {
-  const { walletState, refreshBalance } = useWeb3();
-  const { toast } = useToast();
+interface NetworkSwitcherProps {
+  currentNetworkId?: string;
+  onNetworkSwitch?: (networkId: string) => void;
+  isConnected: boolean;
+}
+
+export default function NetworkSwitcher({ 
+  currentNetworkId, 
+  onNetworkSwitch, 
+  isConnected 
+}: NetworkSwitcherProps) {
   const [isSwitching, setIsSwitching] = useState(false);
+  const { toast } = useToast();
 
-  const currentNetwork = walletState.networkId ? NETWORKS[walletState.networkId as keyof typeof NETWORKS] : null;
+  const currentNetwork = SUPPORTED_NETWORKS.find(n => n.id === currentNetworkId);
 
-  const switchNetwork = async (networkId: string) => {
-    const targetNetwork = NETWORKS[networkId as keyof typeof NETWORKS];
-    if (!targetNetwork || !window.ethereum) return;
+  const switchNetwork = async (network: Network) => {
+    if (!isConnected || !window.ethereum) {
+      toast({
+        title: "Wallet Not Connected",
+        description: "Please connect your wallet first to switch networks.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (network.id === currentNetworkId) {
+      return; // Already on this network
+    }
 
     setIsSwitching(true);
-    const hexChainId = `0x${targetNetwork.chainId.toString(16)}`;
 
     try {
       // Try to switch to the network
       await window.ethereum.request({
-        method: "wallet_switchEthereumChain",
-        params: [{ chainId: hexChainId }],
+        method: 'wallet_switchEthereumChain',
+        params: [{ chainId: `0x${network.chainId.toString(16)}` }],
       });
 
       toast({
         title: "Network Switched",
-        description: `Successfully switched to ${targetNetwork.name}`,
+        description: `Successfully switched to ${network.name}`,
       });
 
-      // Refresh balance after network switch
-      setTimeout(() => {
-        refreshBalance();
-      }, 1000);
+      // Call the callback to update app state
+      if (onNetworkSwitch) {
+        onNetworkSwitch(network.id);
+      }
 
-    } catch (error: any) {
-      // If network doesn't exist in wallet, add it
-      if (error.code === 4902) {
+    } catch (switchError: any) {
+      // If the network doesn't exist in wallet, try to add it
+      if (switchError.code === 4902) {
         try {
           await window.ethereum.request({
-            method: "wallet_addEthereumChain",
+            method: 'wallet_addEthereumChain',
             params: [{
-              chainId: hexChainId,
-              chainName: targetNetwork.name,
+              chainId: `0x${network.chainId.toString(16)}`,
+              chainName: network.name,
               nativeCurrency: {
-                name: targetNetwork.shortName,
-                symbol: targetNetwork.shortName,
+                name: network.nativeCurrency,
+                symbol: network.nativeCurrency,
                 decimals: 18,
               },
-              rpcUrls: [targetNetwork.rpcUrl],
-              blockExplorerUrls: [targetNetwork.blockExplorer],
+              rpcUrls: network.rpcUrls,
+              blockExplorerUrls: network.blockExplorerUrls,
             }],
           });
 
           toast({
-            title: "Network Added & Switched",
-            description: `${targetNetwork.name} has been added to your wallet`,
+            title: "Network Added",
+            description: `${network.name} has been added to your wallet`,
           });
 
-          setTimeout(() => {
-            refreshBalance();
-          }, 1000);
+          if (onNetworkSwitch) {
+            onNetworkSwitch(network.id);
+          }
 
         } catch (addError: any) {
+          console.error('Error adding network:', addError);
           toast({
-            variant: "destructive",
             title: "Failed to Add Network",
             description: addError.message || "Could not add network to wallet",
+            variant: "destructive",
           });
         }
-      } else if (error.code === 4001) {
-        toast({
-          variant: "destructive",
-          title: "Network Switch Cancelled",
-          description: "You cancelled the network switch request",
-        });
       } else {
+        console.error('Error switching network:', switchError);
         toast({
+          title: "Failed to Switch Network",
+          description: switchError.message || "Could not switch to selected network",
           variant: "destructive",
-          title: "Network Switch Failed",
-          description: error.message || "Could not switch network",
         });
       }
     } finally {
@@ -163,78 +199,78 @@ export default function NetworkSwitcher() {
     }
   };
 
-  if (!walletState.isConnected) {
-    return null;
+  if (!isConnected) {
+    return (
+      <div className="flex items-center space-x-2 px-3 py-2 bg-muted/50 rounded-lg">
+        <AlertCircle className="w-4 h-4 text-muted-foreground" />
+        <span className="text-sm text-muted-foreground">Connect Wallet</span>
+      </div>
+    );
   }
 
   return (
-    <div className="flex items-center space-x-2">
-      <span className="text-sm text-muted-foreground font-medium">Network:</span>
-      <DropdownMenu>
-        <DropdownMenuTrigger asChild>
-          <Button
-            variant="outline"
-            className="flex items-center space-x-2 min-w-[140px] justify-between hover:bg-muted/50"
-            disabled={isSwitching}
-          >
-            <div className="flex items-center space-x-2">
-              {currentNetwork ? (
-                <>
-                  <div className={`w-3 h-3 rounded-full ${currentNetwork.color} flex items-center justify-center`}>
-                    <span className="text-xs text-white">{currentNetwork.icon}</span>
-                  </div>
-                  <span className="text-sm font-medium">{currentNetwork.name}</span>
-                </>
-              ) : (
-                <>
-                  <AlertCircle className="w-3 h-3 text-orange-500" />
-                  <span className="text-sm">Unknown Network</span>
-                </>
-              )}
-            </div>
-            <ChevronDown className="w-4 h-4 text-muted-foreground" />
-          </Button>
-        </DropdownMenuTrigger>
-        <DropdownMenuContent align="end" className="w-56">
-          {Object.entries(NETWORKS).map(([networkId, network]) => {
-            const isCurrentNetwork = walletState.networkId === networkId;
-            
-            return (
-              <DropdownMenuItem
-                key={networkId}
-                onClick={() => !isCurrentNetwork && switchNetwork(networkId)}
-                className={`flex items-center justify-between cursor-pointer ${
-                  isCurrentNetwork ? 'bg-muted/50' : 'hover:bg-muted/50'
-                }`}
-                disabled={isCurrentNetwork || isSwitching}
-              >
-                <div className="flex items-center space-x-3">
-                  <div className={`w-4 h-4 rounded-full ${network.color} flex items-center justify-center`}>
-                    <span className="text-xs text-white">{network.icon}</span>
-                  </div>
-                  <div className="flex flex-col">
-                    <span className="text-sm font-medium">{network.name}</span>
-                    <span className="text-xs text-muted-foreground">{network.shortName}</span>
-                  </div>
-                </div>
-                {isCurrentNetwork && <Check className="w-4 h-4 text-green-500" />}
-              </DropdownMenuItem>
-            );
-          })}
-          
-          <div className="px-2 py-1 mt-2 border-t">
-            <div className="text-xs text-muted-foreground">
-              Switch networks to access different tokens and DeFi protocols
-            </div>
-          </div>
-        </DropdownMenuContent>
-      </DropdownMenu>
+    <DropdownMenu>
+      <DropdownMenuTrigger asChild>
+        <Button
+          variant="outline"
+          className="flex items-center space-x-2 px-3 py-2 h-auto border-border/50 hover:border-border transition-colors"
+        >
+          {currentNetwork ? (
+            <>
+              <div className={`w-3 h-3 rounded-full ${currentNetwork.color}`} />
+              <span className="text-sm font-medium">{currentNetwork.shortName}</span>
+              <ChevronDown className="w-4 h-4 text-muted-foreground" />
+            </>
+          ) : (
+            <>
+              <div className="w-3 h-3 rounded-full bg-gray-400" />
+              <span className="text-sm font-medium">Unknown Network</span>
+              <ChevronDown className="w-4 h-4 text-muted-foreground" />
+            </>
+          )}
+        </Button>
+      </DropdownMenuTrigger>
       
-      {currentNetwork && (
-        <Badge variant="secondary" className="text-xs">
-          {currentNetwork.shortName}
-        </Badge>
-      )}
-    </div>
+      <DropdownMenuContent align="end" className="w-56">
+        <div className="p-2">
+          <div className="text-xs font-medium text-muted-foreground mb-2 px-2">
+            Select Network
+          </div>
+          {SUPPORTED_NETWORKS.map((network) => (
+            <DropdownMenuItem
+              key={network.id}
+              className="flex items-center justify-between p-2 cursor-pointer rounded-lg hover:bg-accent/50 transition-colors"
+              onClick={() => switchNetwork(network)}
+              disabled={isSwitching}
+            >
+              <div className="flex items-center space-x-3">
+                <div className={`w-4 h-4 rounded-full ${network.color} flex items-center justify-center`}>
+                  <span className="text-xs text-white">{network.icon}</span>
+                </div>
+                <div className="flex flex-col">
+                  <span className="text-sm font-medium">{network.shortName}</span>
+                  <span className="text-xs text-muted-foreground">{network.nativeCurrency}</span>
+                </div>
+              </div>
+              
+              <div className="flex items-center space-x-2">
+                {isSwitching && network.id !== currentNetworkId && (
+                  <Zap className="w-3 h-3 text-primary animate-pulse" />
+                )}
+                {network.id === currentNetworkId && (
+                  <Check className="w-4 h-4 text-success" />
+                )}
+              </div>
+            </DropdownMenuItem>
+          ))}
+        </div>
+        
+        <div className="border-t border-border/50 p-2 mt-1">
+          <div className="text-xs text-muted-foreground px-2">
+            Switch between 7 supported networks
+          </div>
+        </div>
+      </DropdownMenuContent>
+    </DropdownMenu>
   );
 }

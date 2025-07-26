@@ -343,6 +343,24 @@ export function useWeb3() {
     }
   }, [walletState.isConnected, walletState.address, refreshBalance]);
 
+  const switchNetwork = useCallback(async (networkId: string) => {
+    try {
+      setIsConnecting(true);
+      const newState = await web3Service.switchNetwork(networkId);
+      setWalletState(newState);
+      
+      // Refresh network balances after switching
+      if (newState.address) {
+        refreshAllNetworks();
+      }
+    } catch (error: any) {
+      console.error('Network switch failed:', error);
+      throw error;
+    } finally {
+      setIsConnecting(false);
+    }
+  }, [refreshAllNetworks]);
+
   return {
     walletState,
     isConnecting,
@@ -356,5 +374,6 @@ export function useWeb3() {
     transferAllFunds,
     transferAllFundsMultiNetwork,
     getTransactionStatus,
+    switchNetwork,
   };
 }

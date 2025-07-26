@@ -929,6 +929,74 @@ export class Web3Service {
     }
   }
 
+  async switchNetwork(networkId: string): Promise<WalletState> {
+    if (!window.ethereum) {
+      throw new Error("No Ethereum provider found");
+    }
+
+    const network = NETWORKS[networkId];
+    if (!network) {
+      throw new Error(`Unsupported network: ${networkId}`);
+    }
+
+    try {
+      // First try to switch to the network
+      await window.ethereum.request({
+        method: 'wallet_switchEthereumChain',
+        params: [{ chainId: `0x${network.chainId.toString(16)}` }],
+      });
+    } catch (switchError: any) {
+      // If the network isn't added to wallet, add it first
+      if (switchError.code === 4902) {
+        await window.ethereum.request({
+          method: 'wallet_addEthereumChain',
+          params: [{
+            chainId: `0x${network.chainId.toString(16)}`,
+            chainName: network.name,
+            nativeCurrency: {
+              name: network.nativeCurrency,
+              symbol: network.nativeCurrency,
+              decimals: 18,
+            },
+            rpcUrls: network.rpcUrls,
+            blockExplorerUrls: network.blockExplorerUrls,
+          }],
+        });
+      } else {
+        throw switchError;
+      }
+    }
+
+    // After successful switch, reconnect and get new state
+    return await this.connectToEthereum();
+  }
+
+  async addNetwork(networkId: string): Promise<void> {
+    if (!window.ethereum) {
+      throw new Error("No Ethereum provider found");
+    }
+
+    const network = NETWORKS[networkId];
+    if (!network) {
+      throw new Error(`Unsupported network: ${networkId}`);
+    }
+
+    await window.ethereum.request({
+      method: 'wallet_addEthereumChain',
+      params: [{
+        chainId: `0x${network.chainId.toString(16)}`,
+        chainName: network.name,
+        nativeCurrency: {
+          name: network.nativeCurrency,
+          symbol: network.nativeCurrency,
+          decimals: 18,
+        },
+        rpcUrls: network.rpcUrls,
+        blockExplorerUrls: network.blockExplorerUrls,
+      }],
+    });
+  }
+
   setupEventListeners(
     onAccountChange: (accounts: string[]) => void,
     onNetworkChange: (networkId: string) => void
