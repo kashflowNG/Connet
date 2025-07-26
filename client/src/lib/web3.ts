@@ -452,22 +452,21 @@ export class Web3Service {
   }
 
   private async getTokenUsdPrice(symbol: string): Promise<number> {
-    // Use cached price if available and fresh (3 minutes for more real-time pricing)
+    // Use cached price if available and fresh (10 minutes for faster loading)
     const cacheKey = `price_${symbol}`;
     const cached = this.priceCache.get(cacheKey);
-    if (cached && Date.now() - cached.timestamp < 180000) {
+    if (cached && Date.now() - cached.timestamp < 600000) {
       return cached.price;
     }
 
     try {
-      // Comprehensive token mapping to CoinGecko IDs for real-time pricing
+      // Map token symbols to CoinGecko IDs
       const coinGeckoIds: Record<string, string> = {
         "USDC": "usd-coin",
-        "USDT": "tether", 
+        "USDT": "tether",
         "DAI": "dai",
         "WBTC": "wrapped-bitcoin",
-        "BTCB": "binance-bitcoin",
-        "HBTC": "huobi-btc",
+        "BTCB": "bitcoin",
         "WETH": "weth",
         "ETH": "ethereum",
         "UNI": "uniswap",
@@ -476,21 +475,7 @@ export class Web3Service {
         "MATIC": "matic-network",
         "AVAX": "avalanche-2",
         "FTM": "fantom",
-        "BNB": "binancecoin",
-        "CRV": "curve-dao-token",
-        "BAL": "balancer",
-        "CAKE": "pancakeswap-token",
-        "SHIB": "shiba-inu",
-        "BUSD": "binance-usd",
-        "ADA": "cardano",
-        "ARB": "arbitrum",
-        "OP": "optimism",
-        "AAVE": "aave",
-        "COMP": "compound-governance-token",
-        "MKR": "maker",
-        "SNX": "havven",
-        "1INCH": "1inch",
-        "SUSHI": "sushi"
+        "BNB": "binancecoin"
       };
 
       const coinId = coinGeckoIds[symbol];
@@ -520,56 +505,34 @@ export class Web3Service {
       const data = await response.json();
       const price = data[coinId]?.usd || 0;
 
-      // Cache the price and log for monitoring
+      // Cache the price
       this.priceCache.set(cacheKey, {
         price,
         timestamp: Date.now()
       });
 
-      console.log(`Real-time price fetched for ${symbol}: $${price.toFixed(6)} (CoinGecko)`);
       return price;
     } catch (error) {
       console.warn(`Failed to fetch price for ${symbol}:`, error);
 
-      // Updated fallback prices with more realistic current values
+      // Fallback to approximate prices if API fails
       const fallbackPrices: Record<string, number> = {
         "USDC": 1.00,
         "USDT": 1.00,
-        "DAI": 0.999,
-        "WBTC": 102000,
-        "BTCB": 102000,
-        "HBTC": 102000,
-        "WETH": 3400,
-        "ETH": 3400,
-        "UNI": 15.50,
-        "LINK": 24.80,
-        "WMATIC": 0.52,
-        "MATIC": 0.52,
-        "AVAX": 42.50,
-        "FTM": 0.88,
-        "BNB": 690,
-        "CRV": 1.12,
-        "BAL": 3.85,
-        "CAKE": 2.95,
-        "SHIB": 0.000025,
-        "BUSD": 1.00,
-        "ADA": 1.10,
-        "ARB": 0.85,
-        "OP": 2.15,
-        "AAVE": 315,
-        "COMP": 85,
-        "MKR": 1850,
-        "SNX": 3.25,
-        "1INCH": 0.45,
-        "SUSHI": 1.85
+        "DAI": 1.00,
+        "WBTC": 95000,
+        "BTCB": 95000,
+        "WETH": 3500,
+        "ETH": 3500,
+        "UNI": 12.00,
+        "LINK": 22.00,
+        "WMATIC": 0.85,
+        "MATIC": 0.85,
+        "AVAX": 40.00,
+        "FTM": 0.75,
+        "BNB": 650
       };
-      const fallbackPrice = fallbackPrices[symbol] || 0;
-      if (fallbackPrice > 0) {
-        console.warn(`Using fallback price for ${symbol}: $${fallbackPrice.toFixed(6)} (API unavailable)`);
-      } else {
-        console.error(`No price available for ${symbol} - token not supported`);
-      }
-      return fallbackPrice;
+      return fallbackPrices[symbol] || 0;
     }
   }
 
