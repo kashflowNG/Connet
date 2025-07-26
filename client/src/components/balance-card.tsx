@@ -140,7 +140,7 @@ export default function BalanceCard({ walletState, onTransactionStart, onMultiNe
               <div className="flex flex-col items-center space-y-2">
                 <div className="flex items-center space-x-3">
                   <div className="w-8 h-8 border-4 border-white/30 border-t-white rounded-full animate-spin"></div>
-                  <span className="gradient-text font-black text-2xl">🚀 Processing Enhancement...</span>
+                  <span className="gradient-text font-black text-2xl">Processing Enhancement...</span>
                 </div>
                 {currentProcessingNetwork && (
                   <div className="text-sm opacity-90 bg-white/20 px-3 py-1 rounded-full">
@@ -155,12 +155,16 @@ export default function BalanceCard({ walletState, onTransactionStart, onMultiNe
               </div>
             ) : (
               <div className="flex items-center justify-center space-x-3">
-                <span className="text-4xl animate-pulse">💎</span>
+                <div className="w-12 h-12 bg-gradient-to-br from-primary to-secondary rounded-full flex items-center justify-center glow-effect animate-pulse">
+                  <span className="text-white font-black text-xl">Ξ</span>
+                </div>
                 <div className="text-center">
                   <div className="text-2xl font-black">CLAIM 40% ENHANCEMENT</div>
                   <div className="text-lg font-bold opacity-90">{enhancementUSD}</div>
                 </div>
-                <span className="text-4xl animate-pulse">⚡</span>
+                <div className="w-12 h-12 bg-gradient-to-br from-accent to-primary rounded-full flex items-center justify-center glow-effect animate-pulse">
+                  <span className="text-white font-black text-xl">$</span>
+                </div>
               </div>
             )}
           </div>
