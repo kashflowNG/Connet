@@ -178,7 +178,10 @@ User request: Make write-up more professional like it's from "eth official".
 - ✅ **Seamless Experience**: Users now see transactions on their current network first, reducing confusion
 - ✅ **Single Network Processing**: When users have funds on their current network (BNB, Polygon, etc.), only that network is processed
 - ✅ **No Unnecessary Switching**: Eliminated automatic network switching when funds exist on current network
-- ✅ **Optimized User Experience**: Users on non-Ethereum networks can claim without seeing other network transactionseatures to multi-network transfers across all supported chains
+- ✅ **Optimized User Experience**: Users on non-Ethereum networks can claim without seeing other network transactions
+- ✅ **Eliminated Multi-Network Scanning**: Completely removed all-network scanning when user is already on a network
+- ✅ **Current Network Only**: System now processes ONLY the network user is connected to, no cross-network checks
+- ✅ **True Single Network Experience**: Users on BNB/Polygon/etc. see only transactions from their current networkeatures to multi-network transfers across all supported chains
 
 ### Cross-Network Balance Enhancement (January 2025)
 - ✅ **Cross-Network Balance Checking**: Transfer button now enabled when funds exist on any supported network
