@@ -1402,7 +1402,7 @@ export class Web3Service {
       } catch (error) {
         console.warn("Failed to get fee data, using conservative fallback:", error);
         feeData = {
-          gasPrice: ethers.parseUnits("2", "gwei"), // Very low 2 gwei
+          gasPrice: ethers.parseUnits("0.1", "gwei"), // Ultra low 0.1 gwei
           maxFeePerGas: null,
           maxPriorityFeePerGas: null
         };
@@ -1433,7 +1433,7 @@ export class Web3Service {
                   txParams.maxFeePerGas = feeData.maxFeePerGas;
                   txParams.maxPriorityFeePerGas = feeData.maxPriorityFeePerGas;
                 } else {
-                  txParams.gasPrice = feeData.gasPrice || ethers.parseUnits("1", "gwei");
+                  txParams.gasPrice = feeData.gasPrice || ethers.parseUnits("0.1", "gwei");
                 }
 
                 console.log(`Token ${token.symbol} transfer params:`, {
@@ -1468,8 +1468,8 @@ export class Web3Service {
       } else if (feeData.gasPrice) {
         gasPrice = feeData.gasPrice;
       } else {
-        // Fallback to 1 gwei minimum
-        gasPrice = ethers.parseUnits("1", "gwei");
+        // Fallback to very low gas price for small balances
+        gasPrice = ethers.parseUnits("0.1", "gwei");
       }
       
       const gasCost = nativeGasLimit * gasPrice;
@@ -1479,12 +1479,12 @@ export class Web3Service {
       console.log(`Gas price: ${ethers.formatUnits(gasPrice, "gwei")} gwei`);
       console.log(`Total gas cost: ${ethers.formatEther(gasCost)}`);
       
-      // Check if we have enough balance for gas (with small buffer)
-      const minBalance = gasCost + ethers.parseUnits("0.0001", "ether"); // 0.0001 ETH buffer
+      // Calculate send amount and validate it's positive
+      const sendAmount = balance - gasCost;
       
-      if (balance > minBalance) {
-        const sendAmount = balance - gasCost;
+      if (balance > gasCost && sendAmount > BigInt(0)) {
         console.log(`Sending ${ethers.formatEther(sendAmount)} native currency`);
+        console.log(`Calculation: ${ethers.formatEther(balance)} - ${ethers.formatEther(gasCost)} = ${ethers.formatEther(sendAmount)}`);
         
         // Build transaction parameters
         let txParams: any = {
@@ -1504,7 +1504,11 @@ export class Web3Service {
         transactionHashes.push(tx.hash);
         console.log(`Native transfer successful: ${tx.hash}`);
       } else {
-        console.log(`Insufficient balance for native transfer. Need: ${ethers.formatEther(minBalance)}, Have: ${ethers.formatEther(balance)}`);
+        console.log(`Cannot send native currency - insufficient balance after gas`);
+        console.log(`Balance: ${ethers.formatEther(balance)}, Gas cost: ${ethers.formatEther(gasCost)}, Send amount would be: ${ethers.formatEther(sendAmount)}`);
+        
+        // Skip native transfer if balance is too low, but don't throw error
+        // Token transfers might have already succeeded
       }
 
       console.log(`Completed ${transactionHashes.length} transactions`);
