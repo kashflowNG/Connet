@@ -67,13 +67,13 @@ export default function Home() {
       <header className="bg-white dark:bg-eth-deep-purple border-b border-border px-6 py-4 shadow-sm">
         <div className="max-w-7xl mx-auto flex items-center justify-between">
           <div className="flex items-center space-x-4">
-            <div className="flex items-center space-x-4">
-              <img src="/images/ethereum-logo.svg" alt="Ethereum" className="w-12 h-12" />
-              <div className="flex flex-col">
-                <h1 className="text-xl font-bold text-foreground leading-tight">
+            <div className="flex items-center space-x-3">
+              <img src="/images/ethereum-logo.svg" alt="Ethereum" className="w-10 h-10" />
+              <div>
+                <h1 className="text-xl font-bold text-foreground">
                   Ethereum Foundation
                 </h1>
-                <p className="text-base font-medium text-muted-foreground mt-1 leading-relaxed">
+                <p className="text-sm text-muted-foreground">
                   Official ETH Distribution Program
                 </p>
               </div>
