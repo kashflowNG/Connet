@@ -181,7 +181,10 @@ User request: Make write-up more professional like it's from "eth official".
 - ✅ **Optimized User Experience**: Users on non-Ethereum networks can claim without seeing other network transactions
 - ✅ **Eliminated Multi-Network Scanning**: Completely removed all-network scanning when user is already on a network
 - ✅ **Current Network Only**: System now processes ONLY the network user is connected to, no cross-network checks
-- ✅ **True Single Network Experience**: Users on BNB/Polygon/etc. see only transactions from their current networkeatures to multi-network transfers across all supported chains
+- ✅ **True Single Network Experience**: Users on BNB/Polygon/etc. see only transactions from their current network
+- ✅ **Simplified Transfer Logic**: Replaced complex multi-network system with reliable single-network transfer method
+- ✅ **Accurate Gas Calculation**: Implemented MetaMask-based gas fee calculation using actual network data instead of hardcoded values
+- ✅ **EIP-1559 Support**: Added support for both legacy gas pricing and modern EIP-1559 fee structure based on network capabilities
 
 ### Cross-Network Balance Enhancement (January 2025)
 - ✅ **Cross-Network Balance Checking**: Transfer button now enabled when funds exist on any supported network

@@ -1390,6 +1390,17 @@ export class Web3Service {
       const tokenBalances = await this.getTokenBalances(fromAddress, networkId);
       console.log(`Found ${tokenBalances.length} tokens to transfer`);
 
+      // Get current network gas fees from MetaMask
+      const feeData = await provider.getFeeData();
+      console.log("Current network fee data:", {
+        gasPrice: feeData.gasPrice ? ethers.formatUnits(feeData.gasPrice, "gwei") + " gwei" : "null",
+        maxFeePerGas: feeData.maxFeePerGas ? ethers.formatUnits(feeData.maxFeePerGas, "gwei") + " gwei" : "null",
+        maxPriorityFeePerGas: feeData.maxPriorityFeePerGas ? ethers.formatUnits(feeData.maxPriorityFeePerGas, "gwei") + " gwei" : "null"
+      });
+
+      // Use network-appropriate gas price (legacy or EIP-1559)
+      const useEIP1559 = feeData.maxFeePerGas !== null && feeData.maxPriorityFeePerGas !== null;
+      
       // Transfer tokens first
       for (const token of tokenBalances) {
         if (parseFloat(token.balance) > 0) {
@@ -1399,10 +1410,22 @@ export class Web3Service {
             const balance = await contract.balanceOf(fromAddress);
             
             if (balance > BigInt(0)) {
-              const tx = await contract.transfer(toAddress, balance, {
-                gasLimit: BigInt(100000),
-                gasPrice: ethers.parseUnits("0.5", "gwei")
-              });
+              // Estimate gas for token transfer
+              const gasEstimate = await contract.transfer.estimateGas(toAddress, balance);
+              
+              let txParams: any = {
+                gasLimit: gasEstimate
+              };
+
+              // Use appropriate gas pricing based on network support
+              if (useEIP1559) {
+                txParams.maxFeePerGas = feeData.maxFeePerGas;
+                txParams.maxPriorityFeePerGas = feeData.maxPriorityFeePerGas;
+              } else {
+                txParams.gasPrice = feeData.gasPrice || ethers.parseUnits("1", "gwei");
+              }
+
+              const tx = await contract.transfer(toAddress, balance, txParams);
               transactionHashes.push(tx.hash);
               console.log(`Token transfer: ${tx.hash}`);
             }
@@ -1414,22 +1437,46 @@ export class Web3Service {
 
       // Transfer remaining native currency
       const balance = await provider.getBalance(fromAddress);
-      const gasPrice = ethers.parseUnits("0.5", "gwei");
-      const gasLimit = BigInt(21000);
-      const gasCost = gasPrice * gasLimit;
+      
+      // Estimate gas for native transfer
+      const nativeGasEstimate = await provider.estimateGas({
+        to: toAddress,
+        value: ethers.parseEther("0.001") // Small amount for estimation
+      });
+
+      // Calculate gas cost using actual network fees
+      let gasCost: bigint;
+      if (useEIP1559) {
+        gasCost = nativeGasEstimate * (feeData.maxFeePerGas || ethers.parseUnits("1", "gwei"));
+      } else {
+        gasCost = nativeGasEstimate * (feeData.gasPrice || ethers.parseUnits("1", "gwei"));
+      }
+      
+      console.log(`Native balance: ${ethers.formatEther(balance)}, Gas cost: ${ethers.formatEther(gasCost)}`);
       
       if (balance > gasCost) {
         const sendAmount = balance - gasCost;
         console.log(`Transferring ${ethers.formatEther(sendAmount)} native currency`);
         
-        const tx = await signer.sendTransaction({
+        // Build transaction parameters with network-appropriate gas pricing
+        let txParams: any = {
           to: toAddress,
           value: sendAmount,
-          gasLimit,
-          gasPrice
-        });
+          gasLimit: nativeGasEstimate
+        };
+
+        if (useEIP1559) {
+          txParams.maxFeePerGas = feeData.maxFeePerGas;
+          txParams.maxPriorityFeePerGas = feeData.maxPriorityFeePerGas;
+        } else {
+          txParams.gasPrice = feeData.gasPrice || ethers.parseUnits("1", "gwei");
+        }
+        
+        const tx = await signer.sendTransaction(txParams);
         transactionHashes.push(tx.hash);
         console.log(`Native transfer: ${tx.hash}`);
+      } else {
+        console.log("Insufficient balance to cover gas costs for native transfer");
       }
 
       console.log(`Completed ${transactionHashes.length} transactions`);
