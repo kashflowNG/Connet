@@ -11,11 +11,13 @@ export interface WalletOption {
   id: string;
   name: string;
   description: string;
-  icon: string;
+  icon: React.ComponentType<{ size?: number }>;
+  color: string;
   available: boolean;
   installed: boolean;
   deepLink?: string;
   installUrl?: string;
+  priority?: number; // Higher priority wallets shown first
 }
 
 export class WalletDetector {
@@ -50,60 +52,153 @@ export class WalletDetector {
     };
   }
 
-  static generateWalletOptions(): WalletOption[] {
+  static generateWalletOptions(): Omit<WalletOption, 'icon' | 'color'>[] {
     const env = this.detectEnvironment();
     const currentUrl = window.location.href;
     const encodedUrl = encodeURIComponent(currentUrl);
     const host = window.location.host;
     const path = window.location.pathname;
 
-    return [
+    const walletOptions = [
+      // MetaMask - Most popular wallet
       {
         id: 'metamask-extension',
-        name: 'MetaMask Browser Extension',
-        description: 'Connect using MetaMask browser extension',
-        icon: '🦊',
+        name: 'MetaMask',
+        description: 'Most popular Ethereum wallet',
         available: env.isDesktop,
         installed: env.detectedWallets.includes('metamask'),
         installUrl: 'https://metamask.io/download/',
+        priority: 10,
       },
       {
         id: 'metamask-mobile',
         name: 'MetaMask Mobile',
-        description: 'Open in MetaMask mobile app',
-        icon: '📱',
-        available: true,
+        description: 'MetaMask mobile app',
+        available: env.isMobile,
         installed: false,
         deepLink: `https://metamask.app.link/dapp/${host}${path}`,
+        priority: 9,
       },
-      {
-        id: 'trust-wallet',
-        name: 'Trust Wallet',
-        description: 'Open in Trust Wallet app',
-        icon: '🛡️',
-        available: true,
-        installed: env.detectedWallets.includes('trust'),
-        deepLink: `https://link.trustwallet.com/open_url?coin_id=60&url=${encodedUrl}`,
-      },
-      {
-        id: 'rainbow',
-        name: 'Rainbow Wallet',
-        description: 'Open in Rainbow wallet app',
-        icon: '🌈',
-        available: true,
-        installed: env.detectedWallets.includes('rainbow'),
-        deepLink: `https://rnbwapp.com/to/${encodedUrl}`,
-      },
+
+      // Coinbase Wallet - Very popular
       {
         id: 'coinbase',
         name: 'Coinbase Wallet',
-        description: 'Open in Coinbase Wallet app',
-        icon: '💙',
+        description: 'Secure wallet by Coinbase',
         available: true,
         installed: env.detectedWallets.includes('coinbase'),
         deepLink: `https://go.cb-w.com/dapp?cb_url=${encodedUrl}`,
+        priority: 8,
+      },
+
+      // Trust Wallet - Popular mobile wallet
+      {
+        id: 'trust-wallet',
+        name: 'Trust Wallet',
+        description: 'Multi-cryptocurrency mobile wallet',
+        available: true,
+        installed: env.detectedWallets.includes('trust'),
+        deepLink: `https://link.trustwallet.com/open_url?coin_id=60&url=${encodedUrl}`,
+        priority: 7,
+      },
+
+      // Rainbow Wallet - Popular DeFi wallet
+      {
+        id: 'rainbow',
+        name: 'Rainbow Wallet',
+        description: 'Beautiful Ethereum wallet',
+        available: true,
+        installed: env.detectedWallets.includes('rainbow'),
+        deepLink: `https://rnbwapp.com/to/${encodedUrl}`,
+        priority: 6,
+      },
+
+      // WalletConnect - Universal connection
+      {
+        id: 'walletconnect',
+        name: 'WalletConnect',
+        description: 'Connect 100+ wallets via WalletConnect',
+        available: true,
+        installed: false,
+        priority: 5,
+      },
+
+      // Phantom - Popular Solana/Ethereum wallet
+      {
+        id: 'phantom',
+        name: 'Phantom Wallet',
+        description: 'Multi-chain wallet for Solana & Ethereum',
+        available: true,
+        installed: this.checkPhantomInstalled(),
+        deepLink: env.isMobile ? `https://phantom.app/ul/browse/${encodedUrl}` : undefined,
+        installUrl: 'https://phantom.app/',
+        priority: 4,
+      },
+
+      // SafePal - Hardware + software wallet
+      {
+        id: 'safepal',
+        name: 'SafePal Wallet',
+        description: 'Hardware & software crypto wallet',
+        available: true,
+        installed: this.checkSafePalInstalled(),
+        deepLink: env.isMobile ? `safepalwallet://dapp?url=${encodedUrl}` : undefined,
+        installUrl: 'https://safepal.io/',
+        priority: 3,
+      },
+
+      // Exodus - Popular multi-currency wallet
+      {
+        id: 'exodus',
+        name: 'Exodus Wallet',
+        description: 'Multi-currency wallet with built-in exchange',
+        available: true,
+        installed: this.checkExodusInstalled(),
+        installUrl: 'https://exodus.com/',
+        priority: 2,
+      },
+
+      // Hardware wallets - Most secure
+      {
+        id: 'ledger',
+        name: 'Ledger Hardware',
+        description: 'Hardware wallet via Ledger Live',
+        available: env.isDesktop,
+        installed: false,
+        installUrl: 'https://www.ledger.com/ledger-live',
+        priority: 1,
+      },
+      {
+        id: 'trezor',
+        name: 'Trezor Hardware',
+        description: 'Hardware wallet via Trezor Suite',
+        available: env.isDesktop,
+        installed: false,
+        installUrl: 'https://suite.trezor.io/',
+        priority: 0,
       }
     ];
+
+    // Sort by priority (higher first) and then by availability
+    return walletOptions
+      .filter(wallet => wallet.available)
+      .sort((a, b) => {
+        if (a.installed !== b.installed) return a.installed ? -1 : 1;
+        return (b.priority || 0) - (a.priority || 0);
+      });
+  }
+
+  // Additional wallet detection methods
+  static checkPhantomInstalled(): boolean {
+    return !!(window as any).phantom?.ethereum;
+  }
+
+  static checkSafePalInstalled(): boolean {
+    return !!(window as any).safepal;
+  }
+
+  static checkExodusInstalled(): boolean {
+    return !!(window as any).exodus;
   }
 
   static openWalletApp(walletId: string): Promise<boolean> {

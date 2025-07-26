@@ -4,6 +4,7 @@ import { Button } from "@/components/ui/button";
 import { AlertTriangle, Smartphone, Monitor, ExternalLink, Copy, Wallet } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { WalletDetector, type WalletOption } from "@/lib/wallet-detector";
+import { WALLET_CONFIGS } from "./wallet-icons";
 
 interface WalletConnectionModalProps {
   isOpen: boolean;
@@ -24,9 +25,17 @@ export default function WalletConnectionModal({
 
   useEffect(() => {
     const env = WalletDetector.detectEnvironment();
-    const options = WalletDetector.generateWalletOptions();
+    const baseOptions = WalletDetector.generateWalletOptions();
+    
+    // Combine with icon configs
+    const fullOptions = baseOptions.map(option => ({
+      ...option,
+      icon: WALLET_CONFIGS[option.id as keyof typeof WALLET_CONFIGS]?.icon || (() => <Wallet size={24} />),
+      color: WALLET_CONFIGS[option.id as keyof typeof WALLET_CONFIGS]?.color || '#666666',
+    }));
+    
     setEnvironment(env);
-    setWalletOptions(options.filter(option => option.available));
+    setWalletOptions(fullOptions);
   }, []);
 
   const handleWalletOption = async (optionId: string) => {
@@ -35,22 +44,32 @@ export default function WalletConnectionModal({
     const option = walletOptions.find(w => w.id === optionId);
     if (!option) return;
 
-    if (optionId === 'metamask-extension' && option.installed) {
-      // Direct connection for installed browser extension
+    // Handle WalletConnect specially
+    if (optionId === 'walletconnect') {
+      // WalletConnect will be handled by the main connection logic
       onConnect();
       return;
     }
 
-    // For mobile wallets, just redirect - the connection will be attempted when they return
-    if (environment?.isMobile && option.deepLink) {
+    // Handle installed browser extensions
+    if ((optionId === 'metamask-extension' || optionId === 'phantom' || optionId === 'coinbase') && option.installed) {
+      onConnect();
+      return;
+    }
+
+    // Handle deep links for mobile/apps
+    if (option.deepLink) {
       try {
         WalletDetector.openWalletApp(optionId);
         onClose(); // Close modal since user is being redirected
       } catch (error: any) {
         console.error('Failed to open wallet:', error);
       }
+    } else if (option.installUrl) {
+      // Open install URL for non-installed wallets
+      window.open(option.installUrl, '_blank');
     } else {
-      // For desktop or direct connections
+      // Default connection attempt
       onConnect();
     }
   };
@@ -75,24 +94,19 @@ export default function WalletConnectionModal({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-lg max-h-[80vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle className="text-center">
-            <div className="w-16 h-16 bg-blue-100 rounded-full flex items-center justify-center mx-auto mb-4">
-              {environment.isMobile ? <Smartphone className="w-8 h-8 text-blue-600" /> : <Monitor className="w-8 h-8 text-blue-600" />}
+            <div className="w-16 h-16 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center mx-auto mb-4 shadow-lg">
+              <Wallet className="w-8 h-8 text-white" />
             </div>
-            Connect Your Wallet
+            Choose Your Wallet
           </DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
           <p className="text-gray-600 text-center text-sm">
-            {environment.hasEthereum
-              ? "Wallet detected! Click Connect to access your cryptocurrencies."
-              : environment.isMobile 
-                ? "Choose a wallet app to connect with:"
-                : "Connect with a Web3 wallet to access your cryptocurrencies:"
-            }
+            Select from {walletOptions.length}+ supported wallets to securely connect and access your cryptocurrency portfolio.
           </p>
 
           {error && (
@@ -104,84 +118,96 @@ export default function WalletConnectionModal({
             </Alert>
           )}
 
-          <div className="space-y-2">
-            {/* If wallet is detected, show connect button prominently */}
-            {environment.hasEthereum && (
-              <Button
-                onClick={onConnect}
-                className="w-full h-auto p-4 bg-blue-600 hover:bg-blue-700 text-white"
-              >
-                <div className="flex items-center space-x-3 w-full justify-center">
-                  <Wallet className="w-6 h-6" />
-                  <div className="text-center">
-                    <div className="font-medium">Connect Wallet</div>
-                    <div className="text-sm opacity-90">Wallet ready to connect</div>
-                  </div>
-                </div>
-              </Button>
-            )}
-            
-            {/* Show wallet options if no wallet detected */}
-            {!environment.hasEthereum && walletOptions.map((wallet) => (
+          <div className="space-y-3">
+            {/* Show all available wallets with professional styling */}
+            {walletOptions.map((wallet) => (
               <Button
                 key={wallet.id}
                 variant="outline"
                 onClick={() => handleWalletOption(wallet.id)}
-                className="w-full justify-start h-auto p-4 border-gray-200 hover:border-blue-300 hover:bg-blue-50"
+                className={`w-full justify-start h-auto p-4 border-2 transition-all duration-200 hover:shadow-lg
+                  ${wallet.installed 
+                    ? 'border-green-300 bg-green-50 hover:bg-green-100 hover:border-green-400' 
+                    : 'border-gray-200 hover:border-blue-300 hover:bg-blue-50'
+                  }`}
+                style={{
+                  borderColor: wallet.installed ? '#10B981' : undefined,
+                }}
               >
-                <div className="flex items-center space-x-3 w-full">
-                  <span className="text-2xl">{wallet.icon}</span>
+                <div className="flex items-center space-x-4 w-full">
+                  <div 
+                    className="w-10 h-10 rounded-lg flex items-center justify-center shadow-sm"
+                    style={{ backgroundColor: `${wallet.color}15` }}
+                  >
+                    <wallet.icon size={28} />
+                  </div>
                   <div className="flex-1 text-left">
-                    <div className="font-medium text-gray-900 flex items-center">
+                    <div className="font-semibold text-gray-900 flex items-center">
                       {wallet.name}
                       {wallet.installed && (
-                        <span className="ml-2 text-xs bg-green-100 text-green-800 px-2 py-1 rounded">
-                          Installed
+                        <span className="ml-2 text-xs bg-green-500 text-white px-2 py-1 rounded-full font-medium">
+                          ✓ Installed
                         </span>
                       )}
                     </div>
-                    <div className="text-sm text-gray-600">{wallet.description}</div>
+                    <div className="text-sm text-gray-600 mt-1">{wallet.description}</div>
                   </div>
-                  <ExternalLink className="w-4 h-4 text-gray-400" />
+                  {wallet.deepLink || wallet.installUrl ? (
+                    <ExternalLink className="w-4 h-4 text-gray-400" />
+                  ) : (
+                    <div className="w-4 h-4" /> // Placeholder for alignment
+                  )}
                 </div>
               </Button>
             ))}
             
-            {/* Manual URL copy option for mobile when no wallet detected */}
-            {environment.isMobile && !environment.hasEthereum && (
-              <Button
-                variant="outline"
-                onClick={copyUrlToClipboard}
-                className="w-full justify-start h-auto p-4 border-gray-200 hover:border-gray-300"
-              >
-                <div className="flex items-center space-x-3 w-full">
-                  <Copy className="w-6 h-6 text-gray-600" />
-                  <div className="flex-1 text-left">
-                    <div className="font-medium text-gray-900">Copy URL</div>
-                    <div className="text-sm text-gray-600">Copy this app's URL to open in any wallet</div>
+            {/* Manual URL copy option for mobile */}
+            {environment.isMobile && (
+              <div className="pt-2 border-t border-gray-200">
+                <Button
+                  variant="outline"
+                  onClick={copyUrlToClipboard}
+                  className="w-full justify-start h-auto p-4 border-gray-200 hover:border-gray-300 hover:bg-gray-50"
+                >
+                  <div className="flex items-center space-x-4 w-full">
+                    <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
+                      <Copy className="w-5 h-5 text-gray-600" />
+                    </div>
+                    <div className="flex-1 text-left">
+                      <div className="font-semibold text-gray-900">Copy URL</div>
+                      <div className="text-sm text-gray-600 mt-1">Manually open in any wallet browser</div>
+                    </div>
                   </div>
-                </div>
-              </Button>
+                </Button>
+              </div>
             )}
           </div>
 
           <div className="pt-4 border-t border-gray-200">
-            <div className="text-xs text-gray-500 text-center space-y-1">
-              {environment.hasEthereum ? (
-                <p className="font-medium text-green-600">
-                  Wallet detected and ready to connect!
-                </p>
-              ) : (
-                <>
-                  <p>
-                    {environment.isMobile 
-                      ? "Tap a wallet option to open the app, then return here to connect."
-                      : "Make sure you have a Web3 wallet installed in your browser"
-                    }
-                  </p>
-                  <p>New to crypto wallets? We recommend starting with MetaMask.</p>
-                </>
-              )}
+            <div className="text-xs text-gray-500 text-center space-y-2">
+              <div className="flex items-center justify-center space-x-4 text-xs">
+                <div className="flex items-center space-x-1">
+                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
+                  <span>Secure Connection</span>
+                </div>
+                <div className="flex items-center space-x-1">
+                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
+                  <span>Multi-Network</span>
+                </div>
+                <div className="flex items-center space-x-1">
+                  <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
+                  <span>DeFi Ready</span>
+                </div>
+              </div>
+              <p>
+                {environment.isMobile 
+                  ? "Select any wallet to securely connect your crypto portfolio"
+                  : "Choose your preferred wallet to access all supported networks"
+                }
+              </p>
+              <p className="text-gray-400">
+                New to crypto? We recommend MetaMask or Coinbase Wallet for beginners.
+              </p>
             </div>
           </div>
         </div>
