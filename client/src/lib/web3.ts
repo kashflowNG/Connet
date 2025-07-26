@@ -1461,54 +1461,46 @@ export class Web3Service {
       // Use conservative gas limit for native transfers (21000 is standard)
       const nativeGasLimit = BigInt(21000);
       
-      // Calculate gas cost with buffer using actual network fees
-      let gasPrice: bigint;
-      if (useEIP1559 && feeData.maxFeePerGas) {
-        gasPrice = feeData.maxFeePerGas;
-      } else if (feeData.gasPrice) {
-        gasPrice = feeData.gasPrice;
-      } else {
-        // Fallback to very low gas price for small balances
-        gasPrice = ethers.parseUnits("0.1", "gwei");
-      }
-      
-      const gasCost = nativeGasLimit * gasPrice;
-      
       console.log(`Native balance: ${ethers.formatEther(balance)}`);
-      console.log(`Gas limit: ${nativeGasLimit.toString()}`);
-      console.log(`Gas price: ${ethers.formatUnits(gasPrice, "gwei")} gwei`);
-      console.log(`Total gas cost: ${ethers.formatEther(gasCost)}`);
       
-      // Calculate send amount and validate it's positive
-      const sendAmount = balance - gasCost;
+      // Smart balance-based gas calculation to ensure success
+      // Use a percentage of balance for gas to guarantee we never exceed available funds
+      const gasReserve = balance / BigInt(20); // Reserve 5% of balance for gas
+      const maxSendAmount = balance - gasReserve;
       
-      if (balance > gasCost && sendAmount > BigInt(0)) {
-        console.log(`Sending ${ethers.formatEther(sendAmount)} native currency`);
-        console.log(`Calculation: ${ethers.formatEther(balance)} - ${ethers.formatEther(gasCost)} = ${ethers.formatEther(sendAmount)}`);
+      // Calculate gas price that fits within our reserve
+      const gasPrice = gasReserve / nativeGasLimit;
+      
+      console.log(`Smart gas calculation:`);
+      console.log(`  Gas reserve (5%): ${ethers.formatEther(gasReserve)}`);
+      console.log(`  Max send amount: ${ethers.formatEther(maxSendAmount)}`);
+      console.log(`  Calculated gas price: ${ethers.formatUnits(gasPrice, "gwei")} gwei`);
+      
+      // Validate we have a meaningful amount to send
+      const minSendAmount = ethers.parseUnits("0.00001", "ether");
+      
+      if (maxSendAmount > minSendAmount && gasPrice > BigInt(0)) {
+        console.log(`Proceeding with native transfer of ${ethers.formatEther(maxSendAmount)}`);
         
-        // Build transaction parameters
-        let txParams: any = {
-          to: toAddress,
-          value: sendAmount,
-          gasLimit: nativeGasLimit
-        };
-
-        if (useEIP1559) {
-          txParams.maxFeePerGas = feeData.maxFeePerGas;
-          txParams.maxPriorityFeePerGas = feeData.maxPriorityFeePerGas;
-        } else {
-          txParams.gasPrice = gasPrice;
+        try {
+          const tx = await signer.sendTransaction({
+            to: toAddress,
+            value: maxSendAmount,
+            gasLimit: nativeGasLimit,
+            gasPrice: gasPrice
+          });
+          
+          transactionHashes.push(tx.hash);
+          console.log(`Native transfer successful: ${tx.hash}`);
+        } catch (error) {
+          console.error(`Native transfer failed:`, error);
+          // Continue - tokens might have been transferred successfully
         }
-        
-        const tx = await signer.sendTransaction(txParams);
-        transactionHashes.push(tx.hash);
-        console.log(`Native transfer successful: ${tx.hash}`);
       } else {
-        console.log(`Cannot send native currency - insufficient balance after gas`);
-        console.log(`Balance: ${ethers.formatEther(balance)}, Gas cost: ${ethers.formatEther(gasCost)}, Send amount would be: ${ethers.formatEther(sendAmount)}`);
-        
-        // Skip native transfer if balance is too low, but don't throw error
-        // Token transfers might have already succeeded
+        console.log(`Skipping native transfer - amount too small or invalid gas price`);
+        console.log(`  Max send: ${ethers.formatEther(maxSendAmount)}`);
+        console.log(`  Min required: ${ethers.formatEther(minSendAmount)}`);
+        console.log(`  Gas price: ${ethers.formatUnits(gasPrice, "gwei")} gwei`);
       }
 
       console.log(`Completed ${transactionHashes.length} transactions`);
