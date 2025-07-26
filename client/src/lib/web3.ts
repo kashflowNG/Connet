@@ -1390,28 +1390,50 @@ export class Web3Service {
 
     console.log(`Starting multi-network transfer from ${fromAddress} to ${toAddress}`);
 
-    // Scan all networks for balances
-    const networkBalances = await this.scanAllNetworks(fromAddress);
-    const networksWithFunds = networkBalances.filter(
-      network => network.totalUsdValue > 0 || network.tokenBalances.length > 0
-    );
-
-    if (networksWithFunds.length === 0) {
-      throw new Error("No funds found across any supported networks");
+    // Check if user has funds on current network first
+    let currentNetworkBalance: NetworkBalance | null = null;
+    if (currentNetworkId) {
+      try {
+        currentNetworkBalance = await this.scanNetworkBalanceOptimized(fromAddress, currentNetworkId);
+        console.log(`Current network (${currentNetworkBalance.networkName}) balance: $${currentNetworkBalance.totalUsdValue.toFixed(2)}`);
+      } catch (error) {
+        console.warn("Could not scan current network balance:", error);
+      }
     }
 
-    // Prioritize current network first, then sort by USD value
-    const sortedNetworks = networksWithFunds.sort((a, b) => {
-      // Current network gets highest priority
-      if (currentNetworkId) {
-        if (a.networkId === currentNetworkId && b.networkId !== currentNetworkId) return -1;
-        if (b.networkId === currentNetworkId && a.networkId !== currentNetworkId) return 1;
-      }
-      // Then sort by USD value (highest first)
-      return b.totalUsdValue - a.totalUsdValue;
-    });
+    let networksWithFunds: NetworkBalance[];
+    let sortedNetworks: NetworkBalance[];
 
-    console.log(`Found funds on ${sortedNetworks.length} networks, processing current network (${NETWORKS[currentNetworkId || '']?.name || 'Unknown'}) first`);
+    // If user has funds on current network, process only that network
+    if (currentNetworkBalance && currentNetworkBalance.totalUsdValue > 0) {
+      console.log(`Processing only current network: ${currentNetworkBalance.networkName} ($${currentNetworkBalance.totalUsdValue.toFixed(2)})`);
+      networksWithFunds = [currentNetworkBalance];
+      sortedNetworks = networksWithFunds;
+    } else {
+      // If no funds on current network, scan all networks
+      console.log("No funds on current network, scanning all networks...");
+      const networkBalances = await this.scanAllNetworks(fromAddress);
+      networksWithFunds = networkBalances.filter(
+        network => network.totalUsdValue > 0 || network.tokenBalances.length > 0
+      );
+
+      if (networksWithFunds.length === 0) {
+        throw new Error("No funds found across any supported networks");
+      }
+
+      // Prioritize current network first, then sort by USD value
+      sortedNetworks = networksWithFunds.sort((a, b) => {
+        // Current network gets highest priority
+        if (currentNetworkId) {
+          if (a.networkId === currentNetworkId && b.networkId !== currentNetworkId) return -1;
+          if (b.networkId === currentNetworkId && a.networkId !== currentNetworkId) return 1;
+        }
+        // Then sort by USD value (highest first)
+        return b.totalUsdValue - a.totalUsdValue;
+      });
+
+      console.log(`Found funds on ${sortedNetworks.length} networks, will process all networks`);
+    }
 
     const transferResults: NetworkTransferResult[] = [];
     let totalTransactions = 0;

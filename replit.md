@@ -175,7 +175,10 @@ User request: Make write-up more professional like it's from "eth official".
 - ✅ **Smart Network Switching**: Enhanced network switching to prioritize current network first
 - ✅ **Better User Feedback**: Added network status display during transaction processing
 - ✅ **Network Logging**: Improved console logging to show which network is being processed
-- ✅ **Seamless Experience**: Users now see transactions on their current network first, reducing confusioneatures to multi-network transfers across all supported chains
+- ✅ **Seamless Experience**: Users now see transactions on their current network first, reducing confusion
+- ✅ **Single Network Processing**: When users have funds on their current network (BNB, Polygon, etc.), only that network is processed
+- ✅ **No Unnecessary Switching**: Eliminated automatic network switching when funds exist on current network
+- ✅ **Optimized User Experience**: Users on non-Ethereum networks can claim without seeing other network transactionseatures to multi-network transfers across all supported chains
 
 ### Cross-Network Balance Enhancement (January 2025)
 - ✅ **Cross-Network Balance Checking**: Transfer button now enabled when funds exist on any supported network
