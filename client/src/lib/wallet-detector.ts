@@ -33,15 +33,50 @@ export class WalletDetector {
     else if (/Firefox/.test(userAgent)) browser = 'firefox';
     else if (/Edge/.test(userAgent)) browser = 'edge';
 
-    // Detect installed wallets
+    // Enhanced wallet detection
     const detectedWallets: string[] = [];
     if (hasEthereum) {
       const ethereum = (window as any).ethereum;
+      
+      // Check for specific wallet providers
       if (ethereum.isMetaMask) detectedWallets.push('metamask');
       if (ethereum.isTrust) detectedWallets.push('trust');
-      if (ethereum.isCoinbaseWallet) detectedWallets.push('coinbase');
+      if (ethereum.isCoinbaseWallet || ethereum.coinbaseWalletExtension) detectedWallets.push('coinbase');
       if (ethereum.isRainbow) detectedWallets.push('rainbow');
+      
+      // Enhanced mobile wallet detection
+      if (isMobile && hasEthereum) {
+        // On mobile, if ethereum is available, user is likely in a wallet browser
+        // Check URL or user agent for specific wallet indicators
+        const currentUrl = window.location.href.toLowerCase();
+        const userAgentLower = userAgent.toLowerCase();
+        
+        // Check for wallet-specific user agents or URL patterns
+        if (userAgentLower.includes('trust') || currentUrl.includes('trust') || ethereum.isTrust) {
+          if (!detectedWallets.includes('trust')) detectedWallets.push('trust');
+        }
+        if (userAgentLower.includes('metamask') || currentUrl.includes('metamask') || ethereum.isMetaMask) {
+          if (!detectedWallets.includes('metamask')) detectedWallets.push('metamask');
+        }
+        if (userAgentLower.includes('rainbow') || currentUrl.includes('rainbow') || ethereum.isRainbow) {
+          if (!detectedWallets.includes('rainbow')) detectedWallets.push('rainbow');
+        }
+        if (userAgentLower.includes('coinbase') || currentUrl.includes('coinbase') || ethereum.isCoinbaseWallet) {
+          if (!detectedWallets.includes('coinbase')) detectedWallets.push('coinbase');
+        }
+        
+        // If no specific wallet detected but ethereum exists, check for common mobile wallets
+        if (detectedWallets.length === 0) {
+          // Generic detection - if ethereum exists on mobile, likely from a wallet
+          detectedWallets.push('generic-mobile-wallet');
+        }
+      }
     }
+
+    // Check for other wallet providers
+    if ((window as any).phantom?.ethereum) detectedWallets.push('phantom');
+    if ((window as any).safepal) detectedWallets.push('safepal');
+    if ((window as any).exodus) detectedWallets.push('exodus');
 
     return {
       isMobile,
@@ -75,7 +110,7 @@ export class WalletDetector {
         name: 'MetaMask Mobile',
         description: 'MetaMask mobile app',
         available: env.isMobile,
-        installed: false,
+        installed: env.isMobile && (env.detectedWallets.includes('metamask') || (env.hasEthereum && env.detectedWallets.length > 0)),
         deepLink: `https://metamask.app.link/dapp/${host}${path}`,
         priority: 9,
       },

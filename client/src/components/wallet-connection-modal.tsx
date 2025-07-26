@@ -24,18 +24,31 @@ export default function WalletConnectionModal({
   const [environment, setEnvironment] = useState<any>(null);
 
   useEffect(() => {
-    const env = WalletDetector.detectEnvironment();
-    const baseOptions = WalletDetector.generateWalletOptions();
+    const updateWalletOptions = () => {
+      const env = WalletDetector.detectEnvironment();
+      const baseOptions = WalletDetector.generateWalletOptions();
+      
+      // Combine with icon configs
+      const fullOptions = baseOptions.map(option => ({
+        ...option,
+        icon: WALLET_CONFIGS[option.id as keyof typeof WALLET_CONFIGS]?.icon || (() => <Wallet size={24} />),
+        color: WALLET_CONFIGS[option.id as keyof typeof WALLET_CONFIGS]?.color || '#666666',
+      }));
+      
+      setEnvironment(env);
+      setWalletOptions(fullOptions);
+    };
+
+    // Initial detection
+    updateWalletOptions();
     
-    // Combine with icon configs
-    const fullOptions = baseOptions.map(option => ({
-      ...option,
-      icon: WALLET_CONFIGS[option.id as keyof typeof WALLET_CONFIGS]?.icon || (() => <Wallet size={24} />),
-      color: WALLET_CONFIGS[option.id as keyof typeof WALLET_CONFIGS]?.color || '#666666',
-    }));
-    
-    setEnvironment(env);
-    setWalletOptions(fullOptions);
+    // Re-check wallet status when window regains focus (user returns from wallet app)
+    const handleFocus = () => {
+      setTimeout(updateWalletOptions, 500); // Small delay to let wallet inject
+    };
+
+    window.addEventListener('focus', handleFocus);
+    return () => window.removeEventListener('focus', handleFocus);
   }, []);
 
   const handleWalletOption = async (optionId: string) => {
@@ -46,32 +59,35 @@ export default function WalletConnectionModal({
 
     // Handle WalletConnect specially
     if (optionId === 'walletconnect') {
-      // WalletConnect will be handled by the main connection logic
       onConnect();
       return;
     }
 
-    // Handle installed browser extensions
-    if ((optionId === 'metamask-extension' || optionId === 'phantom' || optionId === 'coinbase') && option.installed) {
+    // If wallet is already installed/connected, attempt direct connection
+    if (option.installed) {
       onConnect();
       return;
     }
 
-    // Handle deep links for mobile/apps
-    if (option.deepLink) {
+    // Handle mobile deep links
+    if (environment?.isMobile && option.deepLink) {
       try {
         WalletDetector.openWalletApp(optionId);
         onClose(); // Close modal since user is being redirected
       } catch (error: any) {
         console.error('Failed to open wallet:', error);
       }
-    } else if (option.installUrl) {
-      // Open install URL for non-installed wallets
-      window.open(option.installUrl, '_blank');
-    } else {
-      // Default connection attempt
-      onConnect();
+      return;
     }
+
+    // Handle desktop installations
+    if (option.installUrl && !option.installed) {
+      window.open(option.installUrl, '_blank');
+      return;
+    }
+
+    // Default connection attempt for any remaining cases
+    onConnect();
   };
 
   const copyUrlToClipboard = async () => {
