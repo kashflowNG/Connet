@@ -2,6 +2,7 @@ import { RefreshCw } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { useWeb3 } from "@/hooks/use-web3";
+import NetworkSwitcher from "@/components/network-switcher";
 import type { WalletState } from "@/lib/web3";
 
 interface WalletStatusProps {
@@ -43,15 +44,18 @@ export default function WalletStatus({ walletState }: WalletStatusProps) {
             <h2 className="text-xl font-semibold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
               Wallet Status
             </h2>
-            <Button
-              variant="ghost"
-              size="sm"
-              onClick={refreshBalance}
-              className="text-muted-foreground hover:text-accent hover:bg-muted/50 ethereum-pulse"
-            >
-              <RefreshCw className="w-4 h-4" />
-            </Button>
-          </div>
+            <div className="flex items-center space-x-3">
+              <NetworkSwitcher />
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={refreshBalance}
+                className="text-muted-foreground hover:text-accent hover:bg-muted/50 ethereum-pulse"
+              >
+                <RefreshCw className="w-4 h-4" />
+              </Button>
+            </div>
+          </div></div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
             <div className="bg-muted/30 rounded-lg p-4 border border-border/50 ethereum-glow">

