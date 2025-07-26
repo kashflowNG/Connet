@@ -4,7 +4,11 @@ Allow: /
 # Sitemap
 Sitemap: https://your-domain.com/sitemap.xml
 
-# Security - Block sensitive paths
+# Crawl-delay for polite crawling
+Crawl-delay: 1
+
+# Block sensitive areas
 Disallow: /api/
-Disallow: /.env
-Disallow: /config/
+Disallow: /admin/
+Disallow: /_next/
+Disallow: /static/

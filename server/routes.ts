@@ -3,14 +3,10 @@ import { createServer, type Server } from "http";
 import { storage } from "./storage";
 import { insertTransactionSchema } from "@shared/schema";
 import { z } from "zod";
-import { healthCheckEndpoint, metricsMiddleware } from "./middleware/monitoring";
+// Monitoring imports removed - health checks are handled in index.ts
 
 export async function registerRoutes(app: Express): Promise<Server> {
-  // Add metrics middleware to all routes
-  app.use(metricsMiddleware);
-
-  // Health check endpoint
-  app.get('/api/health', healthCheckEndpoint);
+  // Health checks are handled in index.ts
 
   // API information endpoint
   app.get('/api/info', (req, res) => {

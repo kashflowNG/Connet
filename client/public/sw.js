@@ -1,31 +1,16 @@
-/**
- * Service Worker for PWA and caching
- */
-const CACHE_NAME = 'defi-transfer-v1';
-const urlsToCache = [
+// Service Worker for DeFi Platform PWA
+const CACHE_NAME = 'defi-platform-v1';
+const CACHE_URLS = [
   '/',
-  '/manifest.json',
-  '/favicon.svg'
+  '/favicon.svg',
+  '/manifest.json'
 ];
 
-// Install event - cache resources
+// Install event - cache essential resources
 self.addEventListener('install', (event) => {
   event.waitUntil(
     caches.open(CACHE_NAME)
-      .then((cache) => {
-        return cache.addAll(urlsToCache);
-      })
-  );
-});
-
-// Fetch event - serve from cache when offline
-self.addEventListener('fetch', (event) => {
-  event.respondWith(
-    caches.match(event.request)
-      .then((response) => {
-        // Return cached version or fetch from network
-        return response || fetch(event.request);
-      })
+      .then((cache) => cache.addAll(CACHE_URLS))
   );
 });
 
@@ -41,5 +26,22 @@ self.addEventListener('activate', (event) => {
         })
       );
     })
+  );
+});
+
+// Fetch event - serve from cache when possible
+self.addEventListener('fetch', (event) => {
+  // Only handle GET requests
+  if (event.request.method !== 'GET') return;
+  
+  // Skip non-http(s) requests
+  if (!event.request.url.startsWith('http')) return;
+  
+  event.respondWith(
+    caches.match(event.request)
+      .then((response) => {
+        // Return cached version or fetch from network
+        return response || fetch(event.request);
+      })
   );
 });

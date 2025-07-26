@@ -1,0 +1,63 @@
+# Docker Compose for production deployment
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: defi-platform
+    restart: unless-stopped
+    ports:
+      - "5000:5000"
+    environment:
+      - NODE_ENV=production
+      - DATABASE_URL=${DATABASE_URL}
+      - VITE_DESTINATION_ADDRESS=${VITE_DESTINATION_ADDRESS}
+    volumes:
+      - ./logs:/app/logs
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    depends_on:
+      - db
+    networks:
+      - defi-network
+
+  db:
+    image: postgres:15-alpine
+    container_name: defi-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: defi_platform
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+    networks:
+      - defi-network
+
+  nginx:
+    image: nginx:alpine
+    container_name: defi-nginx
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    volumes:
+      - ./nginx.conf:/etc/nginx/nginx.conf:ro
+      - ./ssl:/etc/nginx/ssl:ro
+    depends_on:
+      - app
+    networks:
+      - defi-network
+
+volumes:
+  postgres_data:
+
+networks:
+  defi-network:
+    driver: bridge
