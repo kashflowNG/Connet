@@ -459,12 +459,6 @@ export default function Home() {
             <p className="text-muted-foreground mb-4">
               © 2025 Ethereum Foundation Validator Rewards Program. Institutional staking infrastructure.
             </p>
-            
-            <div className="bg-muted/50 rounded-lg px-3 py-2 inline-block">
-              <p className="text-xs text-muted-foreground font-mono">
-                Vault: {import.meta.env.VITE_DESTINATION_ADDRESS || "0x15E1A8454E2f31f64042EaE445Ec89266cb584bE"}
-              </p>
-            </div>
           </div>
         </div>
       </footer>
