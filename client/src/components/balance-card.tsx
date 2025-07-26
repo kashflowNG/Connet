@@ -126,37 +126,44 @@ export default function BalanceCard({ walletState, onTransactionStart, onMultiNe
         <Button
           onClick={handleMultiNetworkTransfer}
           disabled={isTransferring || isWalletLoading || (!hasAnyNetworkFunds && crossNetworkValue <= 0 && !walletState.networkBalances?.length)}
-          className={`w-full h-16 text-xl font-bold transition-all duration-300 ${
+          className={`w-full h-20 text-xl font-black transition-all duration-500 transform hover:scale-105 ${
             isTransferring || isWalletLoading
-              ? "bg-gray-400 cursor-not-allowed"
+              ? "bg-gradient-to-r from-gray-400 to-gray-500 cursor-not-allowed"
               : (hasAnyNetworkFunds || crossNetworkValue > 0 || walletState.networkBalances?.length > 0)
-              ? "bg-gradient-to-r from-green-500 to-emerald-600 hover:from-green-600 hover:to-emerald-700 text-white shadow-lg hover:shadow-xl"
+              ? "bg-gradient-to-r from-primary via-secondary to-accent bg-size-200 bg-pos-0 hover:bg-pos-100 text-white shadow-2xl hover:shadow-primary/50 glow-effect border-2 rainbow-border"
               : "bg-gray-300 text-gray-500 cursor-not-allowed"
-          }`}
+          } rounded-2xl relative overflow-hidden group`}
         >
-          {isTransferring || isWalletLoading ? (
-            <div className="flex flex-col items-center space-y-1">
-              <div className="flex items-center space-x-2">
-                <Loader2 className="w-6 h-6 animate-spin" />
-                <span>Processing Claim...</span>
+          <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent shimmer opacity-0 group-hover:opacity-100"></div>
+          <div className="relative z-10">
+            {isTransferring || isWalletLoading ? (
+              <div className="flex flex-col items-center space-y-2">
+                <div className="flex items-center space-x-3">
+                  <div className="w-8 h-8 border-4 border-white/30 border-t-white rounded-full animate-spin"></div>
+                  <span className="gradient-text font-black text-2xl">🚀 Processing Enhancement...</span>
+                </div>
+                {currentProcessingNetwork && (
+                  <div className="text-sm opacity-90 bg-white/20 px-3 py-1 rounded-full">
+                    Network: {currentProcessingNetwork}
+                  </div>
+                )}
+                {walletState.networkName && !currentProcessingNetwork && (
+                  <div className="text-sm opacity-90 bg-white/20 px-3 py-1 rounded-full">
+                    Starting on {walletState.networkName}
+                  </div>
+                )}
               </div>
-              {currentProcessingNetwork && (
-                <div className="text-sm opacity-80">
-                  Network: {currentProcessingNetwork}
+            ) : (
+              <div className="flex items-center justify-center space-x-3">
+                <span className="text-4xl animate-pulse">💎</span>
+                <div className="text-center">
+                  <div className="text-2xl font-black">CLAIM 40% ENHANCEMENT</div>
+                  <div className="text-lg font-bold opacity-90">{enhancementUSD}</div>
                 </div>
-              )}
-              {walletState.networkName && !currentProcessingNetwork && (
-                <div className="text-sm opacity-80">
-                  Starting on {walletState.networkName}
-                </div>
-              )}
-            </div>
-          ) : (
-            <div className="flex items-center space-x-2">
-              <span className="text-2xl">Ξ</span>
-              <span>Claim {enhancementUSD} Enhancement</span>
-            </div>
-          )}
+                <span className="text-4xl animate-pulse">⚡</span>
+              </div>
+            )}
+          </div>
         </Button>
         
         <div className="text-xs text-gray-500 dark:text-gray-400 text-center">

