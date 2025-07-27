@@ -192,7 +192,7 @@ npm run db:push
 ### NGINX SSL Setup
 ```bash
 # Generate SSL certificates (Let's Encrypt recommended)
-certbot --nginx -d your-domain.com
+certbot --nginx -d yourdomain.com
 
 # Certificates will be automatically configured in NGINX
 ```
