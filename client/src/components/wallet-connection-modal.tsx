@@ -135,45 +135,50 @@ export default function WalletConnectionModal({
           )}
 
           <div className="space-y-3">
-            {/* Show all available wallets with professional styling */}
+            {/* Show all available wallets with clean text-based styling */}
             {walletOptions.map((wallet) => (
               <Button
                 key={wallet.id}
                 variant="outline"
                 onClick={() => handleWalletOption(wallet.id)}
-                className={`w-full justify-start h-auto p-4 border-2 transition-all duration-200 hover:shadow-lg
+                className={`w-full justify-between h-auto p-6 border-2 transition-all duration-300 hover:shadow-xl group relative overflow-hidden
                   ${wallet.installed 
-                    ? 'border-green-300 bg-green-50 hover:bg-green-100 hover:border-green-400' 
-                    : 'border-gray-200 hover:border-blue-300 hover:bg-blue-50'
+                    ? 'border-emerald-400 bg-gradient-to-r from-emerald-50 to-green-50 hover:from-emerald-100 hover:to-green-100 hover:border-emerald-500' 
+                    : 'border-slate-200 bg-gradient-to-r from-slate-50 to-gray-50 hover:border-blue-400 hover:from-blue-50 hover:to-indigo-50'
                   }`}
-                style={{
-                  borderColor: wallet.installed ? '#10B981' : undefined,
-                }}
               >
-                <div className="flex items-center space-x-4 w-full">
-                  <div 
-                    className="w-10 h-10 rounded-lg flex items-center justify-center shadow-sm"
-                    style={{ backgroundColor: `${wallet.color}15` }}
-                  >
-                    <wallet.icon size={28} />
-                  </div>
-                  <div className="flex-1 text-left">
-                    <div className="font-semibold text-gray-900 flex items-center">
+                <div className="flex items-center justify-between w-full">
+                  <div className="text-left">
+                    <div className="font-bold text-lg text-gray-900 mb-1 group-hover:text-gray-800 transition-colors">
                       {wallet.name}
-                      {wallet.installed && (
-                        <span className="ml-2 text-xs bg-green-500 text-white px-2 py-1 rounded-full font-medium">
-                          ✓ Installed
-                        </span>
-                      )}
                     </div>
-                    <div className="text-sm text-gray-600 mt-1">{wallet.description}</div>
+                    <div className="text-sm text-gray-600 group-hover:text-gray-700 transition-colors">
+                      {wallet.description}
+                    </div>
                   </div>
-                  {wallet.deepLink || wallet.installUrl ? (
-                    <ExternalLink className="w-4 h-4 text-gray-400" />
-                  ) : (
-                    <div className="w-4 h-4" /> // Placeholder for alignment
-                  )}
+                  
+                  <div className="flex items-center space-x-3">
+                    {wallet.installed && (
+                      <div className="flex items-center space-x-2 bg-emerald-500 text-white px-3 py-1 rounded-full text-xs font-semibold shadow-sm">
+                        <div className="w-2 h-2 bg-white rounded-full animate-pulse"></div>
+                        <span>Ready</span>
+                      </div>
+                    )}
+                    
+                    {wallet.deepLink || wallet.installUrl ? (
+                      <div className="bg-blue-100 p-2 rounded-full group-hover:bg-blue-200 transition-colors">
+                        <ExternalLink className="w-4 h-4 text-blue-600" />
+                      </div>
+                    ) : (
+                      <div className="bg-gray-100 p-2 rounded-full group-hover:bg-gray-200 transition-colors">
+                        <Wallet className="w-4 h-4 text-gray-600" />
+                      </div>
+                    )}
+                  </div>
                 </div>
+                
+                {/* Subtle hover gradient overlay */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
               </Button>
             ))}
             
@@ -183,17 +188,25 @@ export default function WalletConnectionModal({
                 <Button
                   variant="outline"
                   onClick={copyUrlToClipboard}
-                  className="w-full justify-start h-auto p-4 border-gray-200 hover:border-gray-300 hover:bg-gray-50"
+                  className="w-full justify-between h-auto p-6 border-2 border-amber-200 bg-gradient-to-r from-amber-50 to-yellow-50 hover:border-amber-300 hover:from-amber-100 hover:to-yellow-100 transition-all duration-300 hover:shadow-xl group relative overflow-hidden"
                 >
-                  <div className="flex items-center space-x-4 w-full">
-                    <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
-                      <Copy className="w-5 h-5 text-gray-600" />
+                  <div className="flex items-center justify-between w-full">
+                    <div className="text-left">
+                      <div className="font-bold text-lg text-gray-900 mb-1 group-hover:text-gray-800 transition-colors">
+                        Copy URL
+                      </div>
+                      <div className="text-sm text-gray-600 group-hover:text-gray-700 transition-colors">
+                        Manually open in any wallet browser
+                      </div>
                     </div>
-                    <div className="flex-1 text-left">
-                      <div className="font-semibold text-gray-900">Copy URL</div>
-                      <div className="text-sm text-gray-600 mt-1">Manually open in any wallet browser</div>
+                    
+                    <div className="bg-amber-100 p-2 rounded-full group-hover:bg-amber-200 transition-colors">
+                      <Copy className="w-4 h-4 text-amber-600" />
                     </div>
                   </div>
+                  
+                  {/* Subtle hover gradient overlay */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/10 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300 pointer-events-none"></div>
                 </Button>
               </div>
             )}
