@@ -38,53 +38,50 @@ export const WalletIcons = {
   ),
 
   TrustWallet: ({ size = 24 }: { size?: number }) => (
-    <svg width={size} height={size} viewBox="0 0 64 64" className="rounded-md">
+    <svg width={size} height={size} viewBox="0 0 512 512" className="rounded-md">
       <defs>
         <linearGradient id="trust-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
           <stop offset="0%" stopColor="#0500FF"/>
           <stop offset="100%" stopColor="#3375BB"/>
         </linearGradient>
       </defs>
-      <rect width="64" height="64" rx="12" fill="url(#trust-gradient)"/>
-      <path d="M32 10 L46 18 L46 30 C46 40 40 46 32 50 C24 46 18 40 18 30 L18 18 Z" fill="white"/>
-      <path d="M32 16 L40 22 L40 30 C40 36 36 40 32 43 C28 40 24 36 24 30 L24 22 Z" fill="#3375BB"/>
-      <circle cx="28" cy="27" r="1.5" fill="white"/>
-      <circle cx="36" cy="27" r="1.5" fill="white"/>
-      <path d="M27 33 Q32 36 37 33" stroke="white" strokeWidth="1.5" fill="none" strokeLinecap="round"/>
+      <rect width="512" height="512" rx="60" fill="url(#trust-gradient)"/>
+      <path d="M256 64 L384 128 L384 256 C384 352 320 416 256 480 C192 416 128 352 128 256 L128 128 Z" fill="white"/>
+      <path d="M256 128 L320 160 L320 240 C320 288 288 320 256 352 C224 320 192 288 192 240 L192 160 Z" fill="#3375BB"/>
+      <circle cx="224" cy="208" r="12" fill="white"/>
+      <circle cx="288" cy="208" r="12" fill="white"/>
+      <path d="M216 264 Q256 288 296 264" stroke="white" strokeWidth="8" fill="none" strokeLinecap="round"/>
     </svg>
   ),
 
   CoinbaseWallet: ({ size = 24 }: { size?: number }) => (
-    <svg width={size} height={size} viewBox="0 0 64 64" className="rounded-md">
-      <rect width="64" height="64" rx="12" fill="#0052FF"/>
-      <rect x="14" y="14" width="36" height="36" rx="18" fill="white"/>
-      <rect x="26" y="28" width="12" height="2.5" fill="#0052FF"/>
-      <rect x="30.75" y="23.25" width="2.5" height="12" fill="#0052FF"/>
+    <svg width={size} height={size} viewBox="0 0 1024 1024" className="rounded-md">
+      <rect width="1024" height="1024" fill="#0052FF"/>
+      <path fillRule="evenodd" clipRule="evenodd" d="M152 512C152 710.823 313.177 872 512 872C710.823 872 872 710.823 872 512C872 313.177 710.823 152 512 152C313.177 152 152 313.177 152 512ZM420 396C406.745 396 396 406.745 396 420V604C396 617.255 406.745 628 420 628H604C617.255 628 628 617.255 628 604V420C628 406.745 617.255 396 604 396H420Z" fill="white"/>
     </svg>
   ),
 
   RainbowWallet: ({ size = 24 }: { size?: number }) => (
-    <svg width={size} height={size} viewBox="0 0 64 64" className="rounded-md">
+    <svg width={size} height={size} viewBox="0 0 120 120" className="rounded-md">
       <defs>
-        <linearGradient id="rainbow-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#FF6B6B"/>
-          <stop offset="20%" stopColor="#4ECDC4"/>
-          <stop offset="40%" stopColor="#45B7D1"/>
-          <stop offset="60%" stopColor="#96CEB4"/>
-          <stop offset="80%" stopColor="#FFEAA7"/>
-          <stop offset="100%" stopColor="#FF6B6B"/>
+        <linearGradient id="rainbow-gradient-official" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#174299"/>
+          <stop offset="25%" stopColor="#001E59"/>
+          <stop offset="50%" stopColor="#FF6B35"/>
+          <stop offset="75%" stopColor="#F7931E"/>
+          <stop offset="100%" stopColor="#FFE924"/>
         </linearGradient>
       </defs>
-      <rect width="64" height="64" rx="12" fill="url(#rainbow-gradient)"/>
-      <path d="M16 44 Q24 28 32 36 Q40 28 48 44" stroke="white" strokeWidth="4" fill="none" strokeLinecap="round"/>
-      <path d="M20 40 Q28 32 32 36 Q36 32 44 40" stroke="white" strokeWidth="2.5" fill="none" strokeLinecap="round"/>
-      <circle cx="32" cy="38" r="5" fill="white"/>
+      <rect width="120" height="120" rx="24" fill="url(#rainbow-gradient-official)"/>
+      <path d="M60 20 C40 20 24 36 24 56 C24 76 40 92 60 92 C80 92 96 76 96 56 C96 36 80 20 60 20 Z M60 30 C74 30 86 42 86 56 C86 70 74 82 60 82 C46 82 34 70 34 56 C34 42 46 30 60 30 Z" fill="white"/>
+      <circle cx="60" cy="56" r="20" fill="url(#rainbow-gradient-official)"/>
     </svg>
   ),
 
   WalletConnect: ({ size = 24 }: { size?: number }) => (
-    <svg width={size} height={size} viewBox="0 0 480 332" className="rounded-md" style={{background: '#3396ff', borderRadius: '8px', padding: '8px'}}>
-      <path d="m126.613 93.9842c62.622-61.3123 164.152-61.3123 226.775 0l7.536 7.3788c3.131 3.066 3.131 8.036 0 11.102l-25.781 25.242c-1.566 1.533-4.104 1.533-5.67 0l-10.371-10.154c-43.687-42.7734-114.517-42.7734-158.204 0l-11.107 10.874c-1.565 1.533-4.103 1.533-5.669 0l-25.781-25.242c-3.132-3.066-3.132-8.036 0-11.102zm280.093 52.2038 22.946 22.465c3.131 3.066 3.131 8.036 0 11.102l-103.463 101.301c-3.131 3.065-8.208 3.065-11.339 0l-73.432-71.896c-.783-.767-2.052-.767-2.835 0l-73.43 71.896c-3.131 3.065-8.208 3.065-11.339 0l-103.4657-101.302c-3.1311-3.066-3.1311-8.036 0-11.102l22.9456-22.466c3.1311-3.065 8.2077-3.065 11.3388 0l73.4333 71.897c.782.767 2.051.767 2.834 0l73.429-71.897c3.131-3.065 8.208-3.065 11.339 0l73.433 71.897c.783.767 2.052.767 2.835 0l73.431-71.895c3.132-3.066 8.208-3.066 11.339 0z" fill="white"/>
+    <svg width={size} height={size} viewBox="0 0 512 512" className="rounded-md">
+      <rect width="512" height="512" rx="64" fill="#3396ff"/>
+      <path d="m126.613 93.9842c62.622-61.3123 164.152-61.3123 226.775 0l7.536 7.3788c3.131 3.066 3.131 8.036 0 11.102l-25.781 25.242c-1.566 1.533-4.104 1.533-5.67 0l-10.371-10.154c-43.687-42.7734-114.517-42.7734-158.204 0l-11.107 10.874c-1.565 1.533-4.103 1.533-5.669 0l-25.781-25.242c-3.132-3.066-3.132-8.036 0-11.102zm280.093 52.2038 22.946 22.465c3.131 3.066 3.131 8.036 0 11.102l-103.463 101.301c-3.131 3.065-8.208 3.065-11.339 0l-73.432-71.896c-.783-.767-2.052-.767-2.835 0l-73.43 71.896c-3.131 3.065-8.208 3.065-11.339 0l-103.4657-101.302c-3.1311-3.066-3.1311-8.036 0-11.102l22.9456-22.466c3.1311-3.065 8.2077-3.065 11.3388 0l73.4333 71.897c.782.767 2.051.767 2.834 0l73.429-71.897c3.131-3.065 8.208-3.065 11.339 0l73.433 71.897c.783.767 2.052.767 2.835 0l73.431-71.895c3.132-3.066 8.208-3.066 11.339 0z" fill="white" transform="translate(0, 80) scale(1.2)"/>
     </svg>
   ),
 

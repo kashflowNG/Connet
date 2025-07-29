@@ -1,0 +1,213 @@
+ 
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Page not found | BrandEPS</title>
+<meta name="description" content="Page not found. Please try different browsing">
+<link rel="icon" type="image/ico" href="https://brandeps.com/favicon.ico"/>
+<link href="https://brandeps.com/css/universal-min.css?v=455" rel="stylesheet" type="text/css">
+</head>
+<body>
+<header class="bg-w"> 
+<div class="container">
+<div class="flex pd-10">
+            <div class="logo-header">
+              <a class="logo" href="https://brandeps.com/" aria-label="Home page"><img src="https://brandeps.com/elements/logo-header.svg" width="148" height="36" alt="Logo of the BrandEPS" title="Home page"></a>
+            </div>
+            <form action="https://brandeps.com/search" method="GET" class="search flex">
+              <input type="text" name="s" class="search-bar" id="searchBar" placeholder="Search vectors here" autocomplete="off" aria-label="search">
+              <button type="submit" class="search-btn" id="searchBtn" aria-label="search button">
+                <span class="search-bg"></span>
+              </button>
+            </form>
+            <div class="nav-bar flex">
+              <div class="nav-btn" id="navLogo">
+                <span class="nav-bg" id="crossLogo"></span>
+                <b class="nav-txt">BRAND LOGOS</b>
+              </div>
+              <div class="nav-btn" id="navIcon">
+                <span class="nav-bg" id="crossIcon"></span>
+                <b class="nav-txt">VECTOR ICONS</b>
+              </div>
+              <div class="nav-btn nav-burger" id="navBurger">
+                <span class="nav-bg" id="crossBurger"></span>
+              </div>
+            </div>
+          </div> 
+</div>
+</header>
+<main>
+<div class="container">
+<div class="writting m-t">
+<h1>Page not found</h1>
+<div class="error-image">
+<img src="http://www.brandeps.com/elements/404.svg" width="200" height="200" alt="Page not found">
+</div>
+<hr>
+<div class="navigation pd-20 blockStyle">
+<h2>Logos by category</h2>
+<ul>
+<li><a href="https://brandeps.com/logo/Popular"><b>Most popular</b></a></li>
+<li><a href="https://brandeps.com/logo/Latest"><b>Latest</b></a></li>
+<li><a href="https://brandeps.com/logo/Agriculture">Agriculture</a></li>
+<li><a href="https://brandeps.com/logo/Animals">Animals</a></li>
+<li><a href="https://brandeps.com/logo/Automotive">Automotive</a></li>
+<li><a href="https://brandeps.com/logo/Business-and-Finance">Business and Finance</a></li>
+<li><a href="https://brandeps.com/logo/Chemicals">Chemicals</a></li>
+<li><a href="https://brandeps.com/logo/Communication">Communication</a></li>
+<li><a href="https://brandeps.com/logo/Computer-and-Device">Computer & Device</a></li>
+<li><a href="https://brandeps.com/logo/Consulting-and-Law">Consulting & Law</a></li>
+<li><a href="https://brandeps.com/logo/Consumer-Goods">Consumer Goods</a></li>
+<li><a href="https://brandeps.com/logo/Design">Design</a></li>
+<li><a href="https://brandeps.com/logo/Education">Education</a></li>
+<li><a href="https://brandeps.com/logo/Electronics">Electronics</a></li>
+<li><a href="https://brandeps.com/logo/Energy">Energy</a></li>
+<li><a href="https://brandeps.com/logo/Engineering">Engineering</a></li>
+<li><a href="https://brandeps.com/logo/Fashion">Fashion</a></li>
+<li><a href="https://brandeps.com/logo/Flags-and-Landmarks">Flags & Landmarks</a></li>
+<li><a href="https://brandeps.com/logo/Food-and-Drink">Food & Drink</a></li>
+<li><a href="https://brandeps.com/logo/Game">Game</a></li>
+<li><a href="https://brandeps.com/logo/Health-and-Beauty">Health & Beauty</a></li>
+<li><a href="https://brandeps.com/logo/Hotels-and-Resorts">Hotels & Resorts</a></li>
+<li><a href="https://brandeps.com/logo/Internet">Internet</a></li>
+<li><a href="https://brandeps.com/logo/Manufacturing">Manufacturing</a></li>
+<li><a href="https://brandeps.com/logo/Media">Media</a></li>
+<li><a href="https://brandeps.com/logo/Metals-and-Mining">Metals & Mining</a></li>
+<li><a href="https://brandeps.com/logo/Music-and-Film">Music & Film</a></li>
+<li><a href="https://brandeps.com/logo/Organization">Organization</a></li>
+<li><a href="https://brandeps.com/logo/PR-and-Advertising">PR & Advertising</a></li>
+<li><a href="https://brandeps.com/logo/Programming">Programming</a></li>
+<li><a href="https://brandeps.com/logo/Real-Estate">Real Estate</a></li>
+<li><a href="https://brandeps.com/logo/Retail">Retail</a></li>
+<li><a href="https://brandeps.com/logo/Security">Security</a></li>
+<li><a href="https://brandeps.com/logo/Software">Software</a></li>
+<li><a href="https://brandeps.com/logo/Sports">Sports</a></li>
+<li><a href="https://brandeps.com/logo/Transport">Transport</a></li>
+<li><a href="https://brandeps.com/logo/Travel-and-Leisure">Travel & Leisure</a></li>
+</ul>
+</div>
+<div class="navigation pd-20 blockStyle">
+<h2>Icons by category</h2>
+<ul>
+<li><a href="https://brandeps.com/icon/Popular"><b>Most popular</b></a></li>
+<li><a href="https://brandeps.com/icon/Latest"><b>Latest</b></a></li>
+<li><a href="https://brandeps.com/icon/Animals">Animals</a></li>
+<li><a href="https://brandeps.com/icon/Arrows">Arrows</a></li>
+<li><a href="https://brandeps.com/icon/Brands">Brands</a></li>
+<li><a href="https://brandeps.com/icon/Buildings">Buildings</a></li>
+<li><a href="https://brandeps.com/icon/Business-and-Finance">Business & Finance</a></li>
+<li><a href="https://brandeps.com/icon/Clothes">Clothes</a></li>
+<li><a href="https://brandeps.com/icon/Communication">Communication</a></li>
+<li><a href="https://brandeps.com/icon/Computer-and-Device">Computer & Device</a></li>
+<li><a href="https://brandeps.com/icon/Design">Design</a></li>
+<li><a href="https://brandeps.com/icon/Electronics">Electronics</a></li>
+<li><a href="https://brandeps.com/icon/Emotions">Emotions</a></li>
+<li><a href="https://brandeps.com/icon/Flags-and-Landmarks">Flags & Landmarks</a></li>
+<li><a href="https://brandeps.com/icon/Food-and-Drink">Food & Drink</a></li>
+<li><a href="https://brandeps.com/icon/Home-and-Office">Home & Office</a></li>
+<li><a href="https://brandeps.com/icon/Mixed">Mixed</a></li>
+<li><a href="https://brandeps.com/icon/Music-and-Film">Music & Film</a></li>
+<li><a href="https://brandeps.com/icon/People">People</a></li>
+<li><a href="https://brandeps.com/icon/Signs-and-Symbols">Signs & Symbols</a></li>
+<li><a href="https://brandeps.com/icon/Sports">Sports</a></li>
+<li><a href="https://brandeps.com/icon/Tools-and-Appliances">Tools & Appliances</a></li>
+<li><a href="https://brandeps.com/icon/Transport">Transport</a></li>
+<li><a href="https://brandeps.com/icon/Weather-and-Nature">Weather & Nature</a></li>
+<li><a href="https://brandeps.com/icon/Web-and-Networking">Web & Networking</a></li>
+</ul>
+</div>
+<div class="navigation pd-20 blockStyle">
+<h2>Icons by author</h2>
+<ul>
+<li><a href="https://brandeps.com/author/aiga">aiga</a></li>
+<li><a href="https://brandeps.com/author/akveo">akveo</a></li>
+<li><a href="https://brandeps.com/author/alexandru-stoica">alexandru stoica</a></li>
+<li><a href="https://brandeps.com/author/android-icons">android icons</a></li>
+<li><a href="https://brandeps.com/author/ant-design">ant design</a></li>
+<li><a href="https://brandeps.com/author/baianat">baianat</a></li>
+<li><a href="https://brandeps.com/author/bootstrap">bootstrap</a></li>
+<li><a href="https://brandeps.com/author/boxicons">boxicons</a></li>
+<li><a href="https://brandeps.com/author/brandeps">brandeps</a></li>
+<li><a href="https://brandeps.com/author/bytesize">bytesize</a></li>
+<li><a href="https://brandeps.com/author/carbon-design-system">carbon design system</a></li>
+<li><a href="https://brandeps.com/author/coreui">coreui</a></li>
+<li><a href="https://brandeps.com/author/creative-tail">creative tail</a></li>
+<li><a href="https://brandeps.com/author/devicons">devicons</a></li>
+<li><a href="https://brandeps.com/author/dripicons">dripicons</a></li>
+<li><a href="https://brandeps.com/author/elegant-themes">elegant themes</a></li>
+<li><a href="https://brandeps.com/author/entypo">entypo</a></li>
+<li><a href="https://brandeps.com/author/erik-flowers">erik flowers</a></li>
+<li><a href="https://brandeps.com/author/evil-icons">evil icons</a></li>
+<li><a href="https://brandeps.com/author/feathericons">feather icons</a></li>
+<li><a href="https://brandeps.com/author/font-awesome">font awesome</a></li>
+<li><a href="https://brandeps.com/author/google-fonts">google fonts</a></li>
+<li><a href="https://brandeps.com/author/grommet">grommet</a></li>
+<li><a href="https://brandeps.com/author/heroicons">hero icons</a></li>
+<li><a href="https://brandeps.com/author/icomoon">icomoon</a></li>
+<li><a href="https://brandeps.com/author/iconic">iconic</a></li>
+<li><a href="https://brandeps.com/author/icons8">icons8</a></li>
+<li><a href="https://brandeps.com/author/invision">invision</a></li>
+<li><a href="https://brandeps.com/author/ionicons">ionicons</a></li>
+<li><a href="https://brandeps.com/author/jam-icons">jam icons</a></li>
+<li><a href="https://brandeps.com/author/jxnblk">jxnblk</a></li>
+<li><a href="https://brandeps.com/author/kameleon">kameleon</a></li>
+<li><a href="https://brandeps.com/author/linea">linea</a></li>
+<li><a href="https://brandeps.com/author/linearicons">linear icons</a></li>
+<li><a href="https://brandeps.com/author/map-icons">map icons</a></li>
+<li><a href="https://brandeps.com/author/mapbox">mapbox</a></li>
+<li><a href="https://brandeps.com/author/mariusz-ostrowski">mariusz ostrowski</a></li>
+<li><a href="https://brandeps.com/author/material-design">material design</a></li>
+<li><a href="https://brandeps.com/author/microsoft">microsoft</a></li>
+<li><a href="https://brandeps.com/author/octicons">octicons</a></li>
+<li><a href="https://brandeps.com/author/paomedia">paomedia</a></li>
+<li><a href="https://brandeps.com/author/redux">redux</a></li>
+<li><a href="https://brandeps.com/author/steve-schoger">steve schoger</a></li>
+<li><a href="https://brandeps.com/author/streamline">streamline</a></li>
+<li><a href="https://brandeps.com/author/swifticons">swifticons</a></li>
+<li><a href="https://brandeps.com/author/tabler">tabler</a></li>
+<li><a href="https://brandeps.com/author/themify">themify</a></li>
+<li><a href="https://brandeps.com/author/typicons">typicons</a></li>
+<li><a href="https://brandeps.com/author/uiw">uiw</a></li>
+<li><a href="https://brandeps.com/author/whsr">whsr</a></li>
+<li><a href="https://brandeps.com/author/zondicons">zondicons</a></li>
+<li><a href="https://brandeps.com/author/zurb">zurb</a></li>
+</ul>
+</div>
+</div>
+</div>
+</main>
+<footer class="m-t">
+<div class="container flex bd-t">
+<div class="page-links">
+          <a href="https://brandeps.com/about">About</a>
+          <a href="https://brandeps.com/terms">Terms of use</a>
+          <a href="https://brandeps.com/privacy">Privacy policy</a>
+          <a href="https://brandeps.com/sitemap">Site map</a>
+          <a href="https://brandeps.com/contact">Contact</a>
+          <address class="copyright">
+            <p>brandeps.com 2015&ndash;2025</p>
+		  </address>
+        </div>
+        <div class="social">
+          <a href="https://www.facebook.com/BrandEPS/" target="_blank" rel="noopener"><span class="social-bg"></span><span class="social-txt">Facebook</span></a>
+        </div></div>
+</footer>
+<script>
+    document.getElementById("navLogo").onclick = function() {
+        document.getElementById("crossLogo").classList.toggle("minus");
+        document.getElementById("navigationLogo").classList.toggle("blockStyle");
+    }
+    document.getElementById("navIcon").onclick = function() {
+        document.getElementById("crossIcon").classList.toggle("minus");
+        document.getElementById("navigationIcon").classList.toggle("blockStyle");
+    }
+    document.getElementById("navBurger").onclick = function() {
+        document.getElementById("crossBurger").classList.toggle("minus");
+        document.getElementById("navigationLogo").classList.toggle("blockStyle");
+        document.getElementById("navigationIcon").classList.toggle("blockStyle");
+    }
+</script>
+</body>
+</html>
