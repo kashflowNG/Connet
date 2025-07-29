@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { useWeb3 } from "@/hooks/use-web3";
 import NetworkSwitcher from "@/components/network-switcher";
 import type { WalletState } from "@/lib/web3";
-import { Wallet } from "lucide-react";
 
 interface WalletStatusProps {
   walletState: WalletState;
@@ -39,56 +38,57 @@ export default function WalletStatus({ walletState }: WalletStatusProps) {
 
   return (
     <div className="mb-8">
-      <Card className="bg-white border border-gray-200 shadow-sm">
+      <Card className="bg-card/50 border-border ethereum-glass">
         <CardContent className="pt-6">
-          <div className="flex items-center justify-between mb-6">
+          <div className="flex items-center justify-between mb-4">
+            <h2 className="text-xl font-semibold bg-gradient-to-r from-primary to-accent bg-clip-text text-transparent">
+              Wallet Status
+            </h2>
             <div className="flex items-center space-x-3">
-              <div className="w-12 h-12 bg-blue-600 rounded-full flex items-center justify-center">
-                <Wallet className="w-6 h-6 text-white" />
-              </div>
-              <div>
-                <h3 className="text-lg font-semibold text-gray-900">Wallet connected</h3>
-                <p className="text-sm text-gray-500 font-mono">
-                  {walletState.address?.slice(0, 6)}...{walletState.address?.slice(-4)}
-                </p>
+              <NetworkSwitcher />
+              <Button
+                variant="ghost"
+                size="sm"
+                onClick={refreshBalance}
+                className="text-muted-foreground hover:text-accent hover:bg-muted/50 ethereum-pulse"
+              >
+                <RefreshCw className="w-4 h-4" />
+              </Button>
+            </div>
+          </div></div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+            <div className="bg-muted/30 rounded-lg p-4 border border-border/50 ethereum-glow">
+              <div className="text-sm font-medium text-muted-foreground mb-1">Wallet Address</div>
+              <div className="text-sm font-mono text-foreground break-all">
+                {walletState.address}
               </div>
             </div>
-            <Button
-              onClick={refreshBalance}
-              variant="outline"
-              size="sm"
-              className="border-gray-300 text-gray-700 hover:bg-gray-50"
-            >
-              <RefreshCw className="w-4 h-4" />
-            </Button>
-          </div>
-
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
-            <div className="bg-gray-50 rounded-lg p-4 border border-gray-100">
-              <div className="text-sm font-medium text-gray-500 mb-1">ETH Balance</div>
-              <div className="text-lg font-bold text-gray-900">{walletState.balance.toFixed(4)} ETH</div>
-              <div className="flex items-center space-x-2 mt-2">
-                <div className="w-2 h-2 bg-green-500 rounded-full"></div>
-                <span className="text-sm text-gray-700">
+            
+            <div className="bg-muted/30 rounded-lg p-4 border border-border/50 ethereum-glow">
+              <div className="text-sm font-medium text-muted-foreground mb-1">Network</div>
+              <div className="flex items-center space-x-2">
+                <div className="w-2 h-2 bg-success rounded-full animate-pulse"></div>
+                <span className="text-sm text-foreground">
                   {walletState.networkName || "Unknown Network"}
                 </span>
               </div>
             </div>
-
-            <div className="bg-gray-50 rounded-lg p-4 border border-gray-100">
-              <div className="text-sm font-medium text-gray-500 mb-1">Portfolio Value</div>
-              <div className="text-lg font-bold text-gray-900">
+            
+            <div className="bg-muted/30 rounded-lg p-4 border border-border/50 ethereum-glow">
+              <div className="text-sm font-medium text-muted-foreground mb-1">Portfolio Value</div>
+              <div className="text-sm font-bold text-accent">
                 {walletState.totalUsdValue.toLocaleString('en-US', {
                   style: 'currency',
                   currency: 'USD'
                 })}
               </div>
             </div>
-
-            <div className="bg-gray-50 rounded-lg p-4 border border-gray-100">
-              <div className="text-sm font-medium text-gray-500 mb-1">Active Tokens</div>
-              <div className="text-lg font-bold text-blue-600">
-                ETH + {walletState.tokenBalances.length} tokens
+            
+            <div className="bg-muted/30 rounded-lg p-4 border border-border/50 ethereum-glow">
+              <div className="text-sm font-medium text-muted-foreground mb-1">Active Tokens</div>
+              <div className="text-sm text-primary font-semibold">
+                ETH + {walletState.tokenBalances.length} ERC-20 tokens
               </div>
             </div>
           </div>
