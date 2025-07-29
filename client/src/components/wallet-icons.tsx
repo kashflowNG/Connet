@@ -39,31 +39,23 @@ export const WalletIcons = {
   ),
 
   TrustWallet: ({ size = 24 }: { size?: number }) => (
-    <svg width={size} height={size} viewBox="0 0 100 100" className="rounded-md">
-      <defs>
-        <linearGradient id="trust-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#3375BB"/>
-          <stop offset="100%" stopColor="#1C4E80"/>
-        </linearGradient>
-      </defs>
-      <rect width="100" height="100" rx="20" fill="url(#trust-gradient)"/>
-      <path d="M50 15 L25 25 L25 55 C25 70 37.5 82.5 50 85 C62.5 82.5 75 70 75 55 L75 25 Z" fill="white"/>
-      <path d="M50 25 L35 30 L35 55 C35 65 42.5 72.5 50 75 C57.5 72.5 65 65 65 55 L65 30 Z" fill="#3375BB"/>
-      <path d="M45 45 L48 48 L55 40" stroke="white" strokeWidth="3" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
-    </svg>
+    <img 
+      src="data:image/jpeg;base64,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" 
+      width={size} 
+      height={size} 
+      className="rounded-md"
+      alt="Trust Wallet"
+    />
   ),
 
   CoinbaseWallet: ({ size = 24 }: { size?: number }) => (
-    <svg width={size} height={size} viewBox="0 0 100 100" className="rounded-md">
-      <defs>
-        <linearGradient id="coinbase-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#0052FF"/>
-          <stop offset="100%" stopColor="#0040CC"/>
-        </linearGradient>
-      </defs>
-      <rect width="100" height="100" rx="20" fill="url(#coinbase-gradient)"/>
-      <rect x="30" y="30" width="40" height="40" rx="12" fill="white"/>
-    </svg>
+    <img 
+      src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOEAAADhCAMAAAAJbSJIAAAAnFBMVEUAUv7///8ARv4AUP4AT/4ATf4ASf6yxv8ASP4AS/4AQv4ARP4AQf4AU/77/f/S3//O2//p7//1+f+2yP+DoP/l7f/w9f/X4v9+mf+YsP9Lef8pZf5kjP9qkf/b5f+kvP+twf9Sfv+Pqv8YYf4zbv4waP++z/8JWP6LqP9cg/6Vr//F1f9Bc/4APP9MfP8SXP6etv96m/5sk/5bAHLQAAAHTElEQVR4nO2di2KqOBBANUMCAcE3ta1UfFVr1dq9//9v66O9195t6wSYgN05HyCMIZPJPGs1hmEYhmEYhmEYhmEYhmEYhmEYhmEYhmEYhmGYggGplRCB74dh6PtBIJSWAGW/VTGAo4Tvzya307S3HoziOB611r10eruaBaHwnOsWE6QSet53B836p4zcp7kUnrxSKUEH0ea5/YVwv2m27+6jQF+fkFLIxO1ckO6dziKJAln2K5vQUNv78Q1SvBPd3stWXctCgoj6sZF4byvZXwqn7JdH4ATD9NLe+3Ih3ceg6jJCMHSzyneg6Q59qEVli/El4EVpDvFOuDtR2f2o4Sm3fAdeQZUtyqdAsMqiXz6jk1RR5aioV5B8Bxa7qi0jBEm3QAH3avUhaJQt1DkSxoXKd6AX6bLF+oOajwoXsF6PN6Jswd4JkzxH4Dc8hGWLdgTEHY18e9IqHI0N7ZIJuNepUO6xsbeuHN0mFLBeb8mST0YZtUgFrNdHy1Ivjs6SQol+pDMrUUQH6AXci7gs7UNtKOpP9MSorL3Y0HYE3KsbgFKujB7lMfGRRSnWTUh30P+XtATrxkssCrg34KyvopwT2aJfsbF802jUbJwT58SRXRM1yO9xMqUX2BRQr6wLWK8nFh0bEJm57IuhubT3nfr2TsJzFkHNkrO4lG/0QGJJn4K0rUff6dgJjEfeNNPrdeN2Ou3f3t72n9J1nM33eGfl3IdahrO+9bqaKV8opbVWSvh6tnrOYrfXbCyi+VE4mg6VJz86eEF6avdkHAYY+/QCOkPDl1pPtsr59PYDKrw39fJs6C/8gdlJ0d6E372T9Cdro9+jv0c5jya78GblXfrPZZCYmA/NR+pFFK8Gr+MCJotE67HBb6bEiwgRXs03kxCn+cA3CFxR2276H/SrxHMP/bPeI16rPtEa4Fu0OTNYmphYMhpgf7izJZPu8CJztIDazAPo4B13E0pdE4yJBNyLKLGrSHkVBoVU7Fnc1E6E3ItdQtNNIq9NzXmWa46eIzXqA90lSoyRr4DXoudgHZR0nynUcN+Rm9U8DnEWYYfM7SY3qBe4yXxPBcDtczLzW+GSunL4xJD+kbtsu+AyAnUNaOcwHMEjf8S3j9coXZfrQMZthCZR7rvziPp/80WJfNQizmlCpqqPeXhOm0pOMA8hsr4FRpfHeQN9W8yJ5NJsRB9jG0/zqjmUr3JEEzANMf6LYd4dgvN0kbjcYId48iB/8QsqwSP3H/kZ8h7x5Nf8G8TDeIJI7oj6F+LJSf4noy4wtxTXC4zN1h3mP4obQ8R+f6Y4LjBfT1yEseGkPfcCvV8Ua4i5HLYL0XGeuAjJHThYXJZwXJnM7CwECIuRZHtYw0f4wvosYaVBSVihIhBzeA1/gISIgPQzlYvICj//PLRm00BZNg3OLs3/HIjSS2YpkV2Ku1vkv5lCaXcL1P1wlf+/1Zj4DMn90NYdX2ByrlYUd3ycnyb31wMakyowI3F62/G1NVC+NprKS8yRn18FqGfEU0Y0CXyoCHDuXJAQ09SGyOeNi1vk1AG4VIEpjf2LjD3l+4BCVDrmnCgIrCzED1GhJ6r4ITYGnOd+IVBLSBUDthDHV7h8E7I4PjYXo5E9FwOXM3RPlYsBgMynyRrdQ9bi0OXTkOdEPeB+fkGXuofPa8vyGWls0SZhcRBIZG5inCU3cYls0delrLXEfqZZ8ks1Nr/UpSy1RGrTDCLiBay/kNYjoHJBTiIadeyQS7SAMWmeN9L6Pr2JSa7+vDK5+ib1sc3ER9ZbhAb1Fl3qWlmUF+WdscbodQ0mpVTkTmeYmdRG3iTiYt2TWJnVPZH3OUEXJJxYT/zva9c2ZrVrpEfFCWdm9EbH+jzv0/Z5AGr7ggiGfIAkGeovzGtI4+lMeX910TnWkE6NS6YzJ8mbAFGGOuDB3Wp4VgccqN3qLksd8M5KMbeXrUtpN16/1XJP03WcrSlDAS51DOAU1afUFEv1+GX2VLAWRA+KbMaKZ2Gvi6JJrWxxdHcWm5ohfWLF8stqokcZPYZsHIV/ACv9BM+x3SeqJo06DxSA7V5f1rei/X5ttZqPCWUWRRk995BVQsVg8SQ8B4gb7P6hBSV1L7fV3nNk7HwtTsSf3oP2f9BHeC9ig7wX9E6WO7LEIe4l3NKlT0lyfnRP9iMN0r761Rhy4dPNRqjA4IAjVPMtKpQXL2vjwgWs1IyS46CgYh0bzYegKl/oOwXPClpWsDYF/KS4eU+VW8AT2nkuRKm+QqV24DkgovzHv7uswnCZL2n4+Wbn1RcbZGi8PJzgMc2qVpvp/GLMuAo4YplthuXTdcywPABqe++aziGdXM8c0iMykImLXclO7+HKZskeAS1qiHnA9WudB3wEpCfkvD8efTXTuXeY6ayudabzWw/8w1zuULzN5W4d53IP3uZy+75QVz6X+zdwnK0efJytfi16k2EYhmEYhmEYhmEYhmEYhmEYhmEYhmEYhmGYK+Jf+H2FapR51q8AAAAASUVORK5CYII=" 
+      width={size} 
+      height={size} 
+      className="rounded-md"
+      alt="Coinbase Wallet"
+    />
   ),
 
   RainbowWallet: ({ size = 24 }: { size?: number }) => (
@@ -94,63 +86,43 @@ export const WalletIcons = {
   ),
 
   WalletConnect: ({ size = 24 }: { size?: number }) => (
-    <svg width={size} height={size} viewBox="0 0 100 100" className="rounded-md">
-      <defs>
-        <linearGradient id="wc-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#3B99FC"/>
-          <stop offset="100%" stopColor="#1E88E5"/>
-        </linearGradient>
-      </defs>
-      <rect width="100" height="100" rx="20" fill="url(#wc-gradient)"/>
-      <path d="M25 40 C35 30, 65 30, 75 40 M25 60 C35 70, 65 70, 75 60" stroke="white" strokeWidth="4" fill="none" strokeLinecap="round"/>
-      <circle cx="30" cy="50" r="3" fill="white"/>
-      <circle cx="70" cy="50" r="3" fill="white"/>
-    </svg>
+    <img 
+      src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOEAAADhCAMAAAAJbSJIAAAAgVBMVEX///8IiPAAf+8Age8AhPAAhvAAgu8Afe+v0vmr0Pmz1Plmq/SJvfaSwvfO4/uNwPfF3vr4/P+Duvbh7/2axvdur/ViqfS92vrs9f7V5/zI4Pvb6/wAd+6lzPjP5Psqk/FKn/M4mPJ7tvZ1svVYpfMcjvFEnPIjkfHx+f7n8v1TovMIpj9hAAAGxklEQVR4nO2ca1uyTBRGY4ZBK02lCNN6EtI8/P8f+DpqBgjsPQdm6Hr3+lz7msU9zEng7o4gCIIgCIIgCIIgCIIgCIIgCIIgCIIgCIIgCIIgCIIgCIL4nzJ/Xj5NJf+Wz3PfjbHKbJmOkyzgZYLV10v67Ltt5uwf8ixkPBQiqCLCkDPxPUr/bp6zNN/wo9yNW8kz4tFnvPDdVg12w/XRrlWukCaPHtOZ7yYrka4j3p7djSUXyZ9Jch8LRb0zIdu8/IV78mnNIg29MxFP3nwLAEwzphNfMchDnztrujX0kwj23VfHaaZ1+9U5rpa+ZWpYrizkd3UcPPZtzJnlFv0kYTT07VTiQSAndwWiTX9ux/mBWfeTsKQn65z7yG4H/SUUqW+5I7tVNwGe6UGMac2+yCbhxvMiJx906hfIiePFo98801+C4uFrbz11AexubRFuPJ12vHQ5xJQQ/MGHYOJM8Ahzv8KZfavfgkKIUCI0xl/26FhwvlVapokw4izI1kkex3GeHLJgwCO1uzhaOR1vngN86+RpWhY/vJUbuHsb5p8h9qxKEm537gT/cXy72Ofoqenq76b5Fn/mIYK9K8EFtlHybAka6JejALtxFoGjWSNFrmOiKPmHKjhdR7hrJriTJdzzO84vHOPvm32MuyMFdzLc3CMmwij4UCs6G0UIR/7UjVKVIaR4zE+96iwGD0I4rtdb4KH1ThTsS29c37+2OzJngkfFlhR5pn8UuNi0DDnuEpQ0piiY2Xauuau6TFDSkCLPTM8537b1MbqZKIrUKlrZAuR1lUMPhxnTm4aEgZ1mpLeHd5GXPfC0sjrlB1vT8TyrzI2hp98xyimy2GLpx1LpyNsPNUVFywcNxSOS0ONDKVdFYX0kSJn/BCUXRbGxv3Vbns8AhM8EJQs53ISfXWy/9/IgQQjvz00tWBBl3ZSeb4T3BCWLwXdXpWdbF4LwarDxGEazXoEdPMgYj3CT93vTEiVG70Or9fJ3w58YxywY2FScsIDZVIx5wIwUJ3IyYPYUR6d69hRzOZKbKI7Ps521FONLPVuKl13IQFtx/LOssJRi/LNUt5Ricq2nuWKc/C4NB4onZ7XEhXo2FJPfvc1AS3FcXN4zc8W4uNmykGJSqqehOClvcI0V4/Ju0lgxqdRTVhxVd/CGHfXmaMKwoybVH4dUO+ro9tcloxS/auqZKN4IqqZ4k6BhijUNMpqEXmvrKSjWCh6vku5RaE2Cp3q6io8N9dCKDYLah4W1CZ7q6fWK2gRVFOPmI3stxYYueqkHjtAf0C+8ioqtCZ7qqQ1fwAULgndwSww3aWSzQcerrnLJgARxF8ymIlgL26gL4AXD1bKniEjwVA+bopUEbSqiEpQgH5K1lKA9RbQgsmmv0EM3KoOWDUVkF73Um4D11qCg0sRjrqiQIEoRTlBxZs0NFZUSRNSznKAEWNsATVJM8FSvLUXrCZoqgsO6omIHCUr0O6qWYIviqhtB/RTBLqWouIKe6dM/EIFTzGv+C+xSLfXqLtk3KGjwCEHjbv9a/PYBDO0ET/VuU+wwQZQir6ZoJFij2LEgJsWy4gEShJ4hrSh2LohJsdhRQcEIfBOlpAjfgxZ+AVFJEb7iH4gR+veSge/GmQwyCoo8ufzlARSU8xa85v1RdJKgZIxUhBM8T8xgipeO7yhBvCJWEDPPSkVnCUomCEW4Qb9Lq5ZD50u9+A4ekqw+1QGmGMLTQHHtCCqGG7Ce5bcuwRSVBBGKELYFESkCDap2KUNFs6doOlCs2d4YKdpP0FCxdv8GzrMt9Tr6moS2YsMGFby3XQtqN6lxB66ZYneCmim2zFtal6xLQa0mtU7MGinyjj/Mo5wiMOopXzLW+ZeHFL8VAQ7riil2naCyIuIZFyXF7hOUKCiiBgWFjsocvQeMVkSuPNApuklQglRkU2Q9ZIouX5NFKXKsIDJFt+8BI97JRycoQUxCbgURigoJSuCDEseCoKJSghJA0dXXFIq0KmqMeq2K7hOUtChqrTxaFP0ItihqTsyNir4EGz8Bon3PfDTU8ybYoGiwtKpV9DHI/FLzZQWjBtUouv9cRJmbFA23NzeKfhOUVBSNV/8VRd8JSkqKFq54STHqgWBJ0cr+rTAJ9SFByXW4sXTPXC8Z782Hyy9NsnaGckmxH130zClFi0cMw0GvEpQcU4xsrjzumRA9SlAyhN9zUOKe9eBzEWVsf+nf4ac8CYIgCIIgCIIgCIIgCIIgCIIgCIIgCIIgCIIgCIIgCIIgCJf8B+fEW9+aELwEAAAAAElFTkSuQmCC" 
+      width={size} 
+      height={size} 
+      className="rounded-md"
+      alt="WalletConnect"
+    />
   ),
 
   PhantomWallet: ({ size = 24 }: { size?: number }) => (
-    <svg width={size} height={size} viewBox="0 0 100 100" className="rounded-md">
-      <defs>
-        <linearGradient id="phantom-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#AB9FF2"/>
-          <stop offset="100%" stopColor="#9A8AEE"/>
-        </linearGradient>
-      </defs>
-      <rect width="100" height="100" rx="20" fill="url(#phantom-gradient)"/>
-      <path d="M30 25 C40 15, 60 15, 70 25 L70 65 C70 75, 60 85, 50 85 C40 85, 30 75, 30 65 Z" fill="white"/>
-      <circle cx="42" cy="45" r="4" fill="#AB9FF2"/>
-      <circle cx="58" cy="45" r="4" fill="#AB9FF2"/>
-      <path d="M35 65 Q50 75, 65 65" stroke="#AB9FF2" strokeWidth="3" fill="none" strokeLinecap="round"/>
-    </svg>
+    <img 
+      src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAMAAAD04JH5AAAAXVBMVEWrn/L//fja1PX69/f39Pe4rvPp5Pbx7feuovK9s/Tk3vbd1/XPx/XHvvXm4fb28/e1qvTUzfbBuPTWz/TLwvTc1vXEu/S9tPTSyvXy7vewpfPt6Pa1q/Tl4PbFvfSPbJteAAAC5klEQVR4nO2a27KrIAyGl1LRqtRTD9a26/0fc2k9gUXQAN0ze/Ld4VB/hJCE0J8fBEEQBEEQBEEQBPmfeJbn2o9pnFQpO35ZO0j9B/F4Dsn1a+pN/fBkkEv+DXl2kqr3+JFr+TRTyLdkTo2hKQ5q+W4dSmfyUUG08h2ujJFpJn/GyRwEcsOXcmjs6/vb5Vti2/JBuEvf82529Yud8p5HbcrnO1Z/wqI3KPVbX0JiTb+GyLfuyJJLjmKYvi1vlO+1/hnfhn4AWv6e0L1+RikXGwilYndz/aM69Jy7PsnYqrqWYLCBY33W94o5fXEEplYYqPVPQ7fm3crGX90XMwTnqbE/NnaMuQkQnHZhpJ/f15QHphUuhK+9zj0uJvqNdv9PA0iF+bjNPYxCMtXpz0lP1bXqscXsDKDS6s+SVBDjfmkQjtiaKsd96Bu8W2TIwSLOdOE2oNmAA72vH41lSED40FUpJJQ0ug0wEJ/zoJ6M9ZEGz1QwHbAfSD61QEBz89KSvgc8p0abTx8aCHACLpb0oXmxtQWAboKNO2ADsGgMTIFlgLLifNvxewsnvZoEcA7+SQrRv+nfuxmQF1AVn3bygOgH9vRhK2ArCHRASiS5RX1QNrQhDdoMqDpgcA5cAnIC9qIAcAIsmiDIAiJ7Xhh2LN2SCW8EFoj3FSJVACsTkFKcFAKsC9jS935h+kfde9dy1WUKBa1NnTX69CV/7i8GAD6RanIxspIrhYvdCy8RawLBVR6pyFPMYk/w8qh6F/orNtJmvi+hGxylIw5XsrWuLjKPjDCtCnAGsja/e0qe9xuO9VZwL8yuaRRXEr1n+TDC6XauYWn9a3xjmq7r97F1uUaZcSFUZNURHQahxT70rd+LrUTjcJrbG5cxJQ6uZ+WHohf3oc3lPUhyOju4FVxZg2V2X5ZHd/fzn57gYdnOdCyqo+H3/g8xwt2NkxgY1g0pK0ppnPjM+d8gEARBEARBEARBEOQf8gc+XR+vPAbLigAAAABJRU5ErkJggg==" 
+      width={size} 
+      height={size} 
+      className="rounded-md"
+      alt="Phantom Wallet"
+    />
   ),
 
   SafePal: ({ size = 24 }: { size?: number }) => (
-    <svg width={size} height={size} viewBox="0 0 100 100" className="rounded-md">
-      <defs>
-        <linearGradient id="safepal-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#4A90E2"/>
-          <stop offset="100%" stopColor="#357ABD"/>
-        </linearGradient>
-      </defs>
-      <rect width="100" height="100" rx="20" fill="url(#safepal-gradient)"/>
-      <path d="M50 15 L25 30 L25 55 C25 70 37.5 82.5 50 85 C62.5 82.5 75 70 75 55 L75 30 Z" fill="white"/>
-      <path d="M40 45 L47 52 L60 38" stroke="#4A90E2" strokeWidth="4" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
-    </svg>
+    <img 
+      src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOEAAADhCAMAAAAJbSJIAAAAdVBMVEVKMO/////v7P0lDu45Hu6zsPetq/dKLu+IgvM5G+7GwvkwGe7Ev/iGgPODfPOEfvOAefNCJe9eXPGQg/SooPa7ufhqWfGzsvdHN+8tCe5wYfIyE+4rAu749/708f5ZUfBJPe/QyvpSSPCdkfVyZvKspvfn5fwhD1MtAAADvElEQVR4nO2djVriMBBFWwiEWhEqImLlR0Xf/xF31XXVpvRb6Ezmftl7noBj7zQ3NNosI4QQQgghhBBCCCGEEEIIIYQQQgghhBBCCCEkMt5XTghv7dKGd+X14mYkwvIWT9EX+9Egl2JVwRlWdysxvTwfr619Atz9VlKwhLuCxZWgXz4u4ATdTFRwiCc4ERWsrX0ChAXxIlrMRQXxbjJuKir4YO0TIBzR0tonoJC9gngz6GRnsMYTlI0oYFVLfplgVTtJcI0nmHpVK5KfweSrmuwVZFWLTvpVTXYdTL6qDa19AljVThOEWya88I6eVS06/2FV2wzOZou3TPggoqPdeng+zloooCm4OcBdhH4UzQ3vAe8i9CKoaku8G2EvwmVil1ZEQ8EN3ld/fWjZ0Q/wGvP5tFa1pAxbq1p/Q5wjM+07+t6GboSieOThS2/D4eYCQ/HYbqK/4SCHUDy6XZIwzC/sN8BBVZM1zC+tFTsevsgYWge1a0cvZGirWHU9m5AytAyq33cIyhkaKtaPcQzNguqfugQlDa0WjWoRzdAoqO4lnmF+aRFUN45oaDKL1XNMQ4tZ9IeohhazWL9GNTQIamelUTA0UKy7fkGhYBg/qN5dxDU0UCwv4xrGD6ovj15FHcP4i8bxoCoZAs2ilqFFUNtnUc0QZBb1DFFmUdEQZNHQNMSYRVXDfBX7AXNLUHUN83kl8sH/nVBR2fA1+imBIKjKhvl9/A1xY9HQNnyOHdMgqNqGY4PTOt59D6q24YvFeaQfs6htuIif0uznLGobPhl90/81i8qGj1Znyr6Cqmy4t3vk9qmoaxi90nzjM6iqhhPTg51/FDUNZ8YnVz+Cqmg4K0Q+Zw/eFw09Q9uIfvAWVDVDBMF3xY2S4RxC8E1x1PeTtBtOzWfwE9/7T91qiBFRIdoMpwiHFcVoMZzDRFSE9SbpiP4e5F3iglm9bAheJSbomic97KuaKL4+NKYQMKKuxy8P17tmRCdwy4Svx9vzfz4a3EXxlglfdB96O5EJnGBWywrCzaBfiwriVTVfigpewUVUegbhIpoNExf0sjcZvKomHFGcHf1fZG8yeBHNHhIXFF4mWNXiw6p2EjO8qiYbUVa1+MhGFE9QuKqhPHz5glXtNPAiKlzVpnCCrGqnARjR5Kua7FcW1udkQtKvaqI3me093BWUrWqrO8PDeEeo5F4zNhjt8f5XaeZvlzKvwbtZXJdwu8F3vNSrDCsP6UcIIYQQQgghhBBCCCGEEEIIIYQQQgghhBBC0uYXEco+M9GuUU4AAAAASUVORK5CYII=" 
+      width={size} 
+      height={size} 
+      className="rounded-md"
+      alt="SafePal Wallet"
+    />
   ),
 
   Exodus: ({ size = 24 }: { size?: number }) => (
-    <svg width={size} height={size} viewBox="0 0 100 100" className="rounded-md">
-      <defs>
-        <linearGradient id="exodus-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#7B68EE"/>
-          <stop offset="100%" stopColor="#6A4FBB"/>
-        </linearGradient>
-      </defs>
-      <rect width="100" height="100" rx="20" fill="url(#exodus-gradient)"/>
-      <circle cx="50" cy="50" r="25" fill="white"/>
-      <path d="M35 35 L65 65 M65 35 L35 65" stroke="#7B68EE" strokeWidth="6" strokeLinecap="round"/>
-      <circle cx="50" cy="50" r="8" fill="#7B68EE"/>
-    </svg>
+    <img 
+      src="data:image/jpeg;base64,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" 
+      width={size} 
+      height={size} 
+      className="rounded-md"
+      alt="Exodus Wallet"
+    />
   ),
 
   Ledger: ({ size = 24 }: { size?: number }) => (
