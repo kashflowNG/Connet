@@ -88,15 +88,14 @@ export const WalletIcons = {
     <svg width={size} height={size} viewBox="0 0 64 64" className="rounded-md">
       <defs>
         <linearGradient id="phantom-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#AB9FF2"/>
-          <stop offset="100%" stopColor="#7C3AED"/>
+          <stop offset="0%" stopColor="#534BB1"/>
+          <stop offset="100%" stopColor="#551BF9"/>
         </linearGradient>
       </defs>
       <rect width="64" height="64" rx="12" fill="url(#phantom-gradient)"/>
-      <path d="M16 22 Q16 16 22 16 L42 16 Q48 16 48 22 L48 36 Q48 48 32 54 Q16 48 16 36 Z" fill="white"/>
-      <circle cx="26" cy="28" r="2.5" fill="#7C3AED"/>
-      <circle cx="38" cy="28" r="2.5" fill="#7C3AED"/>
-      <path d="M24 38 Q32 44 40 38" stroke="#7C3AED" strokeWidth="1.5" fill="none" strokeLinecap="round"/>
+      <path d="M46.64 28.26c.16-2.79.41-6.4-4.12-6.4-7.67 0-12.14 4.43-16.89 10.45-4.6 5.88-8.77 12.37-15.67 12.37-3.64 0-4.99-2.47-4.99-4.48 0-.26.03-.53.09-.78A4.47 4.47 0 0 1 8.5 35.4C8.5 38.68 10.4 44 16.45 44c7.77 0 12.26-4.43 16.89-10.45 4.6-5.88 8.77-12.37 15.67-12.37 3.64 0 4.99 2.47 4.99 4.48 0 1.29-.46 2.51-1.29 3.5.02-.3.02-.6.02-.9z" fill="white"/>
+      <circle cx="35.5" cy="21.5" r="1.5" fill="white"/>
+      <circle cx="41.5" cy="21.5" r="1.5" fill="white"/>
     </svg>
   ),
 
@@ -104,15 +103,14 @@ export const WalletIcons = {
     <svg width={size} height={size} viewBox="0 0 64 64" className="rounded-md">
       <defs>
         <linearGradient id="safepal-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#4A90E2"/>
-          <stop offset="100%" stopColor="#2E5C8A"/>
+          <stop offset="0%" stopColor="#2C7DFA"/>
+          <stop offset="100%" stopColor="#1E5ACD"/>
         </linearGradient>
       </defs>
       <rect width="64" height="64" rx="12" fill="url(#safepal-gradient)"/>
-      <path d="M32 10 L48 20 L48 32 C48 42 42 48 32 54 C22 48 16 42 16 32 L16 20 Z" fill="white"/>
-      <path d="M32 16 L42 22 L42 32 C42 38 37 42 32 46 C27 42 22 38 22 32 L22 22 Z" fill="#4A90E2"/>
-      <rect x="29" y="29" width="6" height="10" rx="1" fill="white"/>
-      <circle cx="32" cy="27" r="2" fill="white"/>
+      <path d="M32 12 L48 20 L48 34 C48 44 42 50 32 52 C22 50 16 44 16 34 L16 20 Z" fill="white"/>
+      <path d="M24 24 L32 20 L40 24 L40 34 C40 40 36 44 32 46 C28 44 24 40 24 34 Z" fill="#2C7DFA"/>
+      <path d="M28 32 L30 34 L36 28" stroke="white" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
     </svg>
   ),
 
@@ -120,28 +118,25 @@ export const WalletIcons = {
     <svg width={size} height={size} viewBox="0 0 64 64" className="rounded-md">
       <defs>
         <linearGradient id="exodus-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#7B68EE"/>
-          <stop offset="100%" stopColor="#4B0082"/>
+          <stop offset="0%" stopColor="#0B1426"/>
+          <stop offset="100%" stopColor="#152341"/>
         </linearGradient>
       </defs>
       <rect width="64" height="64" rx="12" fill="url(#exodus-gradient)"/>
-      <circle cx="32" cy="32" r="16" fill="white"/>
-      <path d="M22 26 L32 16 L42 26 L38 30 L32 24 L26 30 Z" fill="#7B68EE"/>
-      <path d="M22 38 L32 48 L42 38 L38 34 L32 40 L26 34 Z" fill="#7B68EE"/>
-      <rect x="29" y="29" width="6" height="6" fill="#7B68EE"/>
+      <circle cx="32" cy="32" r="20" fill="white"/>
+      <path d="M24 24 L40 24 L40 26 L26 26 L26 38 L40 38 L40 40 L24 40 Z" fill="#152341"/>
+      <path d="M44 18 L44 32 L42 32 L42 20 L30 20 L30 18 Z" fill="#152341"/>
+      <path d="M30 44 L42 44 L42 32 L44 32 L44 46 L30 46 Z" fill="#152341"/>
     </svg>
   ),
 
   Ledger: ({ size = 24 }: { size?: number }) => (
     <svg width={size} height={size} viewBox="0 0 64 64" className="rounded-md">
       <rect width="64" height="64" rx="12" fill="#000000"/>
-      <rect x="12" y="20" width="40" height="24" rx="3" fill="white"/>
-      <rect x="16" y="24" width="32" height="16" rx="2" fill="#000000"/>
-      <rect x="20" y="28" width="8" height="2" fill="white"/>
-      <rect x="20" y="32" width="12" height="2" fill="white"/>
-      <rect x="20" y="36" width="10" height="2" fill="white"/>
-      <circle cx="44" cy="32" r="4" fill="white"/>
-      <circle cx="44" cy="32" r="2" fill="#000000"/>
+      <path d="M16 16 L28 16 L28 28 L40 28 L40 16 L48 16 L48 28 L48 40 L36 40 L36 48 L24 48 L24 36 L16 36 Z" fill="white"/>
+      <rect x="20" y="20" width="4" height="12" fill="#000000"/>
+      <rect x="28" y="32" width="12" height="4" fill="#000000"/>
+      <rect x="40" y="20" width="4" height="4" fill="#000000"/>
     </svg>
   ),
 
@@ -149,15 +144,15 @@ export const WalletIcons = {
     <svg width={size} height={size} viewBox="0 0 64 64" className="rounded-md">
       <defs>
         <linearGradient id="trezor-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#00B65A"/>
-          <stop offset="100%" stopColor="#008844"/>
+          <stop offset="0%" stopColor="#01B757"/>
+          <stop offset="100%" stopColor="#00AB4E"/>
         </linearGradient>
       </defs>
       <rect width="64" height="64" rx="12" fill="url(#trezor-gradient)"/>
-      <rect x="16" y="24" width="32" height="20" rx="5" fill="white"/>
-      <path d="M20 30 L29 36 L44 26" stroke="#00B65A" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
-      <rect x="26" y="14" width="12" height="10" rx="2" fill="white"/>
-      <rect x="29" y="17" width="6" height="4" fill="#00B65A"/>
+      <path d="M24 16 L40 16 L48 24 L48 40 C48 44 44 48 40 48 L24 48 C20 48 16 44 16 40 L16 24 Z" fill="white"/>
+      <path d="M24 24 L40 24 L40 40 L24 40 Z" fill="#01B757"/>
+      <path d="M28 30 L30 32 L36 26" stroke="white" strokeWidth="2" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+      <rect x="30" y="10" width="4" height="6" fill="white"/>
     </svg>
   )
 };
