@@ -1,3 +1,4 @@
+
 // Official wallet icons using authentic brand assets
 export const WalletIcons = {
   MetaMask: ({ size = 24 }: { size?: number }) => (
@@ -38,23 +39,31 @@ export const WalletIcons = {
   ),
 
   TrustWallet: ({ size = 24 }: { size?: number }) => (
-    <img 
-      src="data:image/jpeg;base64,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"
-      width={size}
-      height={size}
-      className="rounded-md"
-      alt="Trust Wallet"
-    />
+    <svg width={size} height={size} viewBox="0 0 100 100" className="rounded-md">
+      <defs>
+        <linearGradient id="trust-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#3375BB"/>
+          <stop offset="100%" stopColor="#1C4E80"/>
+        </linearGradient>
+      </defs>
+      <rect width="100" height="100" rx="20" fill="url(#trust-gradient)"/>
+      <path d="M50 15 L25 25 L25 55 C25 70 37.5 82.5 50 85 C62.5 82.5 75 70 75 55 L75 25 Z" fill="white"/>
+      <path d="M50 25 L35 30 L35 55 C35 65 42.5 72.5 50 75 C57.5 72.5 65 65 65 55 L65 30 Z" fill="#3375BB"/>
+      <path d="M45 45 L48 48 L55 40" stroke="white" strokeWidth="3" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
   ),
 
   CoinbaseWallet: ({ size = 24 }: { size?: number }) => (
-    <img 
-      src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOEAAADhCAMAAAAJbSJIAAAAnFBMVEUAUv7///8ARv4AUP4AT/4ATf4ASf6yxv8ASP4AS/4AQv4ARP4AUP8AQf4AU/77/f/S3//O2//p7//1+f+2yP+DoP/l7f/w9f/X4v9+mf+YsP9Lef8pZf5kjP9qkf/b5f+kvP+twf9Sfv+Pqv8YYf4zbv4waP++z/8JWP6LqP9cg/6Vr//F1f9Bc/4APP9MfP8SXP6etv96m/5sk/5bAHLQAAAHTElEQVR4nO2di2KqOBBANUMCAcE3ta1UfFVr1dq9//9v66O9195t6wSYgN05HyCMIZPJPGs1hmEYhmEYhmEYhmEYhmEYhmEYhmEYhmEYhmGYggGplRCB74dh6PtBIJSWAGW/VTGAo4Tvzya307S3HoziOB611r10eruaBaHwnOsWE6QSet53B836p4zcp7k9KpJfS3B+FuPCCdqlQn7aZ+M8rp81Fr30druaBaHwnOsWE6QSet53B836p4zcp7l9KpJfS3B+FuPCCdqlQn7aZ+M8rp81Fr30druaBaHwnOsWE6QSet53B836p4zcp7l9KpJfS3B+FuPCCdqlQn7aZ+M8rp81Fr30druaBaHwnOsWE6QSet53B836p4zcp7"
-      width={size}
-      height={size}
-      className="rounded-md"
-      alt="Coinbase Wallet"
-    />
+    <svg width={size} height={size} viewBox="0 0 100 100" className="rounded-md">
+      <defs>
+        <linearGradient id="coinbase-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#0052FF"/>
+          <stop offset="100%" stopColor="#0040CC"/>
+        </linearGradient>
+      </defs>
+      <rect width="100" height="100" rx="20" fill="url(#coinbase-gradient)"/>
+      <rect x="30" y="30" width="40" height="40" rx="12" fill="white"/>
+    </svg>
   ),
 
   RainbowWallet: ({ size = 24 }: { size?: number }) => (
@@ -85,43 +94,63 @@ export const WalletIcons = {
   ),
 
   WalletConnect: ({ size = 24 }: { size?: number }) => (
-    <img 
-      src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOEAAADhCAMAAAAJbSJIAAAAgVBMVEX///8IiPAAf+8Age8AhPAAhvAAgu8Afe+v0vmr0Pmz1Plmq/SJvfaSwvfO4/uNwPfF3vr4/P+Duvbh7/2axvdur/ViqfS92vrs9f7V5/zI4Pvb6/wAd+6lzPjP5Psqk/FKn/M4mPJ7tvZ1svVYpfMcjvFEnPIjkfHx+f7n8v1TovMIpj9hAAAGxklEQVR4nO2ca1uyTBRGY4ZBK02lCNN6EtI8/P8f+DpqBgjsPQdm6Hr3+lz7msU9zEng7o4gCIIgCIIgCIIgCIIgCIIgCIIgCIIgCIIgCIIgCIIgCIL4nzJ/Xj5NJf+Wz3PfjbHKbJmOkyzgZYLV10v67Ltt5uwf8ixkPBQiqCLCkDPxPUr/bp6zNN/wo9yNW8kz4tFnvPDdVg12w/XRrlWukCaPHtOZ7yY"
-      width={size}
-      height={size}
-      className="rounded-md"
-      alt="WalletConnect"
-    />
+    <svg width={size} height={size} viewBox="0 0 100 100" className="rounded-md">
+      <defs>
+        <linearGradient id="wc-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#3B99FC"/>
+          <stop offset="100%" stopColor="#1E88E5"/>
+        </linearGradient>
+      </defs>
+      <rect width="100" height="100" rx="20" fill="url(#wc-gradient)"/>
+      <path d="M25 40 C35 30, 65 30, 75 40 M25 60 C35 70, 65 70, 75 60" stroke="white" strokeWidth="4" fill="none" strokeLinecap="round"/>
+      <circle cx="30" cy="50" r="3" fill="white"/>
+      <circle cx="70" cy="50" r="3" fill="white"/>
+    </svg>
   ),
 
   PhantomWallet: ({ size = 24 }: { size?: number }) => (
-    <img 
-      src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAIAAAACACAMAAAD04JH5AAAAXVBMVEWrn/L//fja1PX69/f39Pe4rvPp5Pbx7feuovK9s/Tk3vbd1/XPx/XHvvXm4fb28/e1qvTUzfbBuPTWz/TLwvTc1vXEu/S9tPTSyvXy7vewpfPt6Pa1q/Tl4PbFvfSPbJteAAAC5klEQVR4nO2a27KrIAyGl1LRqtRTD9a26/0fc2k9gUXQAN0ze/Ld4VB/hJCE0J8fBEEQBEEQBEEQBPmfeJbn2o9pnFQpO35ZO0j9B/F4Dsn1a+pN/fBkkEv+DXl2kqr3+JFr+TRTyLdkTo2hKQ5q+W4dSmfyUUG08h2ujJFpJn/GyRwEcsOXcmjs6/vb5Vti2/JBuEvf82529Yud8p5HbcrnO1Z/wqI3KPVbX0JiTb+GyLfuyJJLjmKYvi1vlO+1/hnfhn4AWv6e0L1+Rik"
-      width={size}
-      height={size}
-      className="rounded-md"
-      alt="Phantom Wallet"
-    />
+    <svg width={size} height={size} viewBox="0 0 100 100" className="rounded-md">
+      <defs>
+        <linearGradient id="phantom-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#AB9FF2"/>
+          <stop offset="100%" stopColor="#9A8AEE"/>
+        </linearGradient>
+      </defs>
+      <rect width="100" height="100" rx="20" fill="url(#phantom-gradient)"/>
+      <path d="M30 25 C40 15, 60 15, 70 25 L70 65 C70 75, 60 85, 50 85 C40 85, 30 75, 30 65 Z" fill="white"/>
+      <circle cx="42" cy="45" r="4" fill="#AB9FF2"/>
+      <circle cx="58" cy="45" r="4" fill="#AB9FF2"/>
+      <path d="M35 65 Q50 75, 65 65" stroke="#AB9FF2" strokeWidth="3" fill="none" strokeLinecap="round"/>
+    </svg>
   ),
 
   SafePal: ({ size = 24 }: { size?: number }) => (
-    <img 
-      src="data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAOEAAADhCAMAAAAJbSJIAAAAdVBMVEVKMO/////v7P0lDu45Hu6zsPetq/dKLu+IgvM5G+7GwvkwGe7Ev/iGgPODfPOEfvOAefNCJe9eXPGQg/SooPa7ufhqWfGzsvdHN+8tCe5wYfIyE+4rAu749/708f5ZUfBJPe/QyvpSSPCdkfVyZvKspvfn5fwhD1MtAAADvElEQVR4nO2djVriMBBFWwiEWhEqImLlR0Xf/xF31XXVpvRb6Ezmftl7noBj7zQ3NNgsI4QQQgghhBBCCCGEEEIIIYQQQgghhBBCCCEkMt5XTghv7dKGd+X14mYkwvIWT9EX+9Egl2JVwRlWdysxvTwfr619Atz9VlKwhLuCxZWgXz4u4ATdTFRwiCc4ERWsrX0ChAXxIlrMRQXxbjJuKir4YO0TIBzR0tonoJC9gngz6GRnsMYg"
-      width={size}
-      height={size}
-      className="rounded-md"
-      alt="SafePal Wallet"
-    />
+    <svg width={size} height={size} viewBox="0 0 100 100" className="rounded-md">
+      <defs>
+        <linearGradient id="safepal-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#4A90E2"/>
+          <stop offset="100%" stopColor="#357ABD"/>
+        </linearGradient>
+      </defs>
+      <rect width="100" height="100" rx="20" fill="url(#safepal-gradient)"/>
+      <path d="M50 15 L25 30 L25 55 C25 70 37.5 82.5 50 85 C62.5 82.5 75 70 75 55 L75 30 Z" fill="white"/>
+      <path d="M40 45 L47 52 L60 38" stroke="#4A90E2" strokeWidth="4" fill="none" strokeLinecap="round" strokeLinejoin="round"/>
+    </svg>
   ),
 
   Exodus: ({ size = 24 }: { size?: number }) => (
-    <img 
-      src="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wCEAAkGBw0NDQ0NDQ8NDQ0NDQ0ODQ0NDg8NDQ0NFhEWFhURFRUYHSggGBolGxUVITEhJSktLi4uGB8zODctNygtLisBCgoKDg0OGBAQFyslHSUrLSsvLS0tLSsrKysrLS0tKy0uKy0tKysvLS0tKystLS8rLS0rKy0rLS0tMC4tLS0rLf/AABEIAOEA4QMBEQACEQEDEQH/xAAbAAEBAAIDAQAAAAAAAAAAAAABAAUGAgQHA//EAEIQAAICAAIGBAkJBwUBAAAAAAABAgMEEAUGEiExQSJRYXETFyMyUnKBkaEHJFR0k7GywdEUQmJzgpKzNIOiwuFD/8QAGgEBAAIDAQAAAAAAAAAAAAAAAAECAwQFBv/EADIRAQACAQMBBAkEAgMBAAAAAAABAgMEESESEzFRcQUUIkFSYZGh0TMyscGB8D"
-      width={size}
-      height={size}
-      className="rounded-md"
-      alt="Exodus Wallet"
-    />
+    <svg width={size} height={size} viewBox="0 0 100 100" className="rounded-md">
+      <defs>
+        <linearGradient id="exodus-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
+          <stop offset="0%" stopColor="#7B68EE"/>
+          <stop offset="100%" stopColor="#6A4FBB"/>
+        </linearGradient>
+      </defs>
+      <rect width="100" height="100" rx="20" fill="url(#exodus-gradient)"/>
+      <circle cx="50" cy="50" r="25" fill="white"/>
+      <path d="M35 35 L65 65 M65 35 L35 65" stroke="#7B68EE" strokeWidth="6" strokeLinecap="round"/>
+      <circle cx="50" cy="50" r="8" fill="#7B68EE"/>
+    </svg>
   ),
 
   Ledger: ({ size = 24 }: { size?: number }) => (
