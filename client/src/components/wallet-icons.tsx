@@ -38,19 +38,9 @@ export const WalletIcons = {
   ),
 
   TrustWallet: ({ size = 24 }: { size?: number }) => (
-    <svg width={size} height={size} viewBox="0 0 512 512" className="rounded-md">
-      <defs>
-        <linearGradient id="trust-gradient" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#0500FF"/>
-          <stop offset="100%" stopColor="#3375BB"/>
-        </linearGradient>
-      </defs>
-      <rect width="512" height="512" rx="60" fill="url(#trust-gradient)"/>
-      <path d="M256 64 L384 128 L384 256 C384 352 320 416 256 480 C192 416 128 352 128 256 L128 128 Z" fill="white"/>
-      <path d="M256 128 L320 160 L320 240 C320 288 288 320 256 352 C224 320 192 288 192 240 L192 160 Z" fill="#3375BB"/>
-      <circle cx="224" cy="208" r="12" fill="white"/>
-      <circle cx="288" cy="208" r="12" fill="white"/>
-      <path d="M216 264 Q256 288 296 264" stroke="white" strokeWidth="8" fill="none" strokeLinecap="round"/>
+    <svg width={size} height={size} viewBox="0 0 236 237" className="rounded-md">
+      <rect width="236" height="237" rx="20" fill="white"/>
+      <path d="M116.402 7C142.435 26.9655 172.288 25.7342 180.817 25.7342C178.952 139.282 164.736 124.154 116.402 155.994C68.068 124.154 53.941 139.282 52.0752 25.7342C60.5159 25.7342 90.3691 26.9655 116.402 7Z" stroke="#3375BB" strokeWidth="12.2989" strokeMiterlimit="10" strokeLinecap="round" strokeLinejoin="round" fill="none"/>
     </svg>
   ),
 
@@ -64,24 +54,33 @@ export const WalletIcons = {
   RainbowWallet: ({ size = 24 }: { size?: number }) => (
     <svg width={size} height={size} viewBox="0 0 120 120" className="rounded-md">
       <defs>
-        <linearGradient id="rainbow-gradient-official" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#174299"/>
-          <stop offset="25%" stopColor="#001E59"/>
-          <stop offset="50%" stopColor="#FF6B35"/>
-          <stop offset="75%" stopColor="#F7931E"/>
-          <stop offset="100%" stopColor="#FFE924"/>
+        <linearGradient id="paint0_linear_rainbow" x1="60" y1="0" x2="60" y2="120" gradientUnits="userSpaceOnUse">
+          <stop stopColor="#174299"/>
+          <stop offset="1" stopColor="#001E59"/>
         </linearGradient>
+        <radialGradient id="paint1_radial_rainbow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(26 94) rotate(-90) scale(74)">
+          <stop offset="0.770277" stopColor="#FF4000"/>
+          <stop offset="1" stopColor="#8754C9"/>
+        </radialGradient>
+        <radialGradient id="paint4_radial_rainbow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(26 94) rotate(-90) scale(58)">
+          <stop offset="0.723929" stopColor="#FFF700"/>
+          <stop offset="1" stopColor="#FF9901"/>
+        </radialGradient>
+        <radialGradient id="paint7_radial_rainbow" cx="0" cy="0" r="1" gradientUnits="userSpaceOnUse" gradientTransform="translate(26 94) rotate(-90) scale(42)">
+          <stop offset="0.59513" stopColor="#00AAFF"/>
+          <stop offset="1" stopColor="#01DA40"/>
+        </radialGradient>
       </defs>
-      <rect width="120" height="120" rx="24" fill="url(#rainbow-gradient-official)"/>
-      <path d="M60 20 C40 20 24 36 24 56 C24 76 40 92 60 92 C80 92 96 76 96 56 C96 36 80 20 60 20 Z M60 30 C74 30 86 42 86 56 C86 70 74 82 60 82 C46 82 34 70 34 56 C34 42 46 30 60 30 Z" fill="white"/>
-      <circle cx="60" cy="56" r="20" fill="url(#rainbow-gradient-official)"/>
+      <rect width="120" height="120" fill="url(#paint0_linear_rainbow)"/>
+      <path d="M20 38H26C56.9279 38 82 63.0721 82 94V100H94C97.3137 100 100 97.3137 100 94C100 53.1309 66.8691 20 26 20C22.6863 20 20 22.6863 20 26V38Z" fill="url(#paint1_radial_rainbow)"/>
+      <path d="M20 36H26C58.0325 36 84 61.9675 84 94V100H66V94C66 71.9086 48.0914 54 26 54H20V36Z" fill="url(#paint4_radial_rainbow)"/>
+      <path d="M20 62C20 65.3137 22.6863 68 26 68C40.3594 68 52 79.6406 52 94C52 97.3137 54.6863 100 58 100H68V94C68 70.804 49.196 52 26 52H20V62Z" fill="url(#paint7_radial_rainbow)"/>
     </svg>
   ),
 
   WalletConnect: ({ size = 24 }: { size?: number }) => (
-    <svg width={size} height={size} viewBox="0 0 512 512" className="rounded-md">
-      <rect width="512" height="512" rx="64" fill="#3396ff"/>
-      <path d="m126.613 93.9842c62.622-61.3123 164.152-61.3123 226.775 0l7.536 7.3788c3.131 3.066 3.131 8.036 0 11.102l-25.781 25.242c-1.566 1.533-4.104 1.533-5.67 0l-10.371-10.154c-43.687-42.7734-114.517-42.7734-158.204 0l-11.107 10.874c-1.565 1.533-4.103 1.533-5.669 0l-25.781-25.242c-3.132-3.066-3.132-8.036 0-11.102zm280.093 52.2038 22.946 22.465c3.131 3.066 3.131 8.036 0 11.102l-103.463 101.301c-3.131 3.065-8.208 3.065-11.339 0l-73.432-71.896c-.783-.767-2.052-.767-2.835 0l-73.43 71.896c-3.131 3.065-8.208 3.065-11.339 0l-103.4657-101.302c-3.1311-3.066-3.1311-8.036 0-11.102l22.9456-22.466c3.1311-3.065 8.2077-3.065 11.3388 0l73.4333 71.897c.782.767 2.051.767 2.834 0l73.429-71.897c3.131-3.065 8.208-3.065 11.339 0l73.433 71.897c.783.767 2.052.767 2.835 0l73.431-71.895c3.132-3.066 8.208-3.066 11.339 0z" fill="white" transform="translate(0, 80) scale(1.2)"/>
+    <svg width={size} height={size} viewBox="0 0 480 332" className="rounded-md" style={{background: '#3396ff', borderRadius: '8px', padding: '4px'}}>
+      <path d="m126.613 93.9842c62.622-61.3123 164.152-61.3123 226.775 0l7.536 7.3788c3.131 3.066 3.131 8.036 0 11.102l-25.781 25.242c-1.566 1.533-4.104 1.533-5.67 0l-10.371-10.154c-43.687-42.7734-114.517-42.7734-158.204 0l-11.107 10.874c-1.565 1.533-4.103 1.533-5.669 0l-25.781-25.242c-3.132-3.066-3.132-8.036 0-11.102zm280.093 52.2038 22.946 22.465c3.131 3.066 3.131 8.036 0 11.102l-103.463 101.301c-3.131 3.065-8.208 3.065-11.339 0l-73.432-71.896c-.783-.767-2.052-.767-2.835 0l-73.43 71.896c-3.131 3.065-8.208 3.065-11.339 0l-103.4657-101.302c-3.1311-3.066-3.1311-8.036 0-11.102l22.9456-22.466c3.1311-3.065 8.2077-3.065 11.3388 0l73.4333 71.897c.782.767 2.051.767 2.834 0l73.429-71.897c3.131-3.065 8.208-3.065 11.339 0l73.433 71.897c.783.767 2.052.767 2.835 0l73.431-71.895c3.132-3.066 8.208-3.066 11.339 0z" fill="white"/>
     </svg>
   ),
 
