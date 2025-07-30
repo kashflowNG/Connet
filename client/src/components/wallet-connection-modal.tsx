@@ -27,21 +27,21 @@ export default function WalletConnectionModal({
     const updateWalletOptions = () => {
       const env = WalletDetector.detectEnvironment();
       const baseOptions = WalletDetector.generateWalletOptions();
-      
+
       // Combine with icon configs
       const fullOptions = baseOptions.map(option => ({
         ...option,
         icon: WALLET_CONFIGS[option.id as keyof typeof WALLET_CONFIGS]?.icon || (() => <Wallet size={24} />),
         color: WALLET_CONFIGS[option.id as keyof typeof WALLET_CONFIGS]?.color || '#666666',
       }));
-      
+
       setEnvironment(env);
       setWalletOptions(fullOptions);
     };
 
     // Initial detection
     updateWalletOptions();
-    
+
     // Re-check wallet status when window regains focus (user returns from wallet app)
     const handleFocus = () => {
       setTimeout(updateWalletOptions, 500); // Small delay to let wallet inject
@@ -53,7 +53,7 @@ export default function WalletConnectionModal({
 
   const handleWalletOption = async (optionId: string) => {
     setSelectedMethod(optionId);
-    
+
     const option = walletOptions.find(w => w.id === optionId);
     if (!option) return;
 
@@ -134,68 +134,96 @@ export default function WalletConnectionModal({
             </Alert>
           )}
 
-          <div className="space-y-3">
-            {/* Show all available wallets with professional styling */}
+          <div className="space-y-2">
+            {/* Show all available wallets with sleek text-only styling */}
             {walletOptions.map((wallet) => (
               <Button
                 key={wallet.id}
-                variant="outline"
+                variant="ghost"
                 onClick={() => handleWalletOption(wallet.id)}
-                className={`w-full justify-start h-auto p-4 border-2 transition-all duration-200 hover:shadow-lg
+                className={`w-full h-auto p-0 border-0 transition-all duration-500 group relative overflow-hidden rounded-xl
                   ${wallet.installed 
-                    ? 'border-green-300 bg-green-50 hover:bg-green-100 hover:border-green-400' 
-                    : 'border-gray-200 hover:border-blue-300 hover:bg-blue-50'
+                    ? 'hover:scale-[1.02] hover:shadow-2xl' 
+                    : 'hover:scale-[1.01] hover:shadow-xl'
                   }`}
-                style={{
-                  borderColor: wallet.installed ? '#10B981' : undefined,
-                }}
               >
-                <div className="flex items-center space-x-4 w-full">
-                  <div 
-                    className="w-10 h-10 rounded-lg flex items-center justify-center shadow-sm"
-                    style={{ backgroundColor: `${wallet.color}15` }}
-                  >
-                    <wallet.icon size={28} />
-                  </div>
-                  <div className="flex-1 text-left">
-                    <div className="font-semibold text-gray-900 flex items-center">
-                      {wallet.name}
+                <div className={`w-full p-6 rounded-xl transition-all duration-500 relative z-10
+                  ${wallet.installed 
+                    ? 'bg-gradient-to-br from-emerald-500 via-teal-500 to-cyan-500 text-white shadow-lg hover:shadow-emerald-300/50' 
+                    : 'bg-gradient-to-br from-slate-800 via-gray-800 to-zinc-800 text-white hover:from-slate-700 hover:via-gray-700 hover:to-zinc-700 shadow-lg hover:shadow-slate-400/30'
+                  }`}
+                >
+                  <div className="flex items-center justify-between w-full">
+                    <div className="text-left">
+                      <div className={`font-bold text-xl mb-2 transition-all duration-300 group-hover:tracking-wider
+                        ${wallet.installed ? 'text-white' : 'text-white'}`}>
+                        {wallet.name}
+                      </div>
+                      <div className={`text-sm transition-all duration-300 opacity-80 group-hover:opacity-100
+                        ${wallet.installed ? 'text-emerald-100' : 'text-gray-300'}`}>
+                        {wallet.description}
+                      </div>
+                    </div>
+
+                    <div className="flex items-center space-x-3">
                       {wallet.installed && (
-                        <span className="ml-2 text-xs bg-green-500 text-white px-2 py-1 rounded-full font-medium">
-                          ✓ Installed
-                        </span>
+                        <div className="flex items-center space-x-2 bg-white/20 backdrop-blur-sm text-white px-4 py-2 rounded-full text-xs font-bold shadow-lg border border-white/30">
+                          <div className="w-2 h-2 bg-white rounded-full animate-pulse shadow-lg"></div>
+                          <span className="tracking-wide">READY</span>
+                        </div>
+                      )}
+
+                      {!wallet.installed && (wallet.deepLink || wallet.installUrl) && (
+                        <div className="bg-white/10 backdrop-blur-sm p-3 rounded-full border border-white/20 shadow-lg">
+                          <ExternalLink className="w-4 h-4 text-white" />
+                        </div>
                       )}
                     </div>
-                    <div className="text-sm text-gray-600 mt-1">{wallet.description}</div>
                   </div>
-                  {wallet.deepLink || wallet.installUrl ? (
-                    <ExternalLink className="w-4 h-4 text-gray-400" />
-                  ) : (
-                    <div className="w-4 h-4" /> // Placeholder for alignment
-                  )}
                 </div>
+
+                {/* Cool animated background effects */}
+                <div className={`absolute inset-0 rounded-xl transition-all duration-700 opacity-0 group-hover:opacity-100
+                  ${wallet.installed 
+                    ? 'bg-gradient-to-r from-emerald-600/20 via-teal-600/20 to-cyan-600/20' 
+                    : 'bg-gradient-to-r from-blue-600/20 via-purple-600/20 to-indigo-600/20'
+                  }`}></div>
+
+                {/* Subtle shine effect */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 rounded-xl"></div>
               </Button>
             ))}
-            
+
             {/* Manual URL copy option for mobile */}
             {environment.isMobile && (
-              <div className="pt-2 border-t border-gray-200">
-                <Button
-                  variant="outline"
+              <Button
+                  variant="ghost"
                   onClick={copyUrlToClipboard}
-                  className="w-full justify-start h-auto p-4 border-gray-200 hover:border-gray-300 hover:bg-gray-50"
+                  className="w-full h-auto p-0 border-0 transition-all duration-500 group relative overflow-hidden rounded-xl hover:scale-[1.01] hover:shadow-xl mt-4"
                 >
-                  <div className="flex items-center space-x-4 w-full">
-                    <div className="w-10 h-10 bg-gray-100 rounded-lg flex items-center justify-center">
-                      <Copy className="w-5 h-5 text-gray-600" />
-                    </div>
-                    <div className="flex-1 text-left">
-                      <div className="font-semibold text-gray-900">Copy URL</div>
-                      <div className="text-sm text-gray-600 mt-1">Manually open in any wallet browser</div>
+                  <div className="w-full p-6 rounded-xl bg-gradient-to-br from-orange-500 via-amber-500 to-yellow-500 text-white shadow-lg hover:shadow-orange-300/50 transition-all duration-500 relative z-10">
+                    <div className="flex items-center justify-between w-full">
+                      <div className="text-left">
+                        <div className="font-bold text-xl mb-2 text-white transition-all duration-300 group-hover:tracking-wider">
+                          Copy URL
+                        </div>
+                        <div className="text-sm text-orange-100 opacity-80 group-hover:opacity-100 transition-all duration-300">
+                          Manually open in any wallet browser
+                        </div>
+                      </div>
+
+                      <div className="bg-white/20 backdrop-blur-sm p-3 rounded-full border border-white/30 shadow-lg">
+                        <Copy className="w-4 h-4 text-white" />
+                      </div>
                     </div>
                   </div>
+
+                  {/* Cool animated background effects */}
+                  <div className="absolute inset-0 rounded-xl bg-gradient-to-r from-orange-600/20 via-amber-600/20 to-yellow-600/20 opacity-0 group-hover:opacity-100 transition-all duration-700"></div>
+
+                  {/* Subtle shine effect */}
+                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/5 to-transparent translate-x-[-100%] group-hover:translate-x-[100%] transition-transform duration-1000 rounded-xl"></div>
                 </Button>
-              </div>
             )}
           </div>
 
